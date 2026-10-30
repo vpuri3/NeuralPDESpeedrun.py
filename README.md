@@ -20,6 +20,9 @@ uv run python -m speedrun.run_submission --submission submission_PR0001 --gpus 0
 uv run python -m speedrun.records --track all                       # leaderboards, plots, READMEs
 ```
 
+The environment targets H100 GPUs (NVIDIA driver ≥ 580): `uv sync` installs torch 2.15 built for CUDA 13.2;
+submissions that use JAX add it with its CUDA 13 wheels (`jax[cuda13]`).
+
 Reference solutions are not in git. They are assets of the GitHub release
 [`refs-v1`](https://github.com/vpuri3/NeuralPDESpeedrun.py/releases/tag/refs-v1), downloaded into
 `tracks/<track>/reference/ref.npz` the first time a track is scored and checked against the sha256 in its

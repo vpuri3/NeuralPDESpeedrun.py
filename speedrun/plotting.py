@@ -51,10 +51,11 @@ def _cbar(fig, ax, im):
     cb.update_ticks()
 
 
+CMAP = "jet"          # high-contrast filled contours, as in the PINN benchmark papers
+
+
 def _cmap_for(name, F, cmaps):
-    if cmaps and name in cmaps:
-        return cmaps[name]
-    return "RdBu_r" if F.min() < 0 < F.max() and abs(F.min()) > 0.05 * abs(F.max()) else "viridis"
+    return CMAP
 
 
 def line(x, ys: dict, path: Path, title="", xlabel="x", ylabel="u"):
@@ -79,7 +80,7 @@ def fields2d(x, y, fields: dict, path: Path, suptitle="", cmap=None, streamplot=
                             layout="constrained")
     for ax, (k, F) in zip(axs[0], fields.items()):
         F = _np(F)
-        cm = cmap or _cmap_for(k, F, cmaps)
+        cm = _cmap_for(k, F, cmaps)
         lo, hi = _norm(F, cm)
         im = _contour(ax, xs, ys, F.T, cm, lo, hi)
         ax.set(title=k, xlabel="x", ylabel="y", aspect="equal")
@@ -96,7 +97,7 @@ def fields2d(x, y, fields: dict, path: Path, suptitle="", cmap=None, streamplot=
 def spacetime(x, t, U, path: Path, title="", xlabel="x", cmap=None):
     """U[it, ix] as a space-time heatmap (x horizontal, t vertical)."""
     U = _np(U)
-    cm = cmap or _cmap_for("u", U, None)
+    cm = _cmap_for("u", U, None)
     lo, hi = _norm(U, cm)
     fig, ax = plt.subplots(figsize=(7, 4), layout="constrained")
     im = _contour(ax, _np(x), _np(t), U, cm, lo, hi)

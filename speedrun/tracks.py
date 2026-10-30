@@ -27,7 +27,7 @@ TRACKS = [
     "track07_LidDrivenCavity",        # lid-driven cavity, Re = 5000, steady (published data)
     "track08_DecayingEddies",         # decaying eddies (Walsh 1992), periodic
     "track09_CylinderFlow",           # flow past a cylinder (TODO)
-    "track10_BeltramiFlow",           # 3D unsteady Beltrami flow, Re = 1 (TODO)
+    "track10_BeltramiFlow",           # 3D unsteady Beltrami flow, Re = 1 (exact solution)
     "track11_AllenCahn",              # Allen-Cahn, periodic (published data)
     "track12_KdV",                    # Korteweg-de Vries, periodic (published data)
     "track13_GreyScott",              # Grey-Scott reaction-diffusion, 2D periodic (published data)

@@ -127,7 +127,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 07 LidDrivenCavity | — | | | | |
 | 08 DecayingEddies | — | | | | |
 | 09 CylinderFlow | *TODO* | | | | |
-| 10 BeltramiFlow | *TODO* | | | | |
+| 10 BeltramiFlow | — | | | | |
 | 11 AllenCahn | — | | | | |
 | 12 KdV | — | | | | |
 | 13 GreyScott | — | | | | |
@@ -232,9 +232,12 @@ Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + co
 ### 09 CylinderFlow: TODO
 Flow past a cylinder; see `tracks/track09_CylinderFlow/TODO.md`.
 
-### 10 BeltramiFlow: TODO
-3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1] with the Ethier–Steinman exact solution (as in
-arXiv:2402.10680, §4.2); see `tracks/track10_BeltramiFlow/TODO.md`.
+### 10 BeltramiFlow
+3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1]: the Ethier–Steinman Beltrami flow (a = d = 1). Initial and
+Dirichlet velocity on all six faces come from the exact solution. Output: (u, v, w) at t = 0.25, 0.5, 0.75, 1 on 33³.
+Reference: closed form.
+
+<img src="tracks/track10_BeltramiFlow/figures/reference.png" width="100%" alt="10 reference">
 
 ### 11 AllenCahn
 `u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.

@@ -172,7 +172,8 @@ def snapshot_rows(x, y, fields: dict, times, path: Path, n=4, title="", cmaps=No
     (Fig. 3a / 3e style). fields[name][k, i, j] = f(x_i, y_j, t_k)."""
     xs, ys, times = _np(x), _np(y), _np(times)
     F = {k: _np(v) for k, v in fields.items()}
-    idx = np.linspace(0, len(times) - 1, n + 1).round().astype(int)[1:]
+    idx = (np.arange(len(times)) if n >= len(times) else
+           np.linspace(0, len(times) - 1, n + 1).round().astype(int)[1:])
     aspect = (ys.max() - ys.min()) / (xs.max() - xs.min())
     w = 2.6 if aspect <= 1.2 else 1.6
     fig, axs = plt.subplots(len(F), n, figsize=(w * n + 1.2, w * aspect * len(F) + 0.6), squeeze=False,

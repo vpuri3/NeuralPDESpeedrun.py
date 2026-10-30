@@ -10,7 +10,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   check by torch-op device accounting. Per-axis `Problem.periodic` flags.
 - Track set (two-digit numbers): 01 VanDerPol, 02 DampedWave, 03 HighContrastDiffusion, 04A Helmholtz (on hold),
   04B AdvectionDiffusion, 05A Burgers1D, 05B Burgers2D, 05C KuramotoSivashinsky, 06 Kovasznay, 07 LidDrivenCavity,
-  08 DecayingEddies, 09 CylinderFlow (TODO), 10 BeltramiFlow (TODO), 11 AllenCahn, 12 KdV, 13 GreyScott,
+  08 DecayingEddies, 09 CylinderFlow (TODO), 10 BeltramiFlow, 11 AllenCahn, 12 KdV, 13 GreyScott,
   14 GinzburgLandau, 15 RayleighTaylor, 16 KolmogorovFlow.
 - **Benchmark tracks (05C, 07, 11–16)** come from the PirateNet / SOAP-for-PINNs study (Wang et al.; data from
   github.com/PredictiveIntelligenceLab/jaxpi, branch `pirate`, commit 9b5196b). References are their published
@@ -35,7 +35,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 | 07 | published data (Re = 5000) | — | | | |
 | 08 | closed form | Fourier vorticity N=32 | 0.13 s | 1.9e-15 | 7.7e-15 |
 | 09 | *TODO* | | | | |
-| 10 | *TODO* | | | | |
+| 10 | closed form (Ethier–Steinman) | — | | | |
 | 11–16 | published data | — | | | |
 
 ## 2. Harness notes
@@ -91,7 +91,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 ### Deferred
 
 - [ ] **04A Helmholtz: on hold** (resonant as specified; needs absorption).
-- [ ] **09 CylinderFlow**, **10 BeltramiFlow**: set-up notes in their `TODO.md`.
+- [ ] **09 CylinderFlow**: set-up notes in `tracks/track09_CylinderFlow/TODO.md`.
 - [ ] Classical baselines for the benchmark tracks (05C, 07, 11–16), if wanted.
 
 ## 5. Open questions

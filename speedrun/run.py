@@ -7,25 +7,29 @@
 A submission is a directory `tracks/<track>/submissions/submission_PR<NNNN>/` (or a single .py file while
 developing) whose `solve.py` defines
 
-    def setup(problem) -> state               # untimed: build / compile, no training      (OPTIONAL)
-    def step(problem, state) -> (state, done) # timed: one chunk of work (e.g. 100 optimizer steps)
-    def query(problem, state) -> array        # timed separately, <= 5 s: the solution at problem.axes,
-                                              # shape problem.out_shape (torch, JAX or numpy)
+    def setup(problem) -> state                      # untimed: build / compile, no training     (OPTIONAL)
+    def solve(problem, state, checkpoint) -> state   # timed: train / iterate, as long as it likes
+    def query(problem, state) -> array               # timed separately, <= 5 s: the solution at problem.axes,
+                                                     # shape problem.out_shape (torch, JAX or numpy)
 
-The harness owns the clock and the budget: it calls `step` until it returns done = True or the track's
-wall-clock budget (problem.budget_s) is used up, synchronizing the device (torch and JAX) after every step.
-Make a step a chunk of work of ~0.1-1 s so that the per-step synchronization is negligible. A one-shot solver
-may define `solve(problem, state) -> state` instead of `step` (one step, done). If the final state is a tensor of
-shape problem.out_shape, it is the output and `query` is not called (how the classical baselines work).
-Without `setup`, the first step receives state = None. The score time is solve + query; a query slower than
-QUERY_LIMIT_S fails the run. `setup` must not train on the problem or compute any part of its solution.
+The harness owns the clock and the budget. `solve` may loop forever; every so often (e.g. every 10-100
+iterations) it calls `checkpoint(state)` with a state `query` can evaluate. Once the track's wall-clock budget
+(problem.budget_s) is used up, the harness interrupts `solve` (checkpoint raises BudgetExceeded; a SIGALRM
+ALARM_GRACE_S later is the backstop for long stretches without checkpoints) and queries the last checkpointed
+state. `solve` may also return early with its final state. checkpoint() only keeps a reference: a checkpointed
+state must not be modified in place afterwards (JAX arrays are immutable; snapshot torch tensors). One-shot
+solvers may define `solve(problem, state)` without the checkpoint argument. If the final state is a tensor of
+shape problem.out_shape, it is the output and `query` is not called (how the classical baselines work). Without
+`setup`, `solve` receives state = None. The score time is solve + query; a query slower than QUERY_LIMIT_S
+fails the run. `setup` must not train on the problem or compute any part of its solution.
 
 Protocol (rules: README.md):
   1. seed everything (seed 0), build the Problem on the target device
   2. init CUDA libraries (problem-independent), state = setup(problem) if present (untimed)
-  3. synchronize, clock the step loop, synchronize; then clock `query(problem, state)` the same way
+  3. synchronize, clock `solve` (until it returns or the budget is used), synchronize; then clock `query` the same
+     way, on the returned or last checkpointed state
   4. only THEN is the reference loaded and the returned array scored
-  5. (untimed) device check: setup + a DEVICE_CHECK_BUDGET_S step loop + query once more under op counting; the
+  5. (untimed) device check: setup + solve with a DEVICE_CHECK_BUDGET_S budget + query once more under op counting; the
      reported hardware is the GPU only if essentially all tensor work ran on it (speedrun/devicecheck.py).
 """
 from __future__ import annotations
@@ -36,7 +40,9 @@ import importlib.util
 import json
 import os
 import platform
+import inspect
 import resource
+import signal
 import subprocess
 import sys
 import time
@@ -55,6 +61,26 @@ from .tracks import ROOT, load_problem, load_reference, resolve, track_dir  # no
 
 QUERY_LIMIT_S = 5.0
 DEVICE_CHECK_BUDGET_S = 10.0
+ALARM_GRACE_S = 1.0     # the hard interrupt (SIGALRM) comes this long after the budget
+
+
+class BudgetExceeded(BaseException):
+    """Raised inside `solve` once the budget is used up. A BaseException, so `except Exception` in a submission
+    does not swallow it."""
+
+
+class Checkpoint:
+    """The `checkpoint` callable handed to `solve`: checkpoint(state) makes `state` the current answer and raises
+    BudgetExceeded once the budget is used up."""
+
+    def __init__(self, budget_s: float):
+        self.deadline = time.perf_counter() + budget_s
+        self.state, self.count = None, 0
+
+    def __call__(self, state):
+        self.state, self.count = state, self.count + 1
+        if time.perf_counter() >= self.deadline:
+            raise BudgetExceeded
 
 
 def _jax_arrays(tree):
@@ -139,28 +165,40 @@ def needs_query(mod, state, problem) -> bool:
     return True
 
 
-def solve_loop(mod, problem, state, budget_s: float, device: str) -> tuple:
-    """The timed part of a run: step until done or out of budget. Returns (state, steps, stop reason)."""
-    if not hasattr(mod, "step"):
-        state = mod.solve(problem, state)
-        _sync(device, state)
-        return state, 1, "done"
-    t0, steps = time.perf_counter(), 0
-    while True:
-        state, done = mod.step(problem, state)
-        steps += 1
-        _sync(device, state)
-        if done:
-            return state, steps, "done"
-        if time.perf_counter() - t0 >= budget_s:
-            return state, steps, "budget"
+def _takes_checkpoint(fn) -> bool:
+    ps = list(inspect.signature(fn).parameters.values())
+    return len(ps) >= 3 or any(p.kind == p.VAR_POSITIONAL for p in ps)
+
+
+def _alarm(signum, frame):
+    raise BudgetExceeded
+
+
+def timed_solve(mod, problem, state, budget_s: float, device: str) -> tuple:
+    """The timed part of a run: `solve` until it returns or the budget is used up. Returns (state, number of
+    checkpoints, stop reason)."""
+    ck = Checkpoint(budget_s)
+    args = (problem, state, ck) if _takes_checkpoint(mod.solve) else (problem, state)
+    previous = signal.signal(signal.SIGALRM, _alarm)
+    signal.setitimer(signal.ITIMER_REAL, budget_s + ALARM_GRACE_S)
+    try:
+        state, stop = mod.solve(*args), "done"
+    except BudgetExceeded:
+        if ck.count == 0:
+            raise RuntimeError(f"budget of {budget_s:g} s used up before the first checkpoint") from None
+        state, stop = ck.state, "budget"
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+    _sync(device, state)
+    return state, ck.count, stop
 
 
 def run_submission(mod, problem, budget_s: float = DEVICE_CHECK_BUDGET_S):
-    """setup -> step loop -> query, untimed (used by the device check)."""
+    """setup -> solve (short budget) -> query, untimed (used by the device check)."""
     device = problem.device
     state = mod.setup(problem) if hasattr(mod, "setup") else None
-    state, _, _ = solve_loop(mod, problem, state, budget_s, device)
+    state, _, _ = timed_solve(mod, problem, state, budget_s, device)
     return mod.query(problem, state) if needs_query(mod, state, problem) else state
 
 
@@ -200,7 +238,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     budget_s = problem.budget_s if budget_s is None else budget_s
     _sync(device)
     t0 = time.perf_counter()
-    state, steps, stop = solve_loop(mod, problem, state, budget_s, device)
+    state, checkpoints, stop = timed_solve(mod, problem, state, budget_s, device)
     solve_s = time.perf_counter() - t0
     query_s = 0.0
     u = state
@@ -239,7 +277,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         "time_s": elapsed,
         "solve_time_s": solve_s,
         "query_time_s": query_s,
-        "steps": steps,
+        "checkpoints": checkpoints,
         "stop": stop,
         "budget_s": budget_s,
         "rel_l2": s["rel_l2"],
@@ -262,7 +300,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     if not quiet:
         status = "PASS" if result["passed"] else "FAIL"
         q = f" (solve {solve_s:.4f} + query {query_s:.4f}{'' if query_ok else ' > limit'})" if query_s else ""
-        q += f" [{steps} steps, stopped: {stop}]" if steps > 1 or stop != "done" else ""
+        q += f" [{checkpoints} checkpoints, stopped: {stop}]" if checkpoints or stop != "done" else ""
         print(f"[{track}] {status}  time={elapsed:.4f}s{q}  relL2={s['rel_l2']:.3e} (<= {problem.rel_l2_tol:g})  "
               f"Linf={s['linf']:.3e} (<= {problem.linf_tol:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
     if out:

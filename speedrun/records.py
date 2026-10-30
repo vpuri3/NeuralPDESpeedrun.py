@@ -48,8 +48,8 @@ def add_entry(track: str, result_json: str, name: str, kind: str, author: str = 
              "time_s": r["time_s"], "solve_time_s": r.get("solve_time_s", r["time_s"]),
              "query_time_s": r.get("query_time_s", 0.0), "rel_l2": r["rel_l2"], "linf": r["linf"],
              "passed": r["passed"], "hardware": r["hardware"], "kind": kind, "pr": pr}
-    if "steps" in r:
-        entry.update(steps=r["steps"], stop=r["stop"], budget_s=r["budget_s"])
+    if "stop" in r:
+        entry.update(stop=r["stop"], budget_s=r["budget_s"])
     recs = [e for e in load_records(track) if e.get("submission") != r["submission"]]
     save_records(track, recs + [entry])
     return entry

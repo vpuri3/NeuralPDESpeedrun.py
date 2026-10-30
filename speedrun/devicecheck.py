@@ -1,4 +1,4 @@
-"""Where does a submission actually compute? Counts every aten op of one setup + step loop + query by the device of its
+"""Where does a submission actually compute? Counts every aten op of one setup + solve + query by the device of its
 tensors, so a run on a CUDA problem whose work silently happens on the CPU is reported as such.
 
 Used by the harness (an extra, untimed run after scoring); standalone:
@@ -46,7 +46,7 @@ class _Count(TorchDispatchMode):
 
 
 def check(run, problem) -> dict:
-    """Run run(problem) once under op counting (setup + a short step loop + query). `gpu_fraction` = share of tensor work
+    """Run run(problem) once under op counting (setup + solve with a short budget + query). `gpu_fraction` = share of tensor work
     on CUDA."""
     with _Count() as c:
         out = run(problem)

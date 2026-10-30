@@ -34,7 +34,7 @@ can be named in full (`track03_1DT_Burgers`) or by key (`03`).
 
 ## Scoring
 
-Score = wall-clock time of the solve (the harness's step loop) + `query`, provided the output meets the track's
+Score = wall-clock time of `solve` + `query`, provided the output meets the track's
 accuracy bar against the reference on all fields and evaluation points:
 
 - **RelL2** `‖u − u_ref‖₂ / ‖u_ref‖₂ ≤ 1e-4`
@@ -42,7 +42,8 @@ accuracy bar against the reference on all fields and evaluation points:
 
 Tracks may override the bar or exclude a wall margin from L∞. Pressure is never scored. Each track has a
 wall-clock budget for the solve (`problem.budget_s`, 1000 s unless the track says otherwise), enforced by the
-harness: it stops calling `step` once the budget is used, and the run is scored on what `query` then returns.
+harness: once it is used up, the harness interrupts `solve` and scores what `query` returns for the last
+checkpointed state.
 
 ## Rules
 
@@ -51,11 +52,11 @@ harness: it stops calling `step` once the budget is used, and the run is scored 
 2. **Anything else goes.** Any model, ansatz, loss, optimizer, discretization, precision, or mix of neural and
    classical parts. PyTorch, JAX, and Julia are all fine (the entry point is Python; `Problem` callables accept
    torch or JAX arrays), and so are hand-written GPU kernels (Triton, CUDA, ...).
-3. **No oracle.** The method decides when to stop (`done`), within the budget; it is scored once, on what it
-   returns. The reference is loaded only after the clock stops.
+3. **No oracle.** The method decides when to stop (return from `solve`), within the budget; it is scored once,
+   on what it returns or last checkpointed. The reference is loaded only after the clock stops.
 4. **Timing.** `setup` is untimed and may build and compile, but not train on the problem or compute any part
-   of its solution. The step loop and `query` are each timed, with the device (torch and JAX) synchronized after
-   every step; `query` must finish in ≤ 5 s. The harness, not the submission, keeps the clock and the budget.
+   of its solution. `solve` and `query` are each timed, with the device (torch and JAX) synchronized before the
+   clock stops; `query` must finish in ≤ 5 s. The harness, not the submission, keeps the clock and the budget.
 5. **One run, seed 0, on the GPU.** The harness reruns the submission once (untimed, with a 10 s budget) to see
    where it computes: torch ops are counted by device, JAX by the device of its arrays. Other work (Julia,
    custom kernels) is checked by the maintainers.
@@ -67,23 +68,27 @@ harness: it stops calling `step` once the budget is used, and the run is scored 
 Per track, `tracks/<track>/submissions/submission_PR<NNNN>/solve.py` defines:
 
 ```python
-def setup(problem):               # optional, untimed: build + compile, no training
+def setup(problem):                      # optional, untimed: build + compile, no training
     return MySolver(problem).compile()
 
-def step(problem, state):         # timed; the harness calls it until done or out of budget
-    state.train(iterations=100)   # one chunk of work, ~0.1-1 s
-    return state, state.converged()
+def solve(problem, solver, checkpoint):  # timed: train for as long as you like
+    while not solver.converged():
+        solver.train(iterations=50)
+        checkpoint(solver.snapshot())    # the state query() gets if the budget runs out now
+    return solver.snapshot()
 
-def query(problem, state):        # timed separately, <= 5 s: evaluate at the output points
-    return state.predict(problem.axes)     # torch / JAX / numpy array of shape problem.out_shape
+def query(problem, state):               # timed separately, <= 5 s: evaluate at the output points
+    return state.predict(problem.axes)   # torch / JAX / numpy array of shape problem.out_shape
 ```
 
-- All state lives in the state object (any Python object or pytree); no module-level globals. Without
-  `setup`, the first `step` receives `None`.
-- Make a step a chunk of work (e.g. 100 optimizer iterations): the harness synchronizes the device after every
-  step, so very short steps pay for it.
-- A one-shot solver defines `solve(problem, state) -> state` instead of `step`. If the final state is an array
-  of shape `problem.out_shape`, `query` is skipped (this is how the classical baselines work).
+- The harness keeps the budget: when it is used up, `checkpoint` raises (and a timer interrupts `solve` 1 s
+  later if it has not checkpointed since); the last checkpointed state is queried. A run that has not
+  checkpointed by then fails.
+- `checkpoint(state)` only keeps a reference, so it is cheap: call it every few iterations. Do not modify a
+  checkpointed state in place afterwards (JAX arrays are immutable; copy torch tensors or parameters).
+- All state lives in the state objects; no module-level globals. Without `setup`, `solve` receives `None`.
+- A one-shot solver may define `solve(problem, state)` without `checkpoint`. If it returns an array of shape
+  `problem.out_shape`, `query` is skipped (this is how the classical baselines work).
 - Learning need not happen on the evaluation points: `query` projects onto them, an array of shape
   `problem.out_shape = (n_fields, len(axis_0), ...)` on the tensor grid of `problem.axes` (`indexing="ij"`).
 

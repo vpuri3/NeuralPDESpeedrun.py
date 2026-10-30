@@ -6,10 +6,10 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 ## 1. Status (2026-10-30)
 
 - Harness: default bar RelL2 ≤ 1e-4, L∞ ≤ 1e-3 (overridable per track); API `setup(problem) -> state`
-  (untimed), `step(problem, state) -> (state, done)` called by the harness until done or the track's wall-clock
-  budget (`Problem.budget_s`, default 1000 s) is used up, `query(problem, state)` (≤ 5 s; skipped if the state is
-  the output grid). One-shot solvers define `solve(problem, state)` instead of `step`. The harness syncs torch
-  and JAX after every step. GPU check by torch-op device accounting (JAX: device of its arrays). Problem
+  (untimed), `solve(problem, state, checkpoint)` (timed; loops as long as it likes and calls `checkpoint(state)`
+  every few iterations; the harness interrupts it once the track's wall-clock budget, `Problem.budget_s`,
+  default 1000 s, is used up and queries the last checkpoint), `query(problem, state)` (≤ 5 s; skipped if the
+  state is the output grid). The harness syncs torch and JAX before stopping each clock. GPU check by torch-op device accounting (JAX: device of its arrays). Problem
   callables are array-API (torch or JAX in and out). Per-axis `Problem.periodic` flags.
 - Track set, ordered by dimension (ODE, 1D + time, 2D, 2D + time, 3D + time; the folder names carry the tag
   0DT / 1DT / 2D / 2DT / 3DT): 01 VanDerPol, 02 DampedWave, 03 Burgers, 04 KuramotoSivashinsky, 05 AllenCahn,
@@ -49,7 +49,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 - `speedrun.run` sets `CUDA_MODULE_LOADING=EAGER` and initializes cuBLAS/cuSOLVER/cuFFT before the clock.
   Under torch's default lazy loading, first-use kernel loading added ~0.1 s to every small track.
-- GPU check (`speedrun/devicecheck.py`): one extra untimed setup + 10 s step loop + query under a `TorchDispatchMode`
+- GPU check (`speedrun/devicecheck.py`): one extra untimed setup + solve (10 s budget) + query under a `TorchDispatchMode`
   that counts arithmetic ops by tensor device (meta tensors, data movement and views are ignored). A run with no
   torch arithmetic on the GPU (e.g. the scipy baseline of 01) is reported as CPU. Work outside torch (numpy,
   scipy, Julia, custom kernels) is invisible to it; JAX runs are classified by the device of their arrays.

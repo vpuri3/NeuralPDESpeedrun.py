@@ -75,10 +75,9 @@ No vanilla PINN reaches the bar on any track: the best are 06 (7.0e-4) and 05A (
 
 ## 4. Next steps (in order)
 
-1. **Open the draft PR for the vanilla PINN** and check that its GitHub number is #1, so it matches
-   `submission_PR0001`; otherwise rename the directories (`tracks/*/submissions/submission_PR0001/`,
-   `speedrun/submissions/submission_PR0001/`) and their imports.
-2. **Mark it ready for review** once all results are in (§1 table) for H100 re-timing.
+1. Maintainer submissions (such as the vanilla PINN, `submission_PR0001`) are committed directly to master; the
+   draft-PR numbering applies to outside contributions. Reserve PR number #1 or renumber if it collides.
+2. **H100 re-timing** of the vanilla PINN results together with the record #0 baselines.
 3. **Look into PINN failures that may be bugs rather than method limits.** 03 ends at RelL2 ≈ 1 (output ≈ 0;
    the strong form ignores flux continuity at the inclusion edges and the residual is scaled by a = 1e3).
    Tracks with RelL2 ≈ 1 after the full budget deserve a second look (loss scaling, output scale).

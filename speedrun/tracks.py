@@ -27,6 +27,7 @@ TRACKS = [
     "track07_CavityRe1000",           # lid-driven cavity, Re = 1000, impulsive start (TODO)
     "track08_DecayingEddies",         # decaying eddies (Walsh 1992), periodic
     "track09_CylinderFlow",           # flow past a cylinder (TODO)
+    "track10_BeltramiFlow",           # 3D unsteady Beltrami flow, Re = 1 (TODO)
 ]
 
 

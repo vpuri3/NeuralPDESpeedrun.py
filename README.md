@@ -115,6 +115,7 @@ submission, bar dashed. Record #0 times are on an RTX 2080 Ti (fp64, GPU-checked
 | 07 CavityRe1000 | *TODO* | — |
 | 08 DecayingEddies | Fourier N=32 + ETDRK4 | 0.13 s |
 | 09 CylinderFlow | *TODO* | — |
+| 10 BeltramiFlow | *TODO* | — |
 
 ### 01 VanDerPol
 Stiff ODE: `y'' − μ(1 − y²) y' + y = 0`, μ = 1000, `y(0) = 2`, `y'(0) = 0`, t ∈ [0, 3000] (almost two relaxation
@@ -184,6 +185,10 @@ Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + co
 
 ### 09 CylinderFlow: TODO
 Flow past a cylinder; see `tracks/track09_CylinderFlow/TODO.md`.
+
+### 10 BeltramiFlow: TODO
+3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1] with the Ethier–Steinman exact solution (as in
+arXiv:2402.10680, §4.2); see `tracks/track10_BeltramiFlow/TODO.md`.
 
 ## Layout
 

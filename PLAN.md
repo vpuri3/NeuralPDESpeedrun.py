@@ -10,8 +10,8 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   check by torch-op device accounting. Per-axis `Problem.periodic` flags.
 - Track set (two-digit numbers): 01 VanDerPol, 02 DampedWave, 03 HighContrastDiffusion, 04A Helmholtz (on hold),
   04B AdvectionDiffusion, 05A Burgers1D, 05B Burgers2D, 05C KuramotoSivashinsky, 06 Kovasznay, 07 CavityRe1000
-  (TODO), 08 DecayingEddies, 09 CylinderFlow (TODO). Removed: the old third-order ODE, the plain wave equation,
-  the curved Kovasznay variant, the Re = 100 cavity, and the Stokes cavity.
+  (TODO), 08 DecayingEddies, 09 CylinderFlow (TODO), 10 BeltramiFlow (TODO). Removed: the old third-order ODE,
+  the plain wave equation, the curved Kovasznay variant, the Re = 100 cavity, and the Stokes cavity.
 - Times are on an **RTX 2080 Ti** (fp64 for the baselines, fp32 for the PINNs); H100 re-timing is pending.
 
 | track | reference (self-check) | record #0 | time | RelL2 | L∞ | vanilla PINN, 1000 s (RelL2) |
@@ -28,6 +28,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 | 07 | *TODO* (see §4) | | | | | |
 | 08 | closed form | Fourier vorticity N=32 | 0.13 s | 1.9e-15 | 7.7e-15 | running |
 | 09 | *TODO* | | | | | |
+| 10 | *TODO* | | | | | |
 
 ## 2. Harness notes
 
@@ -100,6 +101,8 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
       resonant (lossless Dirichlet box): shifted-Laplacian GMRES does not converge in 3000 iterations at N = 256,
       and max|u| changes 7× between ω = 39.5 and 40. Needs absorption (sponge layer / PML / impedance BC).
 - [ ] **09 CylinderFlow**: set-up notes in `tracks/track09_CylinderFlow/TODO.md`.
+- [ ] **10 BeltramiFlow** (3D unsteady NS, Re = 1, closed form; arXiv:2402.10680 §4.2): set-up notes in
+      `tracks/track10_BeltramiFlow/TODO.md`.
 
 ## 5. Open questions
 

@@ -1,18 +1,22 @@
 """Official timing + scoring harness.
 
-    uv run python -m speedrun.run --track track3                      # runs tracks/track3/baseline.py
-    uv run python -m speedrun.run --track track3 --submission path/to/my_solver.py
+    uv run python -m speedrun.run --track 03                       # runs the track's baseline.py
+    uv run python -m speedrun.run --track 03 \
+        --submission tracks/track03_HighContrastDiffusion/submissions/submission_PR0042
 
-A submission is a python file defining
+A submission is a directory `tracks/<track>/submissions/submission_PR<NNNN>/` (or a single .py file while
+developing) whose `solve.py` defines
 
     def solve(problem: speedrun.Problem) -> torch.Tensor   # shape == problem.out_shape  (REQUIRED)
     def warmup(problem: speedrun.Problem) -> None          # untimed compile/autotune     (OPTIONAL)
 
-Protocol (see SPEEDRUN.md for the rules):
+Protocol (rules: README.md):
   1. seed everything (seed 0), build the Problem on the target device
   2. init CUDA libraries (problem-independent), call `warmup(problem)` if present (untimed)
   3. synchronize, start the clock, call `solve(problem)`, synchronize, stop the clock
   4. only THEN is the reference loaded and the returned tensor scored
+  5. (untimed) device check: one more `solve` under op counting; the reported hardware is the GPU only if
+     essentially all tensor work ran on it (speedrun/devicecheck.py)
 """
 from __future__ import annotations
 
@@ -35,7 +39,7 @@ os.environ["CUDA_MODULE_LOADING"] = "EAGER"
 
 import torch  # noqa: E402
 
-from .metrics import LINF_TOL, REL_L2_TOL, score  # noqa: E402
+from .metrics import score  # noqa: E402
 from .tracks import ROOT, load_problem, load_reference, resolve, track_dir  # noqa: E402
 
 
@@ -77,17 +81,34 @@ def _git_commit() -> str:
         return "unknown"
 
 
+def cpu_string() -> str:
+    name = platform.processor() or platform.machine()
+    try:
+        for line in Path("/proc/cpuinfo").read_text().splitlines():
+            if line.startswith("model name"):
+                name = line.split(":", 1)[1].strip()
+                break
+    except OSError:
+        pass
+    return f"CPU ({name})"
+
+
 def hardware_string(device: str) -> str:
     if device.startswith("cuda") and torch.cuda.is_available():
         return torch.cuda.get_device_name(0)
-    return f"CPU ({platform.processor() or platform.machine()})"
+    return cpu_string()
+
+
+def submission_file(path: Path) -> Path:
+    """A submission directory (submission_PR<NNNN>/solve.py) or a single .py file."""
+    return path / "solve.py" if path.is_dir() else path
 
 
 def run(track: str, submission: str | None = None, device: str | None = None, seed: int = 0,
-        out: str | None = None, quiet: bool = False) -> dict:
+        out: str | None = None, quiet: bool = False, device_check: bool = True) -> dict:
     track = resolve(track)
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-    sub_path = Path(submission) if submission else track_dir(track) / "baseline.py"
+    sub_path = submission_file(Path(submission)) if submission else track_dir(track) / "baseline.py"
     sub_path = sub_path.resolve()
 
     torch.manual_seed(seed)
@@ -110,7 +131,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
 
     u = u.detach().to("cpu") if hasattr(u, "detach") else u
     ref = load_reference(track)  # loaded only after the timed solve
-    s = score(u, ref, problem.linf_mask())
+    s = score(u, ref, problem.linf_mask(), problem.rel_l2_tol, problem.linf_tol)
 
     if device.startswith("cuda") and torch.cuda.is_available():
         mem_gb = torch.cuda.max_memory_allocated() / 2**30
@@ -119,6 +140,12 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 2**20  # KiB -> GiB (linux)
         mem_kind = "host_peak_rss_gb"
 
+    hardware, dev_report = hardware_string(device), None
+    if device_check and device.startswith("cuda") and torch.cuda.is_available():
+        from .devicecheck import check, classify
+        dev_report = check(mod.solve, problem)
+        hardware = classify(dev_report, hardware, cpu_string())
+
     result = {
         "track": track,
         "submission": str(sub_path.relative_to(ROOT)) if sub_path.is_relative_to(ROOT) else str(sub_path),
@@ -126,10 +153,11 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         "rel_l2": s["rel_l2"],
         "linf": s["linf"],
         "passed": s["passed"],
-        "tolerances": {"rel_l2": REL_L2_TOL, "linf": LINF_TOL},
+        "tolerances": {"rel_l2": problem.rel_l2_tol, "linf": problem.linf_tol},
         "linf_margin": problem.linf_margin,
         "device": device,
-        "hardware": hardware_string(device),
+        "hardware": hardware,
+        "device_check": dev_report,
         mem_kind: mem_gb,
         "torch": torch.__version__,
         "python": platform.python_version(),
@@ -139,8 +167,8 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     }
     if not quiet:
         status = "PASS" if result["passed"] else "FAIL"
-        print(f"[{track}] {status}  time={elapsed:.4f}s  relL2={s['rel_l2']:.3e} (<= {REL_L2_TOL:g})  "
-              f"Linf={s['linf']:.3e} (<= {LINF_TOL:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
+        print(f"[{track}] {status}  time={elapsed:.4f}s  relL2={s['rel_l2']:.3e} (<= {problem.rel_l2_tol:g})  "
+              f"Linf={s['linf']:.3e} (<= {problem.linf_tol:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
     if out:
         Path(out).parent.mkdir(parents=True, exist_ok=True)
         Path(out).write_text(json.dumps(result, indent=2) + "\n")
@@ -150,12 +178,14 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--track", required=True)
-    ap.add_argument("--submission", default=None, help="path to submission .py (default: the track's baseline.py)")
+    ap.add_argument("--submission", default=None,
+                    help="submission directory or .py file (default: the track's baseline.py)")
     ap.add_argument("--device", default=None, help="cuda | cpu (default: cuda if available)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default=None, help="write result json here")
+    ap.add_argument("--no-device-check", action="store_true", help="skip the untimed op-device check")
     args = ap.parse_args()
-    r = run(args.track, args.submission, args.device, args.seed, args.out)
+    r = run(args.track, args.submission, args.device, args.seed, args.out, device_check=not args.no_device_check)
     sys.exit(0 if r["passed"] else 1)
 
 

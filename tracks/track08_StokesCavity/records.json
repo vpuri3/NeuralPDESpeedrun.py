@@ -1,0 +1,14 @@
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/track08_StokesCavity/baseline.py",
+    "time_s": 0.22365298797376454,
+    "rel_l2": 0.0005021119337439842,
+    "linf": 0.0004012834846827962,
+    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "kind": "classical",
+    "pr": null
+  }
+]

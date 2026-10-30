@@ -1,7 +1,7 @@
 # IDEAS.md — data-free neural PDE solvers
 
 Working notes on solving PDEs with neural/explicit ansätze **without ever seeing a solution**: true
-solvers, not surrogates. The speedrun (SPEEDRUN.md) is the testbed.
+solvers, not surrogates. The speedrun (README.md, PLAN.md) is the testbed.
 
 ## 0. Framing
 

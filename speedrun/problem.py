@@ -12,10 +12,12 @@ from typing import Callable
 
 import torch
 
+from .metrics import LINF_TOL, REL_L2_TOL
+
 
 @dataclass
 class Problem:
-    track: str                      # e.g. "track3"
+    track: str                      # e.g. "track03_HighContrastDiffusion"
     title: str                      # short human title
     statement: str                  # markdown statement of the PDE problem (equations, domain, BC/IC)
     fields: tuple[str, ...]         # names of the output fields, e.g. ("u",) or ("u", "v")
@@ -25,6 +27,8 @@ class Problem:
     domain: dict = field(default_factory=dict)              # bounds / periodicity / time span
     device: str = "cpu"
     dtype: torch.dtype = torch.float64
+    rel_l2_tol: float = REL_L2_TOL  # accuracy bar of this track (default: the speedrun-wide one)
+    linf_tol: float = LINF_TOL
     linf_margin: float = 0.0        # L-inf is not scored within this distance of the (x, y) domain boundary
 
     @property

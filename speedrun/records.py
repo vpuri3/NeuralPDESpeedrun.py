@@ -2,10 +2,11 @@
 tracks/<t>/README.md, and seed record #0.
 
     uv run python -m speedrun.records --track all                 # redraw every activity plot
-    uv run python -m speedrun.records --track track3 --seed-baseline tracks/track3/logs/baseline.json
+    uv run python -m speedrun.records --track 03 --seed-baseline tracks/track03_HighContrastDiffusion/logs/baseline.json
 
 A record entry is
-    {"date": "YYYY-MM-DD", "author": ..., "name": ..., "submission": "tracks/<t>/(baseline|records/...).py",
+    {"date": "YYYY-MM-DD", "author": ..., "name": ...,
+     "submission": "tracks/<t>/baseline.py" | "tracks/<t>/submissions/submission_PR<NNNN>",
      "time_s": ..., "rel_l2": ..., "linf": ..., "hardware": ..., "kind": "classical" | "neural" | "hybrid",
      "pr": <PR number or null>}
 `time_s` is the official (maintainer, H100 80GB) time. Entries timed elsewhere say so in `hardware`.
@@ -112,7 +113,10 @@ def write_readme(track: str) -> Path:
     meta_p = d / "reference" / "meta.json"
     meta = json.loads(meta_p.read_text()) if meta_p.exists() else {}
     recs = load_records(track)
-    lines = [f"# {track}: {p.title}", "", "```text", p.statement.strip(), "```", ""]
+    bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, L∞ ≤ {p.linf_tol:g}"
+    if p.linf_margin > 0:
+        bar += f" (L∞ only at points ≥ {p.linf_margin:g} from the walls)"
+    lines = [f"# {track}: {p.title}", "", "```text", p.statement.strip(), "```", "", bar + ".", ""]
     figs = sorted((d / "figures").glob("reference*.png")) + sorted((d / "figures").glob("reference*.gif"))
     lines += [f"![{f.stem}](figures/{f.name})" for f in figs] + [""]
     if meta:

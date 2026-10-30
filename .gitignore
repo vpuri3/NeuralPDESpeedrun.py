@@ -221,5 +221,5 @@ __marimo__/
 
 # speedrun
 tracks/*/logs/
-tracks/track5B/reference/ref.npz
+tracks/track05B_Burgers2D/reference/ref.npz
 *.gif.tmp

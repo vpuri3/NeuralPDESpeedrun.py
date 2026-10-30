@@ -51,7 +51,14 @@ only over points at distance >= {LINF_MARGIN:g} from the walls (problem.linf_mar
 """
 
 
-def make_cavity_problem(track, Re, device="cpu", dtype=torch.float64):
+# Accuracy bar of the cavity tracks. The u = 1 lid is discontinuous at the top corners, so single-element
+# spectral references converge only ~N^-1 in RelL2 over all points (Gibbs along the lid) and ~N^-2 away from
+# the walls; the speedrun default (RelL2 1e-4) is below what any affordable reference reaches.
+REL_L2_TOL = 1e-3
+LINF_TOL = 1e-3
+
+
+def make_cavity_problem(track, Re, device="cpu", dtype=torch.float64, rel_l2_tol=REL_L2_TOL, linf_tol=LINF_TOL):
     g = torch.linspace(-1.0, 1.0, N_EVAL, dtype=dtype, device=device)
     axes = {"x": g, "y": g.clone()}
     domain = {"x": (-1.0, 1.0), "y": (-1.0, 1.0)}
@@ -74,6 +81,8 @@ def make_cavity_problem(track, Re, device="cpu", dtype=torch.float64):
         fns=fns,
         device=device,
         dtype=dtype,
+        rel_l2_tol=rel_l2_tol,
+        linf_tol=linf_tol,
         linf_margin=LINF_MARGIN,
     )
 

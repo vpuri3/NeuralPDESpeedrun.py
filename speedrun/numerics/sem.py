@@ -25,10 +25,10 @@ import torch
 # ----------------------------------------------------------------------------- 1D building blocks
 def gll(N: int, dtype=torch.float64, device="cpu"):
     """N+1 Gauss-Lobatto-Legendre nodes (ascending) and weights on [-1, 1] (spec: semhat/zwgll.m)."""
-    z = torch.zeros(N + 1, dtype=torch.float64)
+    z = torch.zeros(N + 1, dtype=dtype, device=device)
     z[0], z[-1] = -1.0, 1.0
     if N > 1:
-        i = torch.arange(1, N - 1, dtype=torch.float64)
+        i = torch.arange(1, N - 1, dtype=dtype, device=device)
         off = 0.5 * torch.sqrt(i * (i + 2) / ((i + 0.5) * (i + 1.5)))
         M = torch.diag(off, 1) + torch.diag(off, -1)
         z[1:-1] = torch.linalg.eigvalsh(M)
@@ -37,8 +37,7 @@ def gll(N: int, dtype=torch.float64, device="cpu"):
     for j in range(1, N):
         p0, p1 = p1, ((2 * j + 1) * z * p1 - j * p0) / (j + 1)
     PN = p1 if N > 0 else p0
-    w = 2.0 / (N * (N + 1) * PN**2)
-    return z.to(dtype=dtype, device=device), w.to(dtype=dtype, device=device)
+    return z, 2.0 / (N * (N + 1) * PN**2)
 
 
 def interp_mat(xo: torch.Tensor, xi: torch.Tensor) -> torch.Tensor:
@@ -264,7 +263,12 @@ class SEMNavierStokes:
             Bp = J.T @ Bv @ (M @ Bi @ M) @ Bv @ J
             fd[k + "p"] = gen_eig(0.5 * (Ap + Ap.T), 0.5 * (Bp + Bp.T))
         Lp = fd["xp"][1][:, None] + fd["yp"][1][None, :]
-        self._Lpi = torch.where(Lp.abs() > 1e-10 * Lp.abs().max(), 1.0 / Lp, torch.zeros_like(Lp))
+        # invert all modes except the single null mode (constant pressure). A relative threshold would also
+        # drop the lowest physical modes at large N, where max |Lp| ~ N^4.
+        null = Lp.abs().argmin()
+        Lp = Lp.reshape(-1).clone()
+        Lp[null] = 1.0
+        self._Lpi = (1.0 / Lp).index_fill(0, null.reshape(1), 0.0).reshape(self.N - 1, self.N - 1)
         self._fd = fd
 
     def _visc_solve(self, b, b0, nu):

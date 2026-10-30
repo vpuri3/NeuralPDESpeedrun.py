@@ -1,0 +1,16 @@
+{
+  "method": "single-element Legendre PN-PN-2 (spec), N=768, Uzawa CG",
+  "check_N512_vs_N768_linf_scored": 3.395497439796086e-05,
+  "check_N512_vs_N768_linf_all": 0.0018608242952303645,
+  "check_N512_vs_N768_rel_l2": 0.00011409447521207131,
+  "wall_time_s": 4.060579832177609,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    2,
+    129,
+    129
+  ],
+  "sha256_float32": "f44676aab12a20d817b1bb0c4d5c63f6bf3709ba1656e1b67d3ed5631eefe52f",
+  "norm_l2": 34.18907491355403,
+  "max_abs": 1.0000000000000022
+}

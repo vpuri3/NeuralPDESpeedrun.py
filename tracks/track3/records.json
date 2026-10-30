@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/track3/baseline.py",
+    "time_s": 0.17196155292913318,
+    "rel_l2": 0.0011268921323508646,
+    "linf": 0.004577184531568634,
+    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "kind": "classical",
+    "pr": null
+  }
+]

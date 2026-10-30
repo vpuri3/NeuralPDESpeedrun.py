@@ -1,4 +1,4 @@
-"""Track 7A: lid-driven cavity (regularized lid), steady Navier-Stokes, Re = 100."""
+"""Track 7A: lid-driven cavity [-1, 1]^2, u = 1 lid, Re = 100, impulsive start, t in [0, 5] (spec `LDC` case)."""
 import torch
 
 from tracks.cavity_common import make_cavity_problem

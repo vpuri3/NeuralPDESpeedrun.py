@@ -10,7 +10,7 @@ A submission is a python file defining
 
 Protocol (see SPEEDRUN.md for the rules):
   1. seed everything (seed 0), build the Problem on the target device
-  2. call `warmup(problem)` if present (untimed)
+  2. init CUDA libraries (problem-independent), call `warmup(problem)` if present (untimed)
   3. synchronize, start the clock, call `solve(problem)`, synchronize, stop the clock
   4. only THEN is the reference loaded and the returned tensor scored
 """
@@ -20,6 +20,7 @@ import argparse
 import datetime as dt
 import importlib.util
 import json
+import os
 import platform
 import resource
 import subprocess
@@ -27,15 +28,36 @@ import sys
 import time
 from pathlib import Path
 
-import torch
+# Load every CUDA kernel module at context creation. Under torch's default LAZY loading, the first
+# launch of each kernel pays a one-time load (~0.1 s total on small tracks) inside the timed region.
+# Read at CUDA context creation, so it only has to be set before the first CUDA call.
+os.environ["CUDA_MODULE_LOADING"] = "EAGER"
 
-from .metrics import LINF_TOL, REL_L2_TOL, score
-from .tracks import ROOT, load_problem, load_reference, resolve, track_dir
+import torch  # noqa: E402
+
+from .metrics import LINF_TOL, REL_L2_TOL, score  # noqa: E402
+from .tracks import ROOT, load_problem, load_reference, resolve, track_dir  # noqa: E402
 
 
 def _sync(device: str):
     if device.startswith("cuda") and torch.cuda.is_available():
         torch.cuda.synchronize()
+
+
+def _init_device_libs(device: str):
+    """Problem-independent init of lazily loaded CUDA libraries (cuBLAS, cuSOLVER, cuFFT, ...),
+    so their one-time setup cost is not charged to whichever submission touches them first."""
+    if not (device.startswith("cuda") and torch.cuda.is_available()):
+        return
+    for dtype in (torch.float32, torch.float64):
+        a = torch.eye(8, device=device, dtype=dtype) + 0.1 * torch.rand(8, 8, device=device, dtype=dtype)
+        b = torch.ones(8, 1, device=device, dtype=dtype)
+        _ = a @ b, torch.linalg.solve(a, b), torch.linalg.lu_factor(a), torch.linalg.cholesky(a @ a.mT)
+        _ = torch.linalg.qr(a), torch.linalg.eigh(a @ a.mT), torch.linalg.svd(a)
+        _ = torch.fft.rfft(b[:, 0]), torch.fft.fft2(a.to(torch.complex128 if dtype == torch.float64
+                                                         else torch.complex64))
+        _ = torch.linalg.solve(a.to(torch.complex128), b.to(torch.complex128))
+    _sync(device)
 
 
 def _import_file(path: Path):
@@ -71,6 +93,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     torch.manual_seed(seed)
     problem = load_problem(track, device=device)
     mod = _import_file(sub_path)
+    _init_device_libs(device)
 
     if hasattr(mod, "warmup"):
         mod.warmup(problem)
@@ -87,7 +110,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
 
     u = u.detach().to("cpu") if hasattr(u, "detach") else u
     ref = load_reference(track)  # loaded only after the timed solve
-    s = score(u, ref)
+    s = score(u, ref, problem.linf_mask())
 
     if device.startswith("cuda") and torch.cuda.is_available():
         mem_gb = torch.cuda.max_memory_allocated() / 2**30
@@ -104,6 +127,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         "linf": s["linf"],
         "passed": s["passed"],
         "tolerances": {"rel_l2": REL_L2_TOL, "linf": LINF_TOL},
+        "linf_margin": problem.linf_margin,
         "device": device,
         "hardware": hardware_string(device),
         mem_kind: mem_gb,

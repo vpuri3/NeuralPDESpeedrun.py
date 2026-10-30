@@ -42,9 +42,10 @@ and the evaluation axes. It contains nothing about the solution.
 | 3 | 2D high-contrast diffusion |
 | 4A / 4B | 2D Helmholtz (heterogeneous) / advection-diffusion, Pe ~ 1e3 |
 | 5A / 5B / 5C | Burgers 1D / Burgers 2D / Kuramoto-Sivashinsky (SNF-ROM, arXiv:2405.14890 §6.3–6.5) |
-| 6 | Kovasznay flow |
-| 7A / 7B | lid-driven cavity, Re = 100 / 1000 (regularized lid) |
-| 8 | steady Stokes cavity |
+| 6A / 6B | Kovasznay flow, Re = 40: rectangle / curved trapezoid ([vpuri3/spec](https://github.com/vpuri3/spec)) |
+| 7A / 7B | lid-driven cavity [-1,1]², u = 1 lid, impulsive start to T = 5, Re = 100 / 1000 (spec) |
+| 8 | steady Stokes cavity (spec geometry) |
+| 9 | decaying eddies, Walsh 1992 (spec) |
 
 Each `tracks/trackK/` has `problem.py`, `reference.py`, `baseline.py` (record #0, a classical solver),
 `records.json`, and `figures/`.

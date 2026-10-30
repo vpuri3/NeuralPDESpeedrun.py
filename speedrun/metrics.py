@@ -13,14 +13,16 @@ def rel_l2(u: torch.Tensor, ref: torch.Tensor) -> float:
     return float(torch.linalg.norm(u - ref) / torch.linalg.norm(ref))
 
 
-def linf(u: torch.Tensor, ref: torch.Tensor) -> float:
-    return float((u.to(torch.float64) - ref.to(torch.float64)).abs().max())
+def linf(u: torch.Tensor, ref: torch.Tensor, mask: torch.Tensor | None = None) -> float:
+    e = (u.to(torch.float64) - ref.to(torch.float64)).abs()
+    return float(e.max() if mask is None else e[mask.expand_as(e)].max())
 
 
-def score(u: torch.Tensor, ref: torch.Tensor) -> dict:
+def score(u: torch.Tensor, ref: torch.Tensor, linf_mask: torch.Tensor | None = None) -> dict:
+    """linf_mask: optional boolean mask of the points where L-inf is scored (RelL2 always uses all points)."""
     if tuple(u.shape) != tuple(ref.shape):
         raise ValueError(f"solution shape {tuple(u.shape)} != expected {tuple(ref.shape)}")
     if not bool(torch.isfinite(u).all()):
         return {"rel_l2": float("inf"), "linf": float("inf"), "passed": False}
-    r, m = rel_l2(u, ref), linf(u, ref)
+    r, m = rel_l2(u, ref), linf(u, ref, linf_mask)
     return {"rel_l2": r, "linf": m, "passed": (r <= REL_L2_TOL) and (m <= LINF_TOL)}

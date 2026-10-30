@@ -1,9 +1,10 @@
-"""Record #0 (classical baseline): Chebyshev streamfunction collocation, N x N = 32 x 32,
-Newton (with viscosity continuation where needed), dense LU."""
-from tracks.cavity_common import chebyshev_solve
+"""Record #0 (classical baseline): the spec's method as-is (single-element Legendre PN-PN-2, 3/2 dealiasing,
+BDF3/EXT3 + incremental pressure projection, fast-diagonalization viscous and pressure solves), N = 128,
+dt = 2 x (smallest GLL spacing)."""
+from tracks.cavity_common import sem_solve
 
-N = 32
+N = 128
 
 
 def solve(problem):
-    return chebyshev_solve(problem, N)
+    return sem_solve(problem, N)

@@ -1,5 +1,5 @@
-"""Reference: Chebyshev collocation of the streamfunction formulation at N = 64
-(self-convergence checked against N = 48)."""
+"""Reference: the spec's single-element Legendre PN-PN-2 discretization at N = 512, Uzawa CG
+(self-convergence checked against N = 384)."""
 from tracks.cavity_common import plot as _plot
 from tracks.cavity_common import reference
 
@@ -7,7 +7,7 @@ from .problem import make_problem
 
 
 def compute(device="cpu"):
-    u, meta = reference(make_problem(device=device), 64, 48)
+    u, meta = reference(make_problem(device=device), 512, 384)
     return u, meta, {}
 
 

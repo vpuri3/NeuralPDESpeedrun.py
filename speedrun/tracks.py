@@ -23,10 +23,12 @@ TRACKS = [
     "track5A",  # 1D viscous Burgers (SNF-ROM sec. 6.3)
     "track5B",  # 2D viscous Burgers (SNF-ROM sec. 6.4)
     "track5C",  # 1D Kuramoto-Sivashinsky (SNF-ROM sec. 6.5)
-    "track6",   # Kovasznay flow (steady Navier-Stokes)
-    "track7A",  # Lid-driven cavity, Re = 100
-    "track7B",  # Lid-driven cavity, Re = 1000
+    "track6A",  # Kovasznay flow, Re = 40, rectangle (steady Navier-Stokes)
+    "track6B",  # Kovasznay flow, Re = 40, curved trapezoid
+    "track7A",  # Lid-driven cavity, Re = 100, impulsive start, t in [0, 5]
+    "track7B",  # Lid-driven cavity, Re = 1000, impulsive start, t in [0, 5]
     "track8",   # Steady Stokes, lid-driven cavity
+    "track9",   # Decaying eddies (Walsh 1992), periodic
 ]
 
 

@@ -81,3 +81,45 @@ def burgers_2d(u0, v0, length, N, nu, t_out, substeps, dtype=torch.float64, devi
             if callback is not None:
                 callback(i, float(t_out[i]))
     return out
+
+
+def navier_stokes_2d(u0, v0, length, N, nu, t_out, substeps, dtype=torch.float64, device="cpu"):
+    """Incompressible Navier-Stokes on a periodic square of side `length`, vorticity-streamfunction form
+    w_t + u . grad w = nu Lap w  (w = v_x - u_y), N x N grid, 2/3 dealiasing, ETDRK4.
+
+    u0, v0: initial (divergence-free) velocity on the grid (N, N), index [i, j] <-> (x_i, y_j).
+    Returns velocity snapshots (len(t_out), 2, N, N) at t_out (uniformly spaced, t_out[0] = initial time).
+    """
+    kx, mx = wavenumbers(N, length, real=False, dtype=dtype, device=device)
+    ky, my = wavenumbers(N, length, real=True, dtype=dtype, device=device)
+    KX, KY = kx[:, None], ky[None, :]
+    K2 = KX**2 + KY**2
+    K2i = torch.where(K2 > 0, 1.0 / torch.where(K2 > 0, K2, torch.ones_like(K2)), torch.zeros_like(K2))
+    mask = (dealias_mask(mx, N)[:, None] & dealias_mask(my, N)[None, :]).to(dtype)
+    h = float(t_out[1] - t_out[0]) / substeps
+    coefs = etdrk4_coefficients(-nu * K2, h)
+    irf = lambda a: torch.fft.irfft2(a, s=(N, N))  # noqa: E731
+    uh0, vh0 = torch.fft.rfft2(u0), torch.fft.rfft2(v0)
+    mean_u, mean_v = uh0[0, 0], vh0[0, 0]                      # mean flow is conserved
+
+    def velocity(wh):
+        ph = wh * K2i                                          # Lap psi = -w,  u = psi_y,  v = -psi_x
+        uh, vh = 1j * KY * ph, -1j * KX * ph
+        uh[0, 0], vh[0, 0] = mean_u, mean_v
+        return uh, vh
+
+    def Nfun(wh):
+        uh, vh = velocity(wh * mask)
+        u, v = irf(uh), irf(vh)
+        wx, wy = irf(1j * KX * mask * wh), irf(1j * KY * mask * wh)
+        return -torch.fft.rfft2(u * wx + v * wy) * mask
+
+    wh = 1j * KX * vh0 - 1j * KY * uh0
+    out = torch.empty(t_out.numel(), 2, N, N, dtype=dtype, device=device)
+    for i in range(t_out.numel()):
+        if i > 0:
+            for _ in range(substeps):
+                wh = etdrk4_step(wh, Nfun, coefs)
+        uh, vh = velocity(wh)
+        out[i, 0], out[i, 1] = irf(uh), irf(vh)
+    return out

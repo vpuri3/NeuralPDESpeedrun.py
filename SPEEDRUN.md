@@ -87,10 +87,12 @@ tracks/
 | 5A | Burgers 1D, ν=1e-4, μ=0.6, T=0.5 (SNF-ROM §6.3) | 500 t × 1024 x | Fourier+ETDRK4, N=8192 | Fourier+ETDRK4 on N=1024 |
 | 5B | Burgers 2D (vector), ν=1e-3, μ=1, T=0.5 (SNF-ROM §6.4) | 11 t × 512² × 2 fields | Fourier+ETDRK4 1024², dt=5e-4 | Fourier+ETDRK4 512², dt=1e-3 |
 | 5C | Kuramoto–Sivashinsky, ν=0.01, T=0.1 (SNF-ROM §6.5) | 1000 t × 256 x | Fourier+ETDRK4, N=1024 | Fourier+ETDRK4 on N=256 |
-| 6 | Kovasznay flow, Re=20 | 151×201 × (u,v) | closed form | Chebyshev streamfunction N=16 |
-| 7A | lid-driven cavity, regularized lid, Re=100 | 129² × (u,v) | Chebyshev streamfunction N=48 | N=24 |
-| 7B | lid-driven cavity, regularized lid, Re=1000 | 129² × (u,v) | Chebyshev streamfunction N=80 | N=32 |
-| 8 | steady Stokes cavity, regularized lid | 129² × (u,v) | Chebyshev streamfunction N=64 | N=16 |
+| 6A | Kovasznay flow, Re=40, rectangle [-0.5,2]×[-0.5,1.5] (spec) | 251×201 × (u,v) | closed form | PN–PN-2 N=16, Newton |
+| 6B | Kovasznay flow, Re=40, trapezoid with parabolic top (spec `geom/para.m`) | 201×201 mapped (r,s) × (u,v) | closed form | PN–PN-2 N=16 on the mapped element, Newton |
+| 7A | lid-driven cavity [-1,1]², u=1 lid, Re=100, impulsive start, T=5 (spec) | 10 t × 129² × (u,v) | PN–PN-2 N=384, BDF3/EXT3 | N=96 |
+| 7B | same, Re=1000 | 10 t × 129² × (u,v) | PN–PN-2 N=384, BDF3/EXT3 | N=128 |
+| 8 | steady Stokes cavity, [-1,1]², u=1 lid (spec geometry) | 129² × (u,v) | PN–PN-2 N=512, Uzawa CG | N=64 |
+| 9 | decaying eddies (Walsh 1992), periodic [0,2π)², ν=0.05, T=5 (spec) | 11 t × 128² × (u,v) | closed form | Fourier vorticity N=32, ETDRK4 |
 
 Pressure is never scored. In NS/Stokes it is defined only up to a constant.
 
@@ -106,30 +108,50 @@ Pressure is never scored. In NS/Stokes it is defined only up to a constant.
   needs 1024².
 - **2B.** Equation as implemented in the NeuralPDE.jl code (u_xx = u_tt/v² + b u_t, v=3, b=2). The
   page's displayed equation differs.
-- **7/8.** Regularized lid u = 16x²(1−x)², so pointwise L∞ is meaningful. The classic u=1 lid has corner
-  singularities.
+- **6–9 follow [vpuri3/spec](https://github.com/vpuri3/spec)** (MATLAB): Kovasznay `kov` (Re=40, rectangle
+  and the Gordon–Hall trapezoid with parabolic top), lid-driven cavity `LDC` ([-1,1]², u=1 lid including the top
+  corners, ν=1e-2, fluid at rest at t=0, T=5), decaying eddies `wls` (ν=5e-2, T=5). Reference/baseline solvers
+  are a PyTorch port of the spec's single-element Legendre PN–PN-2 method (`speedrun/numerics/sem.py`).
+  7B (Re=1000) and 8 (Stokes) reuse the spec's cavity setup. The spec's T=0 "steady" mode divides by
+  b0=0 in the pressure projection, so steady tracks are solved directly (Newton / Uzawa).
+- **7/8 corner singularities.** The u=1 lid is discontinuous at the top corners. Spectral convergence there is
+  only algebraic (≈N⁻²), so references use large N. RelL2 is scored everywhere; **L∞ is not scored within
+  0.05 of the walls** (`Problem.linf_margin`, applied by the harness via `Problem.linf_mask()`).
 - **3, 4B.** Forcing scaled so max|u| ≈ 1, which makes the absolute L∞ tolerance meaningful.
 
-## 5. Status (as of this hand-off)
+## 5. Status (2026-10-30)
 
-Everything below was executed with a **numpy-backed torch shim** in a sandbox without PyTorch
-(float64 throughout). Same code paths, but it has not yet run under real torch/CUDA.
+Everything runs under real PyTorch 2.15 + CUDA. Times below are record #0 on an **RTX 2080 Ti** (fp64), not
+yet re-timed on the official H100. References regenerated on CUDA agree with the earlier CPU/numpy-shim ones
+to ≤ 8e-15.
 
-| track | problem/reference/baseline written | reference generated | baseline passes | notes |
-|---|---|---|---|---|
-| 1 | ✅ | ✅ | ✅ (relL2 2e-13) | |
-| 2A | ✅ | ✅ | ✅ (7e-5) | |
-| 2B | ✅ | ✅ | ✅ (3.8e-4) | |
-| 3 | ✅ | ❌ (was running) | ? | MG-PCG works: 51 its @256², 98 @768², ~200 expected @2304² |
-| 4A | ❌ | ❌ | ❌ | spec + design in §6 |
-| 4B | ✅ | ✅ | ✅ (5.8e-4 @N=80) | N=64 fails, N=72 passes |
-| 5A | ✅ | ✅ | ✅ (4.4e-7) | 0.1 s on CPU |
-| 5B | ✅ | ❌ (was at t=0.11 of 0.5) | ? | ~1.5 s/step @1024² on 2 CPU cores; seconds on GPU |
-| 5C | ✅ | ✅ | ✅ (1.5e-12) | |
-| 6 | ✅ | ❌ (not run) | ✅ in study (relL2 6.7e-6 @N=16) | solver validated vs exact: 5e-10 @N=24 |
-| 7A | ✅ | ❌ | ✅ in study | N=24 vs 48: 1.2e-6 |
-| 7B | ✅ | ❌ | ✅ in study | N=32 vs 80: 8.3e-5, N=64 vs 80: 3e-9 |
-| 8 | ✅ | ❌ | ✅ in study | N=16 vs 64: 8e-6 |
+| track | reference | baseline (record #0) | time (2080 Ti) | RelL2 | L∞ |
+|---|---|---|---|---|---|
+| 1 | closed form | Chebyshev N=16 | 1.6 ms | 3.4e-13 | 6.2e-13 |
+| 2A | d'Alembert | DST N=32 | 1.3 ms | 7.4e-05 | 7.4e-05 |
+| 2B | sine series K=32768 | DST N=64 | 1.6 ms | 3.8e-04 | 9.2e-04 |
+| 3 | FV 2304² (768 vs 2304: L∞ 8.9e-4) | FV 256² + MG-PCG | 0.17 s | 1.1e-03 | 4.6e-03 |
+| 4A | **on hold** (see §6) | | | | |
+| 4B | closed form | Chebyshev N=80 | 0.43 s | 5.8e-04 | 6.7e-04 |
+| 5A | Fourier N=8192 | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 |
+| 5B | Fourier 1024², dt=5e-4 | Fourier 512², dt=1e-3 | 3.0 s | 1.2e-04 | 1.6e-03 |
+| 5C | Fourier N=1024 | Fourier N=256 | 0.45 s | 1.5e-12 | 2.1e-11 |
+| 6A | closed form | PN–PN-2 N=16, Newton | 0.19 s | 1.4e-07 | 4.7e-07 |
+| 6B | closed form | PN–PN-2 N=16 (mapped), Newton | 0.23 s | 4.8e-07 | 2.9e-06 |
+| 7A | PN–PN-2 N=384 | PN–PN-2 N=96, BDF3/EXT3 | @7A_T@ | @7A_R@ | @7A_L@ |
+| 7B | PN–PN-2 N=384 | PN–PN-2 N=128, BDF3/EXT3 | @7B_T@ | @7B_R@ | @7B_L@ |
+| 8 | PN–PN-2 N=512 (384 vs 512: 2.1e-4) | PN–PN-2 N=64, Uzawa | 0.11 s | 3.1e-03 | 3.7e-03 |
+| 9 | closed form | Fourier vorticity N=32 | 0.14 s | 1.9e-15 | 7.7e-15 |
+
+Harness notes:
+- `speedrun.run` sets `CUDA_MODULE_LOADING=EAGER` and initializes cuBLAS/cuSOLVER/cuFFT before the clock.
+  Under torch's default lazy loading, first-use kernel loading added ~0.1 s to every small track
+  (track 1: 95 ms → 1.5 ms).
+- Baselines that use `torch.func` (6A, 6B) run a throwaway N=6 solve in `warmup` to initialize it.
+- Cavity time-step study (N=64): CFL 0.25 / 0.5 / 1 / 2 agree to ≤ 5e-6 RelL2, so references and
+  baselines use dt = 2 × (smallest GLL spacing). Spatial convergence is algebraic (≈N⁻²) because of the
+  lid-corner singularities: Re=100 N=96/128/192 vs 256 give RelL2 1.9e-3 / 8.3e-4 / 5.4e-4; Re=1000
+  4.6e-3 / 2.2e-3 / 9.3e-4.
 
 ## 6. Plan of action (on a machine with PyTorch + GPU)
 
@@ -137,26 +159,29 @@ Everything below was executed with a **numpy-backed torch shim** in a sandbox wi
 git clone <repo> && cd NeuralPDESpeedrun.py
 uv sync                                    # torch, numpy, matplotlib, pillow
 uv run python -m speedrun.make_reference --track all --device cuda   # regenerate every reference
-for t in track1 track2A track2B track3 track4B track5A track5B track5C track6 track7A track7B track8; do
+for t in track1 track2A track2B track3 track4B track5A track5B track5C track6A track6B track7A track7B track8 track9; do
   uv run python -m speedrun.run --track $t --out tracks/$t/logs/baseline.json
 done
 ```
 
-**Step 1: verify under real torch** (expect small fixes only):
-- [ ] `make_reference --track all` on CUDA. Compare `meta.json` `sha256_float32` and `norm_l2`
+**Step 1: verify under real torch** ✅ done 2026-10-30 (see §5):
+- [x] `make_reference --track all` on CUDA. Compare `meta.json` `sha256_float32` and `norm_l2`
       against the committed CPU/shim versions (tracks 1, 2A, 2B, 4B, 5A, 5C). They should agree to ~1e-12.
       Possible torch-vs-numpy differences to watch: `torch.fft.*` dims, `Tensor.amax(dim=)`,
       `repeat_interleave`, in-place slice updates in `FVLevel.apply`, and complex scalar math in `krylov.gmres`.
-- [ ] Device consistency. Some helpers allocate on the default device (`torch.zeros(...)` in `krylov.gmres`
+- [x] Device consistency. Some helpers allocate on the default device (`torch.zeros(...)` in `krylov.gmres`
       H/cs/sn/g, `etdrk4_coefficients` contour points use `L.device` ✓). Run with `--device cuda` and fix
       any CPU/CUDA mismatch.
-- [ ] For tracks 6/7/8, the dense Kronecker matrices are fine on GPU (≤ 6561² for N=80).
+- [x] Tracks 6–9 were re-specified from vpuri3/spec (see §4) and now use `numerics/sem.py`.
 
 **Step 2: finish missing pieces:**
-- [ ] **Track 3 reference.** `make_reference --track track3` (FV 2304², ~5.3M unknowns). Check
+- [x] **Track 3 reference.** `make_reference --track track3` (FV 2304², ~5.3M unknowns). Check
       `check_N768_vs_N2304_*`, then run the baseline (FV 256²).
-- [ ] **Track 5B reference.** 1024², dt=5e-4. Verify the 512² baseline passes. If not, see §4.
-- [ ] **Track 4A Helmholtz** (to implement):
+- [x] **Track 5B reference.** 1024², dt=5e-4. Verify the 512² baseline passes. If not, see §4.
+- [ ] **Track 4A Helmholtz** — **ON HOLD.** The spec below is resonant: a lossless Dirichlet cavity with a
+      lens. Shifted-Laplacian GMRES does not converge in 3000 iterations at N=256, and max|u| changes 7×
+      between ω=39.5 and ω=40. It needs absorption (sponge layer / PML / impedance BC) before it is a
+      usable benchmark. Original spec:
       `−Δu − (ω/c(x,y))² u = f` on [0,1]², u=0 on the boundary, ω = 40,
       `c = 1 − 0.4·exp(−((x−0.65)² + (y−0.6)²)/(2·0.12²))` (slow lens, k_max ≈ 67),
       `f = A·exp(−((x−0.35)² + (y−0.4)²)/(2·0.05²))`, with A set so max|u| ≈ 1; eval on the 257² grid j/256.
@@ -165,11 +190,11 @@ done
       `M = −Δ − (1 − 0.5i) k̄²`, inverted exactly in sine space. Check vs N=512. Check that ω is not near a
       cavity resonance (GMRES iteration count, solution norm). Baseline: same at N=256.
       Alternative if you prefer non-resonant physics: replace the Dirichlet walls with a PML or impedance BC.
-- [ ] **Leaderboard plotting.** `speedrun/records.py`: read `tracks/<t>/records.json` entries
+- [x] **Leaderboard plotting.** `speedrun/records.py`: read `tracks/<t>/records.json` entries
       `{date, author, name, time_s (H100), rel_l2, linf, hardware, kind: classical|neural|hybrid, pr}`
       and draw `figures/activity.png`: time vs date (log-y), a step line for the record, with classical
       records marked separately. Seed every track with its baseline as record #0, timed on H100.
-- [ ] Per-track `README.md` generated from `problem.statement` + reference figure + current record.
+- [x] Per-track `README.md` generated from `problem.statement` + reference figure + current record.
 
 **Step 3: first neural records** (see IDEAS.md for the reasoning):
 - [ ] Vanilla PINN + Adam + L-BFGS on tracks 1, 2A, 6, 7A. This is the honest starting point and shows

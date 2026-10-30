@@ -56,6 +56,9 @@ def main():
     ap.add_argument("--plot-only", action="store_true")
     a = ap.parse_args()
     for t in (TRACKS if a.track == "all" else [a.track]):
+        if not (track_dir(t) / "reference.py").exists():
+            print(f"[{t}] not implemented yet, skipped")
+            continue
         make(t, a.device, a.plot_only)
 
 

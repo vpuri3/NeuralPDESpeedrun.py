@@ -2,6 +2,21 @@
   {
     "date": "2026-10-30",
     "author": "maintainers",
+    "name": "vanilla PINN",
+    "submission": "tracks/track02_DampedWave/submissions/submission_PR0001/solve.py",
+    "time_s": 1000.8473792460281,
+    "solve_time_s": 1000.8220975310542,
+    "query_time_s": 0.025281714973971248,
+    "rel_l2": 0.8489291524922636,
+    "linf": 0.7447210378000552,
+    "passed": false,
+    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "kind": "neural",
+    "pr": null
+  },
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track02_DampedWave/baseline.py",
     "time_s": 0.0028691240586340427,

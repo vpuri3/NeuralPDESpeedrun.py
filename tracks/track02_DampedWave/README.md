@@ -31,6 +31,7 @@ Current record: **0.002869 s** (record #0: classical baseline, maintainers, 2026
 
 | date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | vanilla PINN | neural | 1001 | 8.49e-01 | 7.45e-01 | no | NVIDIA GeForce RTX 2080 Ti |
 | 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.002869 | 8.03e-16 | 7.77e-16 | yes | NVIDIA GeForce RTX 2080 Ti |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)

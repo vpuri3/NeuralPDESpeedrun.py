@@ -29,6 +29,7 @@ Current record: **0.03922 s** (record #0: classical baseline, maintainers, 2026-
 
 | date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | vanilla PINN | neural | 1001 | 1.02e+00 | 3.29e+00 | no | NVIDIA GeForce RTX 2080 Ti |
 | 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.03922 | 8.65e-07 | 5.37e-05 | yes | CPU (Intel(R) Core(TM) i9-7920X CPU @ 2.90GHz) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)

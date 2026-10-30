@@ -16,19 +16,22 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 | track | reference (self-check) | record #0 | time | RelL2 | L∞ | vanilla PINN, 1000 s (RelL2) |
 |---|---|---|---|---|---|---|
-| 01 | Radau IIA rtol 1e-12 (rtol 1e-10: 7e-12) | LSODA rtol 1e-8 (CPU) | 37 ms | 8.7e-07 | 5.4e-05 | running |
-| 02 | exact sine series, K=512 (K=256: 0) | sine modes N=256 | 2.9 ms | 8.0e-16 | 7.8e-16 | running |
+| 01 | Radau IIA rtol 1e-12 (rtol 1e-10: 7e-12) | LSODA rtol 1e-8 (CPU) | 37 ms | 8.7e-07 | 5.4e-05 | 1.0e+00 |
+| 02 | exact sine series, K=512 (K=256: 0) | sine modes N=256 | 2.9 ms | 8.0e-16 | 7.8e-16 | 8.5e-01 |
 | 03 | FV 3840²/5376², Richardson p=1.34 (1e-7) | FV 3328² + MG-PCG | 8.36 s | 3.8e-05 | 1.6e-04 | 9.9e-01 |
 | 04A | *on hold* | | | | | |
-| 04B | closed form | Chebyshev N=96 | 1.16 s | 2.9e-05 | 3.3e-05 | running |
-| 05A | Fourier N=8192 (4096: 2e-8) | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 | running |
+| 04B | closed form | Chebyshev N=96 | 1.16 s | 2.9e-05 | 3.3e-05 | 9.2e-01 |
+| 05A | Fourier N=8192 (4096: 2e-8) | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 | 2.6e-03 |
 | 05B | Fourier 2048², dt=2.5e-4 (1024²: 6.9e-6) | Fourier 1024², dt=1e-3 | 7.83 s | 9.7e-06 | 2.6e-04 | 2.5e-01 |
-| 05C | Fourier N=1024, 64 steps/snapshot (32: 4.8e-9) | Fourier N=256, 16 steps | 6.24 s | 1.0e-07 | 4.1e-05 | running |
+| 05C | Fourier N=1024, 64 steps/snapshot (32: 4.8e-9) | Fourier N=256, 16 steps | 6.24 s | 1.0e-07 | 4.1e-05 | 1.0e+00 |
 | 06 | closed form | PN–PN-2 N=16, Newton | 0.19 s | 1.4e-07 | 4.7e-07 | 7.0e-04 |
 | 07 | *TODO* (see §4) | | | | | |
-| 08 | closed form | Fourier vorticity N=32 | 0.13 s | 1.9e-15 | 7.7e-15 | running |
+| 08 | closed form | Fourier vorticity N=32 | 0.13 s | 1.9e-15 | 7.7e-15 | 8.0e-01 |
 | 09 | *TODO* | | | | | |
 | 10 | *TODO* | | | | | |
+
+No vanilla PINN reaches the bar on any track: the best are 06 (7.0e-4) and 05A (2.6e-3); 01, 02, 03, 04B,
+05C and 08 stay at RelL2 ≈ 0.8–1 (no usable solution).
 
 ## 2. Harness notes
 

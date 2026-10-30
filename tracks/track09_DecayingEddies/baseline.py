@@ -24,5 +24,5 @@ def fourier_solve(p, N, substeps=SUBSTEPS):
     return (torch.fft.ifft2(U).real * (M / N) ** 2).permute(1, 0, 2, 3).contiguous()
 
 
-def solve(problem):
+def solve(problem, solver=None):
     return fourier_solve(problem, N)

@@ -4,7 +4,7 @@ collocation points resampled uniformly every step, stop after 1000 s; `query` ev
 output points.
 """
 
-from speedrun.submissions.submission_PR0001.pinn import MLP, partials, predict_grid, train, uniform
+from speedrun.submissions.submission_PR0001.pinn import MLP, PINN, partials, predict_grid, uniform
 
 
 def _periodic(model, lo, hi, dev, n=1024):
@@ -22,7 +22,8 @@ def _periodic(model, lo, hi, dev, n=1024):
     return out
 
 
-def solve(problem):
+def warmup(problem):
+    """Untimed: build the network and the loss, run one gradient evaluation (no training)."""
     dev, f, prm = problem.device, problem.fns, problem.params
     (t0, t1), (x0, x1), (y0, y1) = problem.domain["t"], problem.domain["x"], problem.domain["y"]
     lo, hi = [t0, x0, y0], [t1, x1, y1]
@@ -46,11 +47,16 @@ def solve(problem):
               + ((Yi[:, 1] - f["v0"](Xi[:, 1], Xi[:, 2])) ** 2).mean())
         return res + ic + _periodic(model, lo, hi, dev)
 
-    train(model, loss)
-    return model
+    return PINN(model, loss).compile()
 
 
-def query(model, problem):
-    """Projection of the trained network onto the evaluation points (timed separately, <= 5 s)."""
+def solve(problem, solver):
+    """Timed: train for the 1000 s budget."""
+    return solver.train()
+
+
+def query(problem, solver):
+    """Timed separately (<= 5 s): evaluate the trained network on the evaluation points."""
+    model = solver.model
     ax = [problem.axes["t"], problem.axes["x"], problem.axes["y"]]
     return predict_grid(model, ax, fields=(0, 1), dtype=problem.dtype, chunk=1 << 20)

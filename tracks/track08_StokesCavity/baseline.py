@@ -6,5 +6,5 @@ from tracks.cavity_common import sem_solve
 N = 192
 
 
-def solve(problem):
+def solve(problem, solver=None):
     return sem_solve(problem, N)

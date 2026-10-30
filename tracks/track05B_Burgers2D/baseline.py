@@ -9,7 +9,7 @@ SUBSTEPS = 50
 R = 2
 
 
-def solve(problem):
+def solve(problem, solver=None):
     x0, x1 = problem.domain["x"]
     n = R * problem.axes["x"].numel()
     g = x0 + (x1 - x0) * torch.arange(n, dtype=problem.dtype, device=problem.device) / n

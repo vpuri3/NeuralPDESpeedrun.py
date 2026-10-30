@@ -7,7 +7,7 @@ from speedrun.numerics.periodic import scalar_conservation_1d
 SUBSTEPS = 1
 
 
-def solve(problem):
+def solve(problem, solver=None):
     nu = problem.params["nu"]
     N = problem.axes["x"].numel()
     u0 = lambda s: problem.fns["u0"](s - math.pi)  # noqa: E731

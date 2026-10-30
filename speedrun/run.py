@@ -7,21 +7,22 @@
 A submission is a directory `tracks/<track>/submissions/submission_PR<NNNN>/` (or a single .py file while
 developing) whose `solve.py` defines
 
-    def solve(problem: speedrun.Problem) -> state           # learn / solve                    (REQUIRED)
-    def query(state, problem: speedrun.Problem) -> Tensor   # evaluate at problem.axes,
-                                                            # shape problem.out_shape, <= 5 s  (OPTIONAL)
-    def warmup(problem: speedrun.Problem) -> None           # untimed compile/autotune         (OPTIONAL)
+    def warmup(problem) -> solver            # untimed: build / compile the solver object  (OPTIONAL)
+    def solve(problem, solver) -> solver     # timed: train / iterate / solve               (REQUIRED)
+    def query(problem, solver) -> Tensor     # timed separately, <= 5 s: evaluate at problem.axes,
+                                             # shape problem.out_shape                      (OPTIONAL)
 
-Without `query`, `solve` returns the output tensor itself (query time 0). Learning need not happen on the
-evaluation points; `query` is the projection onto them. The two phases are timed separately; the score time
-is their sum, and a query slower than QUERY_LIMIT_S fails the run.
+Without `warmup`, `solve` receives solver=None. Without `query`, `solve` returns the output tensor itself
+(query time 0). Learning need not happen on the evaluation points; `query` is the projection onto them. The
+score time is solve + query, and a query slower than QUERY_LIMIT_S fails the run. `warmup` must not train on
+the problem or compute any part of its solution.
 
 Protocol (rules: README.md):
   1. seed everything (seed 0), build the Problem on the target device
-  2. init CUDA libraries (problem-independent), call `warmup(problem)` if present (untimed)
-  3. synchronize, clock `solve(problem)`, synchronize; then clock `query(state, problem)` the same way
+  2. init CUDA libraries (problem-independent), solver = warmup(problem) if present (untimed)
+  3. synchronize, clock `solve(problem, solver)`, synchronize; then clock `query(problem, solver)` the same way
   4. only THEN is the reference loaded and the returned tensor scored
-  5. (untimed) device check: one more `solve` under op counting; the reported hardware is the GPU only if
+  5. (untimed) device check: one more warmup + solve + query under op counting; the reported hardware is the GPU only if
      essentially all tensor work ran on it (speedrun/devicecheck.py). The env var SPEEDRUN_DEVICE_CHECK=1 is
      set during this run, so long iterative solvers may shorten it (it is not scored).
 """
@@ -109,6 +110,13 @@ def hardware_string(device: str) -> str:
     return cpu_string()
 
 
+def run_submission(mod, problem):
+    """warmup -> solve -> query, untimed (used by the GPU check)."""
+    solver = mod.warmup(problem) if hasattr(mod, "warmup") else None
+    solver = mod.solve(problem, solver)
+    return mod.query(problem, solver) if hasattr(mod, "query") else solver
+
+
 def submission_file(path: Path) -> Path:
     """A submission directory (submission_PR<NNNN>/solve.py) or a single .py file."""
     return path / "solve.py" if path.is_dir() else path
@@ -126,23 +134,22 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     mod = _import_file(sub_path)
     _init_device_libs(device)
 
-    if hasattr(mod, "warmup"):
-        mod.warmup(problem)
-        _sync(device)
+    solver = mod.warmup(problem) if hasattr(mod, "warmup") else None
+    _sync(device)
 
     if device.startswith("cuda") and torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
     _sync(device)
     t0 = time.perf_counter()
-    state = mod.solve(problem)
+    solver = mod.solve(problem, solver)
     _sync(device)
     solve_s = time.perf_counter() - t0
     query_s = 0.0
-    u = state
+    u = solver
     if hasattr(mod, "query"):
         t1 = time.perf_counter()
-        u = mod.query(state, problem)
+        u = mod.query(problem, solver)
         _sync(device)
         query_s = time.perf_counter() - t1
     elapsed = solve_s + query_s
@@ -164,8 +171,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         from .devicecheck import check, classify
         os.environ["SPEEDRUN_DEVICE_CHECK"] = "1"   # submissions may shorten this untimed, unscored run
         try:
-            dev_report = check(lambda p: mod.query(mod.solve(p), p) if hasattr(mod, "query") else mod.solve(p),
-                               problem)
+            dev_report = check(lambda p: run_submission(mod, p), problem)
         finally:
             del os.environ["SPEEDRUN_DEVICE_CHECK"]
         hardware = classify(dev_report, hardware, cpu_string())

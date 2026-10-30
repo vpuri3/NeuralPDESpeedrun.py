@@ -89,6 +89,24 @@ def train(model: nn.Module, loss_fn: Callable[[], torch.Tensor], budget: float |
     return hist
 
 
+class PINN:
+    """Solver object: network + loss. Built in `warmup`, trained in `solve`, evaluated in `query`."""
+
+    def __init__(self, model: nn.Module, loss_fn: Callable[[], torch.Tensor], lr: float = 1e-3, lr_end: float = 1e-5):
+        self.model, self.loss_fn, self.lr, self.lr_end = model, loss_fn, lr, lr_end
+        self.history: list[tuple[float, float]] = []
+
+    def compile(self):
+        """Run the loss and its gradient once (CUDA kernels, autograd graph) without updating the weights."""
+        self.loss_fn().backward()
+        self.model.zero_grad(set_to_none=True)
+        return self
+
+    def train(self, budget: float | None = None):
+        self.history = train(self.model, self.loss_fn, budget, self.lr, self.lr_end)
+        return self
+
+
 @torch.no_grad()
 def predict_grid(model: nn.Module, axes: Sequence[torch.Tensor], to_points: Callable | None = None,
                  fields: Sequence[int] = (0,), dtype=torch.float64, chunk: int = 1 << 18) -> torch.Tensor:

@@ -9,7 +9,7 @@ from speedrun.numerics import dst
 N = 512
 
 
-def solve(problem):
+def solve(problem, solver=None):
     dt, dev = problem.dtype, problem.device
     v, b = problem.params["v"], problem.params["b"]
     t, xe = problem.axes["t"], problem.axes["x"]

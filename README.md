@@ -41,15 +41,14 @@ the walls from L∞ (`Problem.linf_margin`). Every track below lists its bar. Pr
    solvers may be used inside the method, mixed with neural parts in any way.
 3. **No oracle stopping.** The method decides on its own when to stop (residual, loss, iteration budget). It
    is scored once, on whatever `solve` returns. The harness loads the reference only after the clock stops.
-4. **Timing: solve, then query.** Learning/solving need not happen on the evaluation points. A submission
-   has two timed phases: `solve(problem) -> state` (train, iterate, solve) and `query(state, problem)`, the
-   projection onto the evaluation points `problem.axes`. Each is clocked separately with CUDA syncs on both
-   ends. The score time is their sum, and **the query must take ≤ 5 s** or the run fails. Without `query`,
-   `solve` returns the output tensor directly (query time 0). `warmup(problem)` (optional, untimed) may
-   compile/autotune on anything but must not leave solution state (no cached fields, no weights trained on
-   this problem). The harness initializes CUDA libraries and loads all kernel modules before the clock.
+4. **Timing: warmup, solve, query.** `warmup(problem) -> solver` is untimed: it builds and compiles the solver
+   object but must not train on the problem or compute any part of its solution. `solve(problem, solver)`
+   (train, iterate, solve) and `query(problem, solver)` (projection onto the evaluation points `problem.axes`)
+   are each clocked with CUDA syncs on both ends. The score time is their sum, and **the query must take
+   ≤ 5 s** or the run fails. The harness initializes CUDA libraries and loads all kernel modules before the
+   clock.
 5. **One solve, seed 0.** No multi-instance evaluation.
-6. **GPU check.** After scoring, the harness runs `solve` + `query` once more (untimed) and counts every torch
+6. **GPU check.** After scoring, the harness runs `warmup` + `solve` + `query` once more (untimed) and counts every torch
    op by device. The result is reported as GPU only if essentially all tensor work ran on the GPU; otherwise
    the hardware is reported as CPU (or CPU+GPU). `SPEEDRUN_DEVICE_CHECK=1` is set during that run, so long
    iterative methods may shorten it.
@@ -66,24 +65,29 @@ A submission is plain Python. For each track it competes in, it has one director
 import torch
 from speedrun import Problem
 
-def solve(problem: Problem):
-    """Timed. Learn / iterate / solve from the problem data only. Return any state (a network, coefficients,
-    a coarse field, ...). Need not touch the evaluation points."""
-    ...
-    return state
+def warmup(problem: Problem):
+    """Untimed, optional. Build the solver object (network, discretization, ...) and compile/autotune it.
+    It must not train on the problem or compute any part of its solution."""
+    solver = MySolver(problem)
+    solver.compile()
+    return solver
 
-def query(state, problem: Problem) -> torch.Tensor:
-    """Timed separately, at most 5 s. Project the state onto the evaluation points: return a tensor of shape
+def solve(problem: Problem, solver):
+    """Timed. Train / iterate / solve from the problem data only. Learning need not happen on the evaluation
+    points. Returns the solver (or any state that query needs)."""
+    solver.train()
+    return solver
+
+def query(problem: Problem, solver) -> torch.Tensor:
+    """Timed separately, at most 5 s. Project the solver onto the evaluation points: return a tensor of shape
     problem.out_shape = (n_fields, len(axis_0), len(axis_1), ...) with values on the tensor grid of
     problem.axes (indexing="ij")."""
-    ...
-
-def warmup(problem: Problem) -> None:
-    """Optional, untimed: compile / autotune. Must not leave solution state behind for solve."""
+    return solver.predict(problem.axes)
 ```
 
-`query` is optional: without it, `solve` must return the output tensor itself. What a submission may use is
-exactly what `Problem` holds:
+All state lives in the solver object, so `solve.py` needs no module-level globals. Without `warmup`, `solve`
+receives `solver=None`. Without `query`, `solve` returns the output tensor itself (as the classical baselines
+do). What a submission may use is exactly what `Problem` holds:
 
 | field | contents |
 |---|---|
@@ -110,7 +114,7 @@ maintained classical toolbox (used by references and baselines), which any submi
 ```
 speedrun/submissions/submission_PR<NNNN>/      shared code (optional)
 tracks/<track>/submissions/submission_PR<NNNN>/
-  solve.py        solve / query / warmup as above
+  solve.py        warmup / solve / query as above
   result.json     harness output for this submission, on your GPU
   previous.json   harness output for the current record, on the same GPU
   README.md       method, what changed vs. the previous record

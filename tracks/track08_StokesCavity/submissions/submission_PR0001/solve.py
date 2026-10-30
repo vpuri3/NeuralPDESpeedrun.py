@@ -3,10 +3,11 @@ strong-form residual + the Dirichlet velocity loss, 4096 collocation points resa
 stop after 1000 s; `query` evaluates the network on the output points.
 """
 
-from speedrun.submissions.submission_PR0001.pinn import MLP, box_boundary, partials, predict_grid, train, uniform
+from speedrun.submissions.submission_PR0001.pinn import MLP, PINN, box_boundary, partials, predict_grid, uniform
 
 
-def solve(problem):
+def warmup(problem):
+    """Untimed: build the network and the loss, run one gradient evaluation (no training)."""
     dev, f, prm = problem.device, problem.fns, problem.params
     nu = prm["nu"]
     (x0, x1), (y0, y1) = problem.domain["x"], problem.domain["y"]
@@ -30,10 +31,15 @@ def solve(problem):
               + ((Yb[:, 1] - f["v_bc"](Xb[:, 0], Xb[:, 1])) ** 2).mean())
         return (ru ** 2).mean() + (rv ** 2).mean() + ((ux + vy) ** 2).mean() + bc
 
-    train(model, loss)
-    return model
+    return PINN(model, loss).compile()
 
 
-def query(model, problem):
-    """Projection of the trained network onto the evaluation points (timed separately, <= 5 s)."""
+def solve(problem, solver):
+    """Timed: train for the 1000 s budget."""
+    return solver.train()
+
+
+def query(problem, solver):
+    """Timed separately (<= 5 s): evaluate the trained network on the evaluation points."""
+    model = solver.model
     return predict_grid(model, [problem.axes["x"], problem.axes["y"]], fields=(0, 1), dtype=problem.dtype)

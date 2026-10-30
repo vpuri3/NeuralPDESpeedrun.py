@@ -1,4 +1,4 @@
-"""Where does a submission actually compute? Counts every aten op of one `solve` call by the device of its
+"""Where does a submission actually compute? Counts every aten op of one warmup + solve + query by the device of its
 tensors, so a run on a CUDA problem whose work silently happens on the CPU is reported as such.
 
 Used by the harness (an extra, untimed `solve` after scoring); standalone:
@@ -36,10 +36,11 @@ class _Count(TorchDispatchMode):
         return out
 
 
-def check(solve, problem) -> dict:
-    """Run solve(problem) once under op counting. `gpu_fraction` = share of tensor work on CUDA."""
+def check(run, problem) -> dict:
+    """Run run(problem) (warmup + solve + query) once under op counting. `gpu_fraction` = share of tensor work
+    on CUDA."""
     with _Count() as c:
-        solve(problem)
+        run(problem)
     total = sum(c.work.values())
     frac = c.work["cuda"] / total if total else 1.0
     top = sorted(c.cpu_ops.items(), key=lambda kv: -kv[1])[:8]
@@ -59,7 +60,7 @@ def classify(report: dict, gpu_name: str, cpu_name: str) -> str:
 def main():
     import argparse
 
-    from .run import _import_file
+    from .run import _import_file, run_submission
     from .tracks import load_problem, resolve, track_dir
     from pathlib import Path
     ap = argparse.ArgumentParser()
@@ -69,7 +70,7 @@ def main():
     t = resolve(a.track)
     mod = _import_file(Path(a.submission) if a.submission else track_dir(t) / "baseline.py")
     p = load_problem(t, device="cuda")
-    print(t, check(mod.solve, p))
+    print(t, check(lambda q: run_submission(mod, q), p))
 
 
 if __name__ == "__main__":

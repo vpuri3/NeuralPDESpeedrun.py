@@ -24,5 +24,5 @@ def chebyshev_collocation(problem, N):
     return (Px @ U @ Py.T)[None]
 
 
-def solve(problem):
+def solve(problem, solver=None):
     return chebyshev_collocation(problem, N)

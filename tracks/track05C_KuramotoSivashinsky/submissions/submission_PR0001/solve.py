@@ -4,10 +4,11 @@ every step, stop after 1000 s; `query` evaluates the network on the output point
 """
 import torch
 
-from speedrun.submissions.submission_PR0001.pinn import MLP, partials, predict_grid, train, uniform
+from speedrun.submissions.submission_PR0001.pinn import MLP, PINN, partials, predict_grid, uniform
 
 
-def solve(problem):
+def warmup(problem):
+    """Untimed: build the network and the loss, run one gradient evaluation (no training)."""
     dev, f, prm = problem.device, problem.fns, problem.params
     (t0, t1), (x0, x1) = problem.domain["t"], problem.domain["x"]
     lo, hi = [t0, x0], [t1, x1]
@@ -27,10 +28,15 @@ def solve(problem):
         per = ((ua - ub) ** 2).mean() + ((partials(ua, A, 1) - partials(ub, B, 1)) ** 2).mean()
         return (r ** 2).mean() + ic + per
 
-    train(model, loss)
-    return model
+    return PINN(model, loss).compile()
 
 
-def query(model, problem):
-    """Projection of the trained network onto the evaluation points (timed separately, <= 5 s)."""
+def solve(problem, solver):
+    """Timed: train for the 1000 s budget."""
+    return solver.train()
+
+
+def query(problem, solver):
+    """Timed separately (<= 5 s): evaluate the trained network on the evaluation points."""
+    model = solver.model
     return predict_grid(model, [problem.axes["t"], problem.axes["x"]], dtype=problem.dtype)

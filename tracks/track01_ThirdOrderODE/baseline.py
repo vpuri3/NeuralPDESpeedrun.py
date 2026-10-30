@@ -6,7 +6,7 @@ from speedrun.numerics import bary_matrix, cheb
 N = 16
 
 
-def solve(problem):
+def solve(problem, solver=None):
     x, D = cheb(N, 0.0, 1.0, dtype=problem.dtype, device=problem.device)
     A = D @ D @ D
     b = problem.fns["forcing"](x)

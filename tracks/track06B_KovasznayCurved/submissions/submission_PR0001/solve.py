@@ -5,10 +5,11 @@ uniform (r, s) under problem.fns['map'].
 """
 import torch
 
-from speedrun.submissions.submission_PR0001.pinn import MLP, box_boundary, partials, predict_grid, train, uniform
+from speedrun.submissions.submission_PR0001.pinn import MLP, PINN, box_boundary, partials, predict_grid, uniform
 
 
-def solve(problem):
+def warmup(problem):
+    """Untimed: build the network and the loss, run one gradient evaluation (no training)."""
     dev, f, prm = problem.device, problem.fns, problem.params
     nu = prm["nu"]
     m = f["map"]
@@ -40,12 +41,17 @@ def solve(problem):
               + ((Yb[:, 1] - f["v_bc"](Xb[:, 0], Xb[:, 1])) ** 2).mean())
         return (ru ** 2).mean() + (rv ** 2).mean() + ((ux + vy) ** 2).mean() + bc
 
-    train(model, loss)
-    return model
+    return PINN(model, loss).compile()
 
 
-def query(model, problem):
-    """Projection of the trained network onto the evaluation points (timed separately, <= 5 s)."""
+def solve(problem, solver):
+    """Timed: train for the 1000 s budget."""
+    return solver.train()
+
+
+def query(problem, solver):
+    """Timed separately (<= 5 s): evaluate the trained network on the evaluation points."""
+    model = solver.model
     m = problem.fns["map"]
     to_xy = lambda rs: torch.stack(m(rs[0], rs[1]), 1)  # noqa: E731
     return predict_grid(model, [problem.axes["r"], problem.axes["s"]], to_points=to_xy, fields=(0, 1),

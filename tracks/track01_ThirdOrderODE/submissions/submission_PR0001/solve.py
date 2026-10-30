@@ -4,10 +4,11 @@ residual + the three boundary conditions, 1024 collocation points resampled unif
 """
 import torch
 
-from speedrun.submissions.submission_PR0001.pinn import MLP, partials, predict_grid, train, uniform
+from speedrun.submissions.submission_PR0001.pinn import MLP, PINN, partials, predict_grid, uniform
 
 
-def solve(problem):
+def warmup(problem):
+    """Untimed: build the network and the loss, run one gradient evaluation (no training)."""
     dev, f = problem.device, problem.fns
     lo, hi = problem.domain["x"]
     model = MLP([lo], [hi], 1).to(dev)
@@ -22,10 +23,15 @@ def solve(problem):
         bc = (ub[0] - f["u_left"]) ** 2 + (ub[1] - f["u_right"]) ** 2 + (dub[1] - f["du_right"]) ** 2
         return (r ** 2).mean() + bc
 
-    train(model, loss)
-    return model
+    return PINN(model, loss).compile()
 
 
-def query(model, problem):
-    """Projection of the trained network onto the evaluation points (timed separately, <= 5 s)."""
+def solve(problem, solver):
+    """Timed: train for the 1000 s budget."""
+    return solver.train()
+
+
+def query(problem, solver):
+    """Timed separately (<= 5 s): evaluate the trained network on the evaluation points."""
+    model = solver.model
     return predict_grid(model, [problem.axes["x"]], dtype=problem.dtype)

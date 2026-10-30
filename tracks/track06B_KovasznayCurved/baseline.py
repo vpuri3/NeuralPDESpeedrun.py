@@ -9,5 +9,5 @@ def warmup(problem):
     sem_solve(problem, 6)   # initializes torch.func (jacfwd/vmap); the N = 6 result is discarded
 
 
-def solve(problem):
+def solve(problem, solver=None):
     return sem_solve(problem, N)

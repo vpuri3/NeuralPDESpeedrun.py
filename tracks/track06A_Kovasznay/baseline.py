@@ -19,5 +19,5 @@ def warmup(problem):
     _solve(problem, 6)      # initializes torch.func (jacfwd/vmap); the N = 6 result is discarded
 
 
-def solve(problem):
+def solve(problem, solver=None):
     return _solve(problem, N)

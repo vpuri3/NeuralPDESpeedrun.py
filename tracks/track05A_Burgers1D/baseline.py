@@ -5,7 +5,7 @@ from speedrun.numerics.periodic import scalar_conservation_1d
 SUBSTEPS = 1
 
 
-def solve(problem):
+def solve(problem, solver=None):
     nu = problem.params["nu"]
     N = problem.axes["x"].numel()
     U = scalar_conservation_1d(problem.fns["u0"], 2.0, N, lambda k: -nu * k**2, problem.axes["t"], SUBSTEPS,

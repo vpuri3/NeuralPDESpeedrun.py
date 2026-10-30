@@ -12,8 +12,9 @@ developing) whose `solve.py` defines
     def query(problem, solver) -> Tensor     # timed separately, <= 5 s: evaluate at problem.axes,
                                              # shape problem.out_shape                      (OPTIONAL)
 
-Without `warmup`, `solve` receives solver=None. Without `query`, `solve` returns the output tensor itself
-(query time 0). Learning need not happen on the evaluation points; `query` is the projection onto them. The
+Without `warmup`, `solve` receives solver=None. If `solve` returns a tensor of shape problem.out_shape, that is
+the output and `query` is not called (query time 0; how the classical baselines work); otherwise `query` is
+required. Learning need not happen on the evaluation points; `query` is the projection onto them. The
 score time is solve + query, and a query slower than QUERY_LIMIT_S fails the run. `warmup` must not train on
 the problem or compute any part of its solution.
 
@@ -110,11 +111,26 @@ def hardware_string(device: str) -> str:
     return cpu_string()
 
 
+def is_output(x, problem) -> bool:
+    """Did `solve` return the output grid itself (classical solvers) rather than a solver object?"""
+    return isinstance(x, torch.Tensor) and tuple(x.shape) == tuple(problem.out_shape)
+
+
+def needs_query(mod, solver, problem) -> bool:
+    if is_output(solver, problem):
+        return False
+    if not hasattr(mod, "query"):
+        shape = tuple(solver.shape) if isinstance(solver, torch.Tensor) else type(solver).__name__
+        raise TypeError(f"solve returned {shape}, not a tensor of problem.out_shape = {problem.out_shape}, "
+                        "and the submission defines no query(problem, solver)")
+    return True
+
+
 def run_submission(mod, problem):
     """warmup -> solve -> query, untimed (used by the GPU check)."""
     solver = mod.warmup(problem) if hasattr(mod, "warmup") else None
     solver = mod.solve(problem, solver)
-    return mod.query(problem, solver) if hasattr(mod, "query") else solver
+    return mod.query(problem, solver) if needs_query(mod, solver, problem) else solver
 
 
 def submission_file(path: Path) -> Path:
@@ -147,7 +163,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     solve_s = time.perf_counter() - t0
     query_s = 0.0
     u = solver
-    if hasattr(mod, "query"):
+    if needs_query(mod, solver, problem):
         t1 = time.perf_counter()
         u = mod.query(problem, solver)
         _sync(device)

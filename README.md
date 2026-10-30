@@ -86,8 +86,9 @@ def query(problem: Problem, solver) -> torch.Tensor:
 ```
 
 All state lives in the solver object, so `solve.py` needs no module-level globals. Without `warmup`, `solve`
-receives `solver=None`. Without `query`, `solve` returns the output tensor itself (as the classical baselines
-do). What a submission may use is exactly what `Problem` holds:
+receives `solver=None`. **If `solve` returns a tensor of shape `problem.out_shape`, that is the output**: `query`
+is not called and the query time is 0. That is how the classical baselines work (they solve and interpolate
+inside `solve`, so all of it is timed). Otherwise `query` is required. What a submission may use is exactly what `Problem` holds:
 
 | field | contents |
 |---|---|

@@ -1,0 +1,35 @@
+{
+  "track": "track01_ThirdOrderODE",
+  "submission": "tracks/track01_ThirdOrderODE/submissions/submission_PR0001/solve.py",
+  "time_s": 1001.1271552247927,
+  "solve_time_s": 1001.1264095020015,
+  "query_time_s": 0.0007457227911800146,
+  "rel_l2": 0.00017039783393431893,
+  "linf": 0.00016530155844840522,
+  "accurate": false,
+  "query_within_limit": true,
+  "passed": false,
+  "tolerances": {
+    "rel_l2": 0.0001,
+    "linf": 0.001
+  },
+  "linf_margin": 0.0,
+  "device": "cuda",
+  "hardware": "NVIDIA GeForce RTX 2080 Ti",
+  "device_check": {
+    "gpu_fraction": 0.9999955619769784,
+    "ops_cuda": 211839,
+    "ops_cpu": 27,
+    "cpu_ops_top": {
+      "empty": 9,
+      "uniform_": 9,
+      "_to_copy": 9
+    }
+  },
+  "cuda_peak_allocated_gb": 0.029207229614257812,
+  "torch": "2.15.0+cu132",
+  "python": "3.12.3",
+  "git_commit": "128015a",
+  "seed": 0,
+  "date": "2026-10-30T12:55:37"
+}

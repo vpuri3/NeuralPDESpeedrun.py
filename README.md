@@ -97,33 +97,38 @@ Results that miss the bar stay as points on the track's accuracy-vs-time plot, b
 
 ## Tracks
 
-Each track shows its reference solution (animation where time-dependent) and, once it has submissions, its
-tracker: RelL2 vs wall-clock time, one point per submission, bar dashed. Record #0 times are on an RTX 2080 Ti
-(fp64, GPU-checked) pending H100 re-timing. Tracks 05C, 07 and 11–16 are the benchmarks of the PirateNet /
-SOAP-for-PINNs study (Wang et al.); their references are the published solutions (`speedrun/external.py`) and
-they have no classical baseline. Each `tracks/<track>/README.md` has the full statement and leaderboard.
+The table lists the best submission on each track. Until some submission meets the track's accuracy bar, the
+best is the most accurate one (lowest RelL2); once the bar is met, it is the fastest one that meets it. Classical
+baselines (record #0, where a track has one) are reference points listed in each `tracks/<track>/README.md`, not
+in this table. Times are pending H100 re-timing. Tracks 05C, 07 and 11–16 are the benchmarks of the PirateNet /
+SOAP-for-PINNs study (Wang et al.); their references are the published solutions (`speedrun/external.py`).
 
-| track | record #0 | time |
-|---|---|---|
-| 01 VanDerPol | LSODA, rtol 1e-8 (CPU) | 37 ms |
-| 02 DampedWave | sine modes N=256, exact in time | 2.9 ms |
-| 03 HighContrastDiffusion | FV 3328² + MG-PCG | 8.36 s |
-| 04A Helmholtz | *on hold* | — |
-| 04B AdvectionDiffusion | Chebyshev N=96 | 1.16 s |
-| 05A Burgers1D | Fourier N=1024 + ETDRK4 | 0.23 s |
-| 05B Burgers2D | Fourier 1024² + ETDRK4 | 7.83 s |
-| 05C KuramotoSivashinsky | — (no classical baseline) | — |
-| 06 Kovasznay | PN–PN-2 N=16, Newton | 0.19 s |
-| 07 LidDrivenCavity | — (no classical baseline) | — |
-| 08 DecayingEddies | Fourier N=32 + ETDRK4 | 0.13 s |
-| 09 CylinderFlow | *TODO* | — |
-| 10 BeltramiFlow | *TODO* | — |
-| 11 AllenCahn | — (no classical baseline) | — |
-| 12 KdV | — (no classical baseline) | — |
-| 13 GreyScott | — (no classical baseline) | — |
-| 14 GinzburgLandau | — (no classical baseline) | — |
-| 15 RayleighTaylor | — (no classical baseline) | — |
-| 16 KolmogorovFlow | — (no classical baseline) | — |
+Each track below shows its reference solution (animation where time-dependent) and, once it has submissions,
+its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
+
+<!-- tracks-table:begin -->
+| track | best submission | time [s] | RelL2 | L∞ | bar met |
+|---|---|---|---|---|---|
+| 01 VanDerPol | — | | | | |
+| 02 DampedWave | — | | | | |
+| 03 HighContrastDiffusion | — | | | | |
+| 04A Helmholtz | *on hold* | | | | |
+| 04B AdvectionDiffusion | — | | | | |
+| 05A Burgers1D | — | | | | |
+| 05B Burgers2D | — | | | | |
+| 05C KuramotoSivashinsky | — | | | | |
+| 06 Kovasznay | — | | | | |
+| 07 LidDrivenCavity | — | | | | |
+| 08 DecayingEddies | — | | | | |
+| 09 CylinderFlow | *TODO* | | | | |
+| 10 BeltramiFlow | *TODO* | | | | |
+| 11 AllenCahn | — | | | | |
+| 12 KdV | — | | | | |
+| 13 GreyScott | — | | | | |
+| 14 GinzburgLandau | — | | | | |
+| 15 RayleighTaylor | — | | | | |
+| 16 KolmogorovFlow | — | | | | |
+<!-- tracks-table:end -->
 
 ### 01 VanDerPol
 Stiff ODE: `y'' − μ(1 − y²) y' + y = 0`, μ = 1000, `y(0) = 2`, `y'(0) = 0`, t ∈ [0, 3000] (almost two relaxation

@@ -64,6 +64,49 @@ def passing(recs: list[dict]) -> list[dict]:
     return [r for r in recs if r.get("passed", True)]
 
 
+def best_submission(recs: list[dict]) -> dict | None:
+    """Best non-baseline entry: until some submission meets the bar, the most accurate (lowest RelL2);
+    afterwards, the fastest one that meets the bar."""
+    subs = [r for r in recs if r.get("kind") != "classical"]
+    if not subs:
+        return None
+    ok = passing(subs)
+    return min(ok, key=lambda r: r["time_s"]) if ok else min(subs, key=lambda r: r["rel_l2"])
+
+
+TABLE_BEGIN, TABLE_END = "<!-- tracks-table:begin -->", "<!-- tracks-table:end -->"
+STATUS = {"track04A_Helmholtz": "*on hold*", "track09_CylinderFlow": "*TODO*", "track10_BeltramiFlow": "*TODO*"}
+
+
+def tracks_table() -> str:
+    """Main-README table: best submission per track (see best_submission), its time and accuracy."""
+    from .tracks import load_problem
+    lines = ["| track | best submission | time [s] | RelL2 | L∞ | bar met |", "|---|---|---|---|---|---|"]
+    for t in TRACKS:
+        label = t.replace("track", "", 1).replace("_", " ", 1)
+        if t in STATUS or not (track_dir(t) / "problem.py").exists():
+            lines.append(f"| {label} | {STATUS.get(t, '*TODO*')} | | | | |")
+            continue
+        b = best_submission(load_records(t))
+        if b is None:
+            lines.append(f"| {label} | — | | | | |")
+            continue
+        p = load_problem(t)
+        name = f"[{b['name']}]({b['submission']})" if b.get("submission") else b["name"]
+        lines.append(f"| {label} | {name} | {b['time_s']:.4g} | {b['rel_l2']:.2e} (≤ {p.rel_l2_tol:g}) | "
+                     f"{b['linf']:.2e} (≤ {p.linf_tol:g}) | {'yes' if b.get('passed') else 'no'} |")
+    return "\n".join(lines)
+
+
+def update_main_readme(path: Path | None = None) -> Path:
+    from .tracks import ROOT
+    path = path or ROOT / "README.md"
+    s = path.read_text()
+    a, b = s.index(TABLE_BEGIN) + len(TABLE_BEGIN), s.index(TABLE_END)
+    path.write_text(s[:a] + "\n" + tracks_table() + "\n" + s[b:])
+    return path
+
+
 def plot_accuracy(track: str) -> Path | None:
     """RelL2 vs wall-clock time, one point per submission, the track's bar as a dashed line."""
     from .tracks import load_problem
@@ -160,7 +203,8 @@ def main():
         plot_accuracy(t)
         out = plot_activity(t)
         print(f"[{t}] {out or 'no records'}  {write_readme(t)}")
-
+    if a.track == "all":
+        print(f"[README] {update_main_readme()}")
 
 
 def write_readme(track: str) -> Path:

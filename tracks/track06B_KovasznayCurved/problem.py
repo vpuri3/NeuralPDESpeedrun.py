@@ -1,4 +1,4 @@
-"""Track 6B: Kovasznay flow, Re = 40, in a trapezoid with a parabolic top (spec `kov` case, geom/para.m)."""
+"""Track 06B: Kovasznay flow, Re = 40, in a trapezoid with a parabolic top."""
 import torch
 
 from speedrun.problem import Problem

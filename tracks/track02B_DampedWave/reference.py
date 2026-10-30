@@ -48,6 +48,6 @@ def compute(device="cpu"):
 
 def plot(problem, u, extras, figdir):
     t, x = problem.axes["t"], problem.axes["x"]
-    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 2B: damped wave u(t, x)")
-    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", n=7, title="Track 2B snapshots")
+    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 02B: damped wave u(t, x)")
+    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", n=7, title="Track 02B snapshots")
     plotting.gif1d(x, t, u[0], figdir / "reference.gif", title="Track 2B")

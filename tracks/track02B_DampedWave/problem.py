@@ -1,11 +1,10 @@
-"""Track 2B: 1D damped wave equation (NeuralPDE.jl wave example #2)."""
+"""Track 02B: 1D damped wave equation."""
 import torch
 
 from speedrun.problem import Problem
 
 STATEMENT = r"""
-1D damped wave equation on (t, x) in [0, 1] x [0, 1], with v = 3, b = 2 (as implemented in the
-NeuralPDE.jl example code):
+1D damped wave equation on (t, x) in [0, 1] x [0, 1], with v = 3, b = 2:
 
     u_xx = (1 / v^2) u_tt + b u_t          i.e.   u_tt = v^2 u_xx - b v^2 u_t
     u(t, 0) = u(t, 1) = 0

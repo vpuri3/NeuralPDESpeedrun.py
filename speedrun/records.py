@@ -37,22 +37,73 @@ def save_records(track: str, recs: list[dict]) -> None:
     records_path(track).write_text(json.dumps(recs, indent=2) + "\n")
 
 
-def seed_baseline(track: str, result_json: str, date: str | None = None, author: str = "maintainers") -> dict:
-    """Make the harness result of the track's baseline record #0 (replacing an existing baseline entry)."""
+def add_entry(track: str, result_json: str, name: str, kind: str, author: str = "maintainers",
+              pr: int | None = None, date: str | None = None) -> dict:
+    """Add a harness result to records.json (replacing an entry of the same submission). Entries that miss the
+    accuracy bar are kept (passed = false): they are points on the accuracy-vs-time plot, not records."""
     track = resolve(track)
     r = json.loads(Path(result_json).read_text())
-    assert r["track"] == track and r["passed"], f"{result_json}: not a passing {track} result"
-    entry = {"date": date or r["date"][:10], "author": author, "name": "record #0: classical baseline",
-             "submission": r["submission"], "time_s": r["time_s"], "rel_l2": r["rel_l2"], "linf": r["linf"],
-             "hardware": r["hardware"], "kind": "classical", "pr": None}
+    assert r["track"] == track, f"{result_json} is a {r['track']} result, not {track}"
+    entry = {"date": date or r["date"][:10], "author": author, "name": name, "submission": r["submission"],
+             "time_s": r["time_s"], "solve_time_s": r.get("solve_time_s", r["time_s"]),
+             "query_time_s": r.get("query_time_s", 0.0), "rel_l2": r["rel_l2"], "linf": r["linf"],
+             "passed": r["passed"], "hardware": r["hardware"], "kind": kind, "pr": pr}
     recs = [e for e in load_records(track) if e.get("submission") != r["submission"]]
     save_records(track, recs + [entry])
     return entry
 
 
-def plot_activity(track: str) -> Path | None:
+def seed_baseline(track: str, result_json: str, date: str | None = None, author: str = "maintainers") -> dict:
+    """Make the harness result of the track's baseline record #0."""
+    r = json.loads(Path(result_json).read_text())
+    assert r["passed"], f"{result_json}: the baseline does not pass"
+    return add_entry(track, result_json, "record #0: classical baseline", "classical", author, date=date)
+
+
+def passing(recs: list[dict]) -> list[dict]:
+    return [r for r in recs if r.get("passed", True)]
+
+
+def plot_accuracy(track: str) -> Path | None:
+    """RelL2 vs wall-clock time, one point per submission, the track's bar as a dashed line."""
+    from .tracks import load_problem
     track = resolve(track)
     recs = load_records(track)
+    if not recs:
+        return None
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    p = load_problem(track)
+    fig, ax = plt.subplots(figsize=(6.4, 4.2), constrained_layout=True)
+    for kind, (c, m) in KIND_STYLE.items():
+        pts = [r for r in recs if r.get("kind", "classical") == kind]
+        for r in pts:
+            ax.scatter(r["time_s"], max(r["rel_l2"], 1e-16), color=c, marker=m, s=46, zorder=3,
+                       facecolors=c if r.get("passed", True) else "none")
+            ax.annotate(r["name"].replace("record #0: ", ""), (r["time_s"], max(r["rel_l2"], 1e-16)),
+                        textcoords="offset points", xytext=(6, 4), fontsize=7)
+        if pts:
+            ax.scatter([], [], color=c, marker=m, label=kind)
+    ax.axhline(p.rel_l2_tol, color="k", ls="--", lw=1, label=f"bar RelL2 = {p.rel_l2_tol:g}")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("wall-clock time [s] (solve + query)")
+    ax.set_ylabel("RelL2")
+    ax.set_title(f"{track}  (hollow = misses the bar)", fontsize=9)
+    ax.grid(True, which="both", alpha=0.3)
+    ax.legend(fontsize=8, loc="best")
+    out = track_dir(track) / "figures" / "accuracy_vs_time.png"
+    out.parent.mkdir(exist_ok=True)
+    fig.savefig(out, dpi=120)
+    plt.close(fig)
+    return out
+
+
+def plot_activity(track: str) -> Path | None:
+    track = resolve(track)
+    recs = passing(load_records(track))
     if not recs:
         return None
     import matplotlib
@@ -92,6 +143,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--track", required=True, help="track id or 'all'")
     ap.add_argument("--seed-baseline", default=None, help="harness result json of the baseline -> record #0")
+    ap.add_argument("--add", default=None, help="harness result json of a submission to add")
+    ap.add_argument("--name", default=None)
+    ap.add_argument("--kind", default="neural", choices=list(KIND_STYLE))
+    ap.add_argument("--author", default="maintainers")
+    ap.add_argument("--pr", type=int, default=None)
     a = ap.parse_args()
     for t in (TRACKS if a.track == "all" else [a.track]):
         if not (track_dir(t) / "problem.py").exists():
@@ -99,6 +155,9 @@ def main():
             continue
         if a.seed_baseline:
             print(seed_baseline(t, a.seed_baseline))
+        if a.add:
+            print(add_entry(t, a.add, a.name or Path(a.add).parent.name, a.kind, a.author, a.pr))
+        plot_accuracy(t)
         out = plot_activity(t)
         print(f"[{t}] {out or 'no records'}  {write_readme(t)}")
 
@@ -125,15 +184,16 @@ def write_readme(track: str) -> Path:
         lines += [""]
     lines += ["## Records", ""]
     if recs:
-        best = min(recs, key=lambda r: r["time_s"])
+        best = min(passing(recs) or recs, key=lambda r: r["time_s"])
         lines += [f"Current record: **{best['time_s']:.4g} s** ({best['name']}, {best['author']}, {best['date']}, "
                   f"{best['hardware']}).", "",
-                  "| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |",
-                  "|---|---|---|---|---|---|---|---|"]
+                  "| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |",
+                  "|---|---|---|---|---|---|---|---|---|"]
         lines += [f"| {r['date']} | {r['author']} | {r['name']} | {r['kind']} | {r['time_s']:.4g} | {r['rel_l2']:.2e} "
-                  f"| {r['linf']:.2e} | {r['hardware']} |" for r in recs]
-        if (d / "figures" / "activity.png").exists():
-            lines += ["", "![activity](figures/activity.png)"]
+                  f"| {r['linf']:.2e} | {'yes' if r.get('passed', True) else 'no'} | {r['hardware']} |" for r in recs]
+        for fig in ("accuracy_vs_time", "activity"):
+            if (d / "figures" / f"{fig}.png").exists():
+                lines += ["", f"![{fig}](figures/{fig}.png)"]
     else:
         lines += ["No records yet."]
     out = d / "README.md"

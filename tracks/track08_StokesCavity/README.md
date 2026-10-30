@@ -23,7 +23,7 @@ shape (2, 129, 129).
 
 ## Reference
 
-single-element Legendre PN-PN-2 (spec), N=768, Uzawa CG
+single-element Legendre PN-PN-2, N=768, Uzawa CG
 
 - `check_N512_vs_N768_linf_scored`: 3.395e-05
 - `check_N512_vs_N768_linf_all`: 1.861e-03
@@ -33,8 +33,10 @@ single-element Legendre PN-PN-2 (spec), N=768, Uzawa CG
 
 Current record: **0.2237 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |
-|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.2237 | 5.02e-04 | 4.01e-04 | NVIDIA GeForce RTX 2080 Ti |
+| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.2237 | 5.02e-04 | 4.01e-04 | yes | NVIDIA GeForce RTX 2080 Ti |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
 
 ![activity](figures/activity.png)

@@ -1,12 +1,12 @@
-"""Track 5A: 1D viscous Burgers (SNF-ROM / NeuralROMs paper, arXiv:2405.14890, sec. 6.3)."""
+"""Track 05A: 1D viscous Burgers."""
 import math
 
 import torch
 
 from speedrun.problem import Problem
 
-MU = 0.6          # IC parameter (training case shown in Fig. 10(a) of the paper)
-NU = 1e-4         # viscosity (paper: nu = 1e-4, Re = 10,000)
+MU = 0.6          # IC amplitude
+NU = 1e-4         # viscosity
 T_END = 0.5
 NX = 1024         # prescribed collocation grid
 NT = 500          # snapshots
@@ -17,9 +17,6 @@ STATEMENT = rf"""
     u_t + u u_x = nu u_xx,          nu = {NU:g}
     u(0, x) = 1 + (mu / 2) (1 + sin(2 pi x - pi / 2))   for x in [0, 1]
             = 1                                         otherwise,          mu = {MU}
-
-(The paper's eq. (58) prints "0 otherwise"; the data-generation code in NeuralROMs.jl uses 1, which
-makes the initial condition continuous. We follow the code.)
 
 Output: u on the prescribed grid x_j = 2 j / {NX}, j = 0..{NX - 1}, at the {NT} snapshot times
 t = linspace(0, {T_END}, {NT}); shape (1, {NT}, {NX}).

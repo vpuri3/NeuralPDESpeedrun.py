@@ -1,4 +1,4 @@
-"""Track 3: 2D variable-coefficient (high-contrast) diffusion."""
+"""Track 03: 2D variable-coefficient (high-contrast) diffusion."""
 import torch
 
 from speedrun.problem import Problem

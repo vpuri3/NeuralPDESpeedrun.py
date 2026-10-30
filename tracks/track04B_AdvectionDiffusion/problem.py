@@ -1,4 +1,4 @@
-"""Track 4B: steady 2D advection-diffusion at high Peclet number (boundary layers)."""
+"""Track 04B: steady 2D advection-diffusion at high Peclet number (boundary layers)."""
 import math
 
 import torch

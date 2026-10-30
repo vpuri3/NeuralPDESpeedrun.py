@@ -31,6 +31,6 @@ def compute(device="cpu"):
 
 def plot(problem, u, extras, figdir):
     t, x = problem.axes["t"], problem.axes["x"]
-    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 5C: Kuramoto-Sivashinsky")
-    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", title="Track 5C snapshots")
+    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 05C: Kuramoto-Sivashinsky")
+    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", title="Track 05C snapshots")
     plotting.gif1d(x, t, u[0], figdir / "reference.gif", title="Track 5C")

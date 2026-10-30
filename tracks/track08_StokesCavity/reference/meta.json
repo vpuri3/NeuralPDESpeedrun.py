@@ -1,5 +1,5 @@
 {
-  "method": "single-element Legendre PN-PN-2 (spec), N=768, Uzawa CG",
+  "method": "single-element Legendre PN-PN-2, N=768, Uzawa CG",
   "check_N512_vs_N768_linf_scored": 3.395497439796086e-05,
   "check_N512_vs_N768_linf_all": 0.0018608242952303645,
   "check_N512_vs_N768_rel_l2": 0.00011409447521207131,

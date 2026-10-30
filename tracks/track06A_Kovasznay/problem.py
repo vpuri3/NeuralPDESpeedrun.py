@@ -1,4 +1,4 @@
-"""Track 6A: Kovasznay flow, Re = 40, on the rectangle [-0.5, 2] x [-0.5, 1.5] (spec `kov` case)."""
+"""Track 06A: Kovasznay flow, Re = 40, on the rectangle [-0.5, 2] x [-0.5, 1.5]."""
 import torch
 
 from speedrun.numerics.sem import rectangle_map

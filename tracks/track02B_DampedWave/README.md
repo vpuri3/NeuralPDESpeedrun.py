@@ -1,8 +1,7 @@
 # track02B_DampedWave: 1D damped wave equation
 
 ```text
-1D damped wave equation on (t, x) in [0, 1] x [0, 1], with v = 3, b = 2 (as implemented in the
-NeuralPDE.jl example code):
+1D damped wave equation on (t, x) in [0, 1] x [0, 1], with v = 3, b = 2:
 
     u_xx = (1 / v^2) u_tt + b u_t          i.e.   u_tt = v^2 u_xx - b v^2 u_t
     u(t, 0) = u(t, 1) = 0
@@ -30,8 +29,10 @@ exact modal sine series, K=32768
 
 Current record: **0.001876 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |
-|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.001876 | 4.26e-05 | 1.17e-04 | NVIDIA GeForce RTX 2080 Ti |
+| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.001876 | 4.26e-05 | 1.17e-04 | yes | NVIDIA GeForce RTX 2080 Ti |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
 
 ![activity](figures/activity.png)

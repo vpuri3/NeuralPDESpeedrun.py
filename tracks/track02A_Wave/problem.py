@@ -1,4 +1,4 @@
-"""Track 2A: 1D wave equation with Dirichlet boundary conditions (NeuralPDE.jl wave example #1)."""
+"""Track 02A: 1D wave equation with Dirichlet boundary conditions."""
 import torch
 
 from speedrun.problem import Problem

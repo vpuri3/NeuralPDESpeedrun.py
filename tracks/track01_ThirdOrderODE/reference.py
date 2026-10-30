@@ -35,9 +35,9 @@ def compute(device="cpu"):
     p = make_problem(device=device)
     u = exact(p.axes["x"])[None]
     check = float((chebyshev_solve(p, 32) - u[0]).abs().max())
-    return u, {"method": "closed form (NeuralPDE.jl docs)", "check_chebyshev_N32_linf": check}, {}
+    return u, {"method": "closed form", "check_chebyshev_N32_linf": check}, {}
 
 
 def plot(problem, u, extras, figdir):
     plotting.line(problem.axes["x"], {"u (reference)": u[0]}, figdir / "reference.png",
-                  title="Track 1: u''' = cos(pi x)")
+                  title="Track 01: u''' = cos(pi x)")

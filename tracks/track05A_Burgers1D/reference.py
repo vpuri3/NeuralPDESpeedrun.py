@@ -30,8 +30,8 @@ def compute(device="cpu"):
 
 def plot(problem, u, extras, figdir):
     t, x = problem.axes["t"], problem.axes["x"]
-    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 5A: Burgers 1D, nu=1e-4")
-    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", title="Track 5A snapshots")
+    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 05A: Burgers 1D, nu=1e-4")
+    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", title="Track 05A snapshots")
     plotting.gif1d(x, t, u[0], figdir / "reference.gif", title="Track 5A")
 
 

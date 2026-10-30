@@ -7,16 +7,23 @@
 A submission is a directory `tracks/<track>/submissions/submission_PR<NNNN>/` (or a single .py file while
 developing) whose `solve.py` defines
 
-    def solve(problem: speedrun.Problem) -> torch.Tensor   # shape == problem.out_shape  (REQUIRED)
-    def warmup(problem: speedrun.Problem) -> None          # untimed compile/autotune     (OPTIONAL)
+    def solve(problem: speedrun.Problem) -> state           # learn / solve                    (REQUIRED)
+    def query(state, problem: speedrun.Problem) -> Tensor   # evaluate at problem.axes,
+                                                            # shape problem.out_shape, <= 5 s  (OPTIONAL)
+    def warmup(problem: speedrun.Problem) -> None           # untimed compile/autotune         (OPTIONAL)
+
+Without `query`, `solve` returns the output tensor itself (query time 0). Learning need not happen on the
+evaluation points; `query` is the projection onto them. The two phases are timed separately; the score time
+is their sum, and a query slower than QUERY_LIMIT_S fails the run.
 
 Protocol (rules: README.md):
   1. seed everything (seed 0), build the Problem on the target device
   2. init CUDA libraries (problem-independent), call `warmup(problem)` if present (untimed)
-  3. synchronize, start the clock, call `solve(problem)`, synchronize, stop the clock
+  3. synchronize, clock `solve(problem)`, synchronize; then clock `query(state, problem)` the same way
   4. only THEN is the reference loaded and the returned tensor scored
   5. (untimed) device check: one more `solve` under op counting; the reported hardware is the GPU only if
-     essentially all tensor work ran on it (speedrun/devicecheck.py)
+     essentially all tensor work ran on it (speedrun/devicecheck.py). The env var SPEEDRUN_DEVICE_CHECK=1 is
+     set during this run, so long iterative solvers may shorten it (it is not scored).
 """
 from __future__ import annotations
 
@@ -41,6 +48,9 @@ import torch  # noqa: E402
 
 from .metrics import score  # noqa: E402
 from .tracks import ROOT, load_problem, load_reference, resolve, track_dir  # noqa: E402
+
+
+QUERY_LIMIT_S = 5.0
 
 
 def _sync(device: str):
@@ -125,13 +135,22 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
 
     _sync(device)
     t0 = time.perf_counter()
-    u = mod.solve(problem)
+    state = mod.solve(problem)
     _sync(device)
-    elapsed = time.perf_counter() - t0
+    solve_s = time.perf_counter() - t0
+    query_s = 0.0
+    u = state
+    if hasattr(mod, "query"):
+        t1 = time.perf_counter()
+        u = mod.query(state, problem)
+        _sync(device)
+        query_s = time.perf_counter() - t1
+    elapsed = solve_s + query_s
 
     u = u.detach().to("cpu") if hasattr(u, "detach") else u
     ref = load_reference(track)  # loaded only after the timed solve
     s = score(u, ref, problem.linf_mask(), problem.rel_l2_tol, problem.linf_tol)
+    query_ok = query_s <= QUERY_LIMIT_S
 
     if device.startswith("cuda") and torch.cuda.is_available():
         mem_gb = torch.cuda.max_memory_allocated() / 2**30
@@ -143,16 +162,25 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     hardware, dev_report = hardware_string(device), None
     if device_check and device.startswith("cuda") and torch.cuda.is_available():
         from .devicecheck import check, classify
-        dev_report = check(mod.solve, problem)
+        os.environ["SPEEDRUN_DEVICE_CHECK"] = "1"   # submissions may shorten this untimed, unscored run
+        try:
+            dev_report = check(lambda p: mod.query(mod.solve(p), p) if hasattr(mod, "query") else mod.solve(p),
+                               problem)
+        finally:
+            del os.environ["SPEEDRUN_DEVICE_CHECK"]
         hardware = classify(dev_report, hardware, cpu_string())
 
     result = {
         "track": track,
         "submission": str(sub_path.relative_to(ROOT)) if sub_path.is_relative_to(ROOT) else str(sub_path),
         "time_s": elapsed,
+        "solve_time_s": solve_s,
+        "query_time_s": query_s,
         "rel_l2": s["rel_l2"],
         "linf": s["linf"],
-        "passed": s["passed"],
+        "accurate": s["passed"],
+        "query_within_limit": query_ok,
+        "passed": s["passed"] and query_ok,
         "tolerances": {"rel_l2": problem.rel_l2_tol, "linf": problem.linf_tol},
         "linf_margin": problem.linf_margin,
         "device": device,
@@ -167,7 +195,8 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     }
     if not quiet:
         status = "PASS" if result["passed"] else "FAIL"
-        print(f"[{track}] {status}  time={elapsed:.4f}s  relL2={s['rel_l2']:.3e} (<= {problem.rel_l2_tol:g})  "
+        q = f" (solve {solve_s:.4f} + query {query_s:.4f}{'' if query_ok else ' > limit'})" if query_s else ""
+        print(f"[{track}] {status}  time={elapsed:.4f}s{q}  relL2={s['rel_l2']:.3e} (<= {problem.rel_l2_tol:g})  "
               f"Linf={s['linf']:.3e} (<= {problem.linf_tol:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
     if out:
         Path(out).parent.mkdir(parents=True, exist_ok=True)

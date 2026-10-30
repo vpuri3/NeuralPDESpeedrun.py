@@ -15,15 +15,15 @@ TRACKS_DIR = ROOT / "tracks"
 
 # Ordered list of tracks. Folder name == track id == "track<KK>[A|B]_<ProblemName>" (two-digit number).
 TRACKS = [
-    "track01_ThirdOrderODE",           # 3rd-order ODE (NeuralPDE.jl example)
+    "track01_ThirdOrderODE",           # 3rd-order ODE
     "track02A_Wave",                   # 1D wave equation, Dirichlet
     "track02B_DampedWave",             # 1D damped wave equation
     "track03_HighContrastDiffusion",   # 2D variable-coefficient diffusion, high contrast
     "track04A_Helmholtz",              # 2D Helmholtz, heterogeneous medium, moderate frequency
     "track04B_AdvectionDiffusion",     # 2D advection-diffusion, high Peclet
-    "track05A_Burgers1D",              # 1D viscous Burgers (SNF-ROM sec. 6.3)
-    "track05B_Burgers2D",              # 2D viscous Burgers (SNF-ROM sec. 6.4)
-    "track05C_KuramotoSivashinsky",    # 1D Kuramoto-Sivashinsky (SNF-ROM sec. 6.5)
+    "track05A_Burgers1D",              # 1D viscous Burgers
+    "track05B_Burgers2D",              # 2D viscous Burgers
+    "track05C_KuramotoSivashinsky",    # 1D Kuramoto-Sivashinsky
     "track06A_Kovasznay",              # Kovasznay flow, Re = 40, rectangle (steady Navier-Stokes)
     "track06B_KovasznayCurved",        # Kovasznay flow, Re = 40, curved trapezoid
     "track07A_CavityRe100",            # Lid-driven cavity, Re = 100, impulsive start, t in [0, 5]

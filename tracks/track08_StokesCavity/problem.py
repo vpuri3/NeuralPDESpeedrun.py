@@ -1,4 +1,4 @@
-"""Track 8: steady Stokes flow in the lid-driven cavity [-1, 1]^2 (spec `LDC` geometry, u = 1 lid)."""
+"""Track 08: steady Stokes flow in the lid-driven cavity [-1, 1]^2, u = 1 lid."""
 import torch
 
 from tracks.cavity_common import make_cavity_problem

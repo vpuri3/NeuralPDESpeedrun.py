@@ -1,5 +1,5 @@
 """Reference: exact d'Alembert solution u = [F(x - ct) + F(x + ct)] / 2, F = odd 2-periodic extension of x(1-x).
-Cross-checked against the Fourier sine series of the NeuralPDE.jl docs."""
+Cross-checked against the Fourier sine series solution."""
 import math
 
 import torch
@@ -36,6 +36,6 @@ def compute(device="cpu"):
 
 def plot(problem, u, extras, figdir):
     t, x = problem.axes["t"], problem.axes["x"]
-    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 2A: wave equation u(t, x)")
-    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", title="Track 2A snapshots")
+    plotting.spacetime(x, t, u[0], figdir / "reference.png", title="Track 02A: wave equation u(t, x)")
+    plotting.snapshots1d(x, t, u[0], figdir / "reference_snapshots.png", title="Track 02A snapshots")
     plotting.gif1d(x, t, u[0], figdir / "reference.gif", title="Track 2A")

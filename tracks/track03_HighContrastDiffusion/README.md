@@ -32,8 +32,10 @@ cell-centered FV + MG-PCG on 3840^2 and 5376^2 (213, 236 PCG its), Richardson-ex
 
 Current record: **8.385 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |
-|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 8.385 | 3.83e-05 | 1.58e-04 | NVIDIA GeForce RTX 2080 Ti |
+| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 8.385 | 3.83e-05 | 1.58e-04 | yes | NVIDIA GeForce RTX 2080 Ti |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
 
 ![activity](figures/activity.png)

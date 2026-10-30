@@ -10,7 +10,10 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 - Default accuracy bar tightened from (RelL2 5e-3, L∞ 1e-2) to **(1e-4, 1e-3)**, now per track
   (`Problem.rel_l2_tol / linf_tol`). Baselines and references were re-sized so that every reference error is
   well below its track's bar (see §3).
-- Tracks renamed `track<KK>[A|B]_<ProblemName>`. Submissions go in `tracks/<t>/submissions/submission_PR<NNNN>/`.
+- Tracks renamed `track<KK>[A|B]_<ProblemName>`. Submissions go in `tracks/<t>/submissions/submission_PR<NNNN>/`,
+  with code shared across tracks in `speedrun/submissions/submission_PR<NNNN>/`.
+- Submission API split into `solve(problem) -> state` and `query(state, problem)` (projection onto the
+  evaluation points, timed separately, ≤ 5 s).
 - Every record #0 below was checked by the harness GPU check (100% of tensor work on the GPU). Times are on an
   **RTX 2080 Ti** in fp64; H100 re-timing is pending.
 
@@ -43,29 +46,25 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 ## 3. Problem-spec decisions
 
-- **02B.** Equation as implemented in the NeuralPDE.jl code (`u_xx = u_tt/v² + b u_t`, v = 3, b = 2); the page's
-  displayed equation differs. `u_t(0, x) = 1 − 2x` is incompatible with the walls, so sine methods converge at
+- **02B.** `u_xx = u_tt/v² + b u_t`, v = 3, b = 2. `u_t(0, x) = 1 − 2x` is incompatible with the walls, so sine methods converge at
   first order: N = 64 / 128 / 256 / 512 give RelL2 3.8e-4 / 1.7e-4 / 8.6e-5 / 4.3e-5. Baseline N = 512.
 - **03.** FV on r × 256 grids (r odd, so output centers are fine-cell centers). The observed order is
   1.34 (stable over the grid triples 5/9/15 and 9/15/21) because of the inclusion corners. The reference is the
   Richardson extrapolation of 3840² and 5376² at that order. The 2304²/3840² extrapolation agrees to 1e-7;
   un-extrapolated 5376² is still 2e-5 off. Baseline 3328² (r = 13): 3.8e-5.
 - **04B.** Chebyshev N = 80 / 88 / 96 / 104: RelL2 5.8e-4 / 1.4e-4 / 2.9e-5 / 5.4e-6. Baseline N = 96.
-- **05A.** The paper prints ν = 1e-4 and IC "0 otherwise"; the NeuralROMs.jl datagen uses ν = 1e-3, tspan (0, 1),
-  domain [0, 2.25), and IC "1 otherwise". We take ν = 1e-4, T = 0.5, domain [0, 2), N = 1024 (paper) with the
-  continuous IC (code). Shock forms at t* = 1/(πμ) ≈ 0.53, just after T.
+- **05A.** ν = 1e-4, T = 0.5, domain [0, 2), N = 1024 output grid, continuous IC ("1 otherwise"). The shock
+  forms at t* = 1/(πμ) ≈ 0.53, just after T.
 - **05B.** The 512² output grid (paper) is too coarse for the ν = 1e-3 shocks at the new bar (512²: L∞ 1.6e-3).
   Reference 2048², dt = 2.5e-4 (vs 1024², dt = 5e-4: 6.9e-6 / 3.1e-5). Baseline 1024², dt = 1e-3, injected.
 - **05A/05B/05C** are single instances (one solve per record).
-- **06–09 follow [vpuri3/spec](https://github.com/vpuri3/spec)** (MATLAB): Kovasznay `kov` (Re = 40, rectangle and
-  the Gordon–Hall trapezoid with parabolic top), lid-driven cavity `LDC` ([−1, 1]², u = 1 lid including the top
-  corners, ν = 1e-2, fluid at rest at t = 0, T = 5), decaying eddies `wls` (ν = 5e-2, T = 5). Reference/baseline
-  solvers are a PyTorch port of the spec's single-element Legendre PN–PN-2 method (`speedrun/numerics/sem.py`):
-  GLL velocity, GLL(N−2) pressure, 3/2 dealiasing, Gordon–Hall maps, BDF3/EXT3 with incremental pressure
-  projection, fast-diagonalization solves. Validated on Kovasznay: 1e-14 on both domains; marching to steady
-  state reproduces the steady solution to 4e-7. 07B (Re = 1000) and 08 (Stokes) reuse the spec's cavity. The
-  spec's T = 0 "steady" mode divides by b0 = 0 in the projection, so steady tracks are solved directly (Newton,
-  Uzawa).
+- **06–09.** Kovasznay at Re = 40 (rectangle and a Gordon–Hall trapezoid with parabolic top), lid-driven cavity
+  ([−1, 1]², u = 1 lid including the top corners, ν = 1e-2, fluid at rest at t = 0, T = 5), decaying eddies
+  (ν = 5e-2, T = 5). Reference/baseline solvers use the single-element Legendre PN–PN-2 method in
+  `speedrun/numerics/sem.py`: GLL velocity, GLL(N−2) pressure, 3/2 dealiasing, Gordon–Hall maps, BDF3/EXT3 with
+  incremental pressure projection, fast-diagonalization solves. Validated on Kovasznay: 1e-14 on both domains;
+  marching to steady state reproduces the steady solution to 4e-7. Steady tracks are solved directly (Newton,
+  Uzawa) rather than by time-marching.
 - **07/08 cavity bar.** The u = 1 lid is discontinuous at the top corners. RelL2 over all 129² points converges
   ~N⁻¹ (Gibbs along the lid) and ~N⁻² at distance ≥ 0.05 from the walls. Stokes vs N = 768: N = 128 / 256 / 512
   give RelL2 7.4e-4 / 2.6e-4 / 1.1e-4 over all points and 5.3e-4 / 1.2e-4 / 1.9e-5 inside the margin.
@@ -79,7 +78,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 ## 4. Open work
 
-- [ ] **04A Helmholtz: on hold.** Original spec: `−Δu − (ω/c)² u = f` on [0, 1]², u = 0 on the boundary, ω = 40,
+- [ ] **04A Helmholtz: on hold.** Original setup: `−Δu − (ω/c)² u = f` on [0, 1]², u = 0 on the boundary, ω = 40,
       `c = 1 − 0.4 exp(−((x−0.65)² + (y−0.6)²)/(2·0.12²))`, Gaussian source at (0.35, 0.4), σ = 0.05. It is resonant
       (lossless Dirichlet box): shifted-Laplacian GMRES does not converge in 3000 its at N = 256, and max|u|
       changes 7× between ω = 39.5 and 40. Needs absorption (sponge layer / PML / impedance BC), with the reference
@@ -95,7 +94,10 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 ## 5. First neural records (see IDEAS.md)
 
-- [ ] Vanilla PINN + Adam + L-BFGS on 01, 02A, 06A, 07A: the honest starting point, shows the gap.
+- [x] **submission_PR0001: vanilla PINN** on every active track: tanh MLP 4 × 64, strong-form residual + BC/IC
+      penalties (weights 1), 4096 resampled collocation points, Adam (lr 1e-3 → 1e-5), fp32, 1000 s budget.
+      Shared code: `speedrun/submissions/submission_PR0001/pinn.py`. Results: §7.
+- [ ] Vanilla PINN + L-BFGS polish.
 - [ ] PINN + SOAP / natural-gradient (Gauss–Newton with CG) on the same tracks.
 - [ ] Multilevel explicit ansatz (dense multiresolution B-spline/Hermite grid, no hashing) + sparse Gauss–Newton
       with level-preconditioned CG, exact analytic derivatives. Targets: 03, 04A, 04B.

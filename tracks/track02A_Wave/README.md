@@ -26,8 +26,10 @@ closed form (d'Alembert)
 
 Current record: **0.001239 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |
-|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.001239 | 7.42e-05 | 7.40e-05 | NVIDIA GeForce RTX 2080 Ti |
+| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.001239 | 7.42e-05 | 7.40e-05 | yes | NVIDIA GeForce RTX 2080 Ti |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
 
 ![activity](figures/activity.png)

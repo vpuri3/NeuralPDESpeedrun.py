@@ -1,4 +1,4 @@
-"""Record #0 (classical baseline): the spec's discretization (single-element Legendre PN-PN-2, GLL
+"""Record #0 (classical baseline): single-element Legendre PN-PN-2, GLL
 quadrature, 3/2 dealiasing), N = 16, steady system solved by Newton with dense LU."""
 import torch
 

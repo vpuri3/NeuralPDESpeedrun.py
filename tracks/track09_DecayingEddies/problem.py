@@ -1,4 +1,4 @@
-"""Track 9: decaying eddies (Walsh 1992), the `wls` case of https://github.com/vpuri3/spec (nsSpectral/)."""
+"""Track 09: decaying eddies (Walsh 1992)."""
 import math
 
 import torch

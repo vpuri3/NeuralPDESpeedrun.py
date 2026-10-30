@@ -27,8 +27,10 @@ Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/4
 
 Current record: **0.4554 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |
-|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.4554 | 1.46e-12 | 2.10e-11 | NVIDIA GeForce RTX 2080 Ti |
+| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.4554 | 1.46e-12 | 2.10e-11 | yes | NVIDIA GeForce RTX 2080 Ti |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
 
 ![activity](figures/activity.png)

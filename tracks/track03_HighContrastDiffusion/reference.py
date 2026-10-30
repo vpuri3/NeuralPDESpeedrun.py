@@ -52,4 +52,4 @@ def plot(problem, u, extras, figdir):
     x, y = problem.axes["x"], problem.axes["y"]
     X, Y = problem.grid()
     plotting.fields2d(x, y, {"a(x, y)  [log10]": torch.log(problem.fns["a"](X, Y)) / 2.302585, "u": u[0]},
-                      figdir / "reference.png", suptitle="Track 3: high-contrast diffusion", cmap="viridis")
+                      figdir / "reference.png", suptitle="Track 03: high-contrast diffusion", cmap="viridis")

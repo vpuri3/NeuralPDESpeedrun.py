@@ -1,4 +1,4 @@
-"""Track 5B: 2D viscous Burgers (SNF-ROM / NeuralROMs paper, arXiv:2405.14890, sec. 6.4)."""
+"""Track 05B: 2D viscous Burgers (vector form)."""
 import math
 
 import torch

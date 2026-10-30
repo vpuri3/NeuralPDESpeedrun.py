@@ -1,18 +1,16 @@
-"""Single-element Legendre spectral method for incompressible Navier-Stokes (PN-PN-2), ported from
-the MATLAB codes in https://github.com/vpuri3/spec (nsSpectral/, navierStokesSEM/, geom/).
+"""Single-element Legendre spectral method for incompressible Navier-Stokes (PN-PN-2).
 
   - velocity on the (N+1)^2 Gauss-Lobatto-Legendre (GLL) grid, pressure on the (N-1)^2 GLL grid of
     degree N-2, 3/2-rule dealiasing of the advection term, weak (Galerkin) form with GLL quadrature
-  - curved quadrilateral domains through a map (r, s) in [-1, 1]^2 -> (x, y) (Gordon-Hall in the spec)
+  - curved quadrilateral domains through a map (r, s) in [-1, 1]^2 -> (x, y) (e.g. Gordon-Hall)
   - Dirichlet velocity on the whole boundary
 
 Two solvers share the operators:
   `SEMNavierStokes.steady(...)`    Newton on the full discrete steady system (dense; Stokes in one step)
-  `SEMNavierStokes.unsteady(...)`  BDF3/EXT3 with incremental pressure projection, exactly as the spec's
-                                   driver.m, viscous and pressure solves by fast diagonalization (affine
-                                   (rectangular) domains only)
+  `SEMNavierStokes.unsteady(...)`  BDF3/EXT3 with incremental pressure projection, viscous and
+                                   pressure solves by fast diagonalization (affine (rectangular) domains)
 
-Arrays are (n_r, n_s): first index along r (x), second along s (y), like MATLAB's ndgrid.
+Arrays are (n_r, n_s): first index along r (x), second along s (y), like torch.meshgrid(indexing="ij").
 """
 from __future__ import annotations
 
@@ -24,7 +22,7 @@ import torch
 
 # ----------------------------------------------------------------------------- 1D building blocks
 def gll(N: int, dtype=torch.float64, device="cpu"):
-    """N+1 Gauss-Lobatto-Legendre nodes (ascending) and weights on [-1, 1] (spec: semhat/zwgll.m)."""
+    """N+1 Gauss-Lobatto-Legendre nodes (ascending) and weights on [-1, 1]."""
     z = torch.zeros(N + 1, dtype=dtype, device=device)
     z[0], z[-1] = -1.0, 1.0
     if N > 1:
@@ -41,7 +39,7 @@ def gll(N: int, dtype=torch.float64, device="cpu"):
 
 
 def interp_mat(xo: torch.Tensor, xi: torch.Tensor) -> torch.Tensor:
-    """Lagrange interpolation matrix from nodes xi to points xo (spec: semhat/interp_mat.m)."""
+    """Lagrange interpolation matrix from nodes xi to points xo."""
     d = xi[:, None] - xi[None, :]
     a = 1.0 / torch.where(torch.eye(len(xi), dtype=torch.bool, device=xi.device), torch.ones_like(d), d).prod(1)
     X = xo[:, None] - xi[None, :]
@@ -53,7 +51,7 @@ def interp_mat(xo: torch.Tensor, xi: torch.Tensor) -> torch.Tensor:
 
 
 def deriv_mat(z: torch.Tensor) -> torch.Tensor:
-    """Collocation derivative matrix on nodes z (spec: semhat/dhat.m)."""
+    """Collocation derivative matrix on nodes z."""
     n = len(z)
     d = z[:, None] - z[None, :]
     eye = torch.eye(n, dtype=torch.bool, device=z.device)
@@ -74,7 +72,7 @@ def bdfext_coeffs(order: int, dt: float):
 
 def gordon_hall(bottom: Callable, top: Callable, left: Callable, right: Callable):
     """Transfinite (Gordon-Hall) map from [-1, 1]^2 given the four edges as callables t -> (x, y):
-    bottom(r) = edge s=-1, top(r) = s=+1, left(s) = r=-1, right(s) = r=+1 (spec: geom/gordonhall2d.m)."""
+    bottom(r) = edge s=-1, top(r) = s=+1, left(s) = r=-1, right(s) = r=+1."""
     def m(r, s):
         one = torch.ones_like(r)
         out = []
@@ -230,7 +228,7 @@ class SEMNavierStokes:
         self.cg_iters = len(hist)
         return self.u, self.v
 
-    # ---- unsteady: BDF3/EXT3 + incremental pressure projection (spec driver.m), affine domains
+    # ---- unsteady: BDF3/EXT3 + incremental pressure projection, affine domains
     def _fdm_setup(self):
         g = self.g1
         hx = float(g.x[-1, 0] - g.x[0, 0]) / 2
@@ -255,7 +253,7 @@ class SEMNavierStokes:
             Av = Dv.T @ Bv @ Dv
             S, L = gen_eig(Av[1:-1, 1:-1], Bv[1:-1, 1:-1])
             fd[k + "v"] = (S, L)
-            # pressure: E = Axp (x) Byp + Bxp (x) Ayp with E = D B^-1 M D^T (spec driver.m)
+            # pressure: E = Axp (x) Byp + Bxp (x) Ayp with E = D B^-1 M D^T
             M = torch.diag(torch.cat([w.new_zeros(1), torch.ones_like(w[1:-1]), w.new_zeros(1)]))
             Bi = torch.diag(1.0 / (h * w))
             J = self.J21

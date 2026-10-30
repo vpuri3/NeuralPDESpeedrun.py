@@ -1,4 +1,4 @@
-"""Reference: Kovasznay's closed-form solution at the mapped points (cross-checked with the spec's
+"""Reference: Kovasznay's closed-form solution at the mapped points (cross-checked with the
 PN-PN-2 solver on the Gordon-Hall-mapped element at N = 24)."""
 import torch
 
@@ -18,4 +18,4 @@ def compute(device="cpu"):
 
 
 def plot(problem, u, extras, figdir):
-    _plot(problem, u, figdir, "Track 6B: Kovasznay flow, Re = 40, curved trapezoid")
+    _plot(problem, u, figdir, "Track 06B: Kovasznay flow, Re = 40, curved trapezoid")

@@ -1,4 +1,4 @@
-"""Track 1: third-order linear ODE (NeuralPDE.jl example "ODE with a 3rd-order derivative")."""
+"""Track 01: third-order linear boundary value problem."""
 import math
 
 import torch
@@ -10,9 +10,6 @@ Third-order boundary value problem on x in [0, 1]:
 
     u'''(x) = cos(pi x)
     u(0) = 0,   u(1) = cos(pi) = -1,   u'(1) = 1
-
-(The NeuralPDE.jl page writes u'(0) = 1 in the text but imposes Dx(u(1)) = 1 in code and in its
-analytic solution; we follow the code: u'(1) = 1.)
 
 Output: u at the 1001 uniformly spaced points x = linspace(0, 1, 1001).
 """

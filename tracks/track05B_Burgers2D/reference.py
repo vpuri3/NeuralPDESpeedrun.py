@@ -45,9 +45,9 @@ def plot(problem, u, extras, figdir):
     x, y, t = problem.axes["x"], problem.axes["y"], problem.axes["t"]
     for k in (0, 5, 10):
         plotting.fields2d(x, y, {"u": u[0, k], "v": u[1, k]}, figdir / f"reference_t{float(t[k]):.2f}.png",
-                          suptitle=f"Track 5B: 2D Burgers, t = {float(t[k]):.2f}", cmap="viridis")
+                          suptitle=f"Track 05B: 2D Burgers, t = {float(t[k]):.2f}", cmap="viridis")
     if "frames_u" in extras:
         plotting.gif2d(x[::2], y[::2], extras["frames_u"], extras["t_frames"], figdir / "reference.gif",
-                       title="Track 5B: u", cmap="RdBu_r")
+                       title="Track 05B: u", cmap="RdBu_r")
     else:
-        plotting.gif2d(x, y, u[0], t, figdir / "reference.gif", title="Track 5B: u")
+        plotting.gif2d(x, y, u[0], t, figdir / "reference.gif", title="Track 05B: u")

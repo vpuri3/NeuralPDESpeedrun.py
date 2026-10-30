@@ -1,4 +1,4 @@
-"""Track 7A: lid-driven cavity [-1, 1]^2, u = 1 lid, Re = 100, impulsive start, t in [0, 5] (spec `LDC` case)."""
+"""Track 07A: lid-driven cavity [-1, 1]^2, u = 1 lid, Re = 100, impulsive start, t in [0, 5]."""
 import torch
 
 from tracks.cavity_common import make_cavity_problem

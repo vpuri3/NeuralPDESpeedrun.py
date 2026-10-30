@@ -1,5 +1,4 @@
-"""Shared definition of the Kovasznay-flow tracks 6A (rectangle) and 6B (curved trapezoid), following the
-`kov` case of https://github.com/vpuri3/spec (nsSpectral/driver.m, navierStokesSEM/driver.m, geom/para.m)."""
+"""Shared definition of the Kovasznay-flow tracks 06A (rectangle) and 06B (curved trapezoid)."""
 import math
 
 import torch
@@ -28,7 +27,7 @@ def v_bc(x, y):
 
 
 def sem_solve(problem, N):
-    """Spec discretization (PN-PN-2 Legendre, single element), steady system solved by Newton."""
+    """Single-element Legendre PN-PN-2 discretization, steady system solved by Newton."""
     from speedrun.numerics.sem import SEMNavierStokes
     S = SEMNavierStokes(N, problem.fns["map"], dtype=problem.dtype, device=problem.device)
     u, v = S.steady(problem.params["nu"], problem.fns["u_bc"], problem.fns["v_bc"])

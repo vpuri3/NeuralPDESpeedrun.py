@@ -1,5 +1,5 @@
 {
-  "method": "closed form (NeuralPDE.jl docs)",
+  "method": "closed form",
   "check_chebyshev_N32_linf": 2.97556592953374e-11,
   "wall_time_s": 0.0017179379999561206,
   "torch": "0.0-numpy-shim",

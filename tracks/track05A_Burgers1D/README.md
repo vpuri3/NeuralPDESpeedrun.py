@@ -7,9 +7,6 @@
     u(0, x) = 1 + (mu / 2) (1 + sin(2 pi x - pi / 2))   for x in [0, 1]
             = 1                                         otherwise,          mu = 0.6
 
-(The paper's eq. (58) prints "0 otherwise"; the data-generation code in NeuralROMs.jl uses 1, which
-makes the initial condition continuous. We follow the code.)
-
 Output: u on the prescribed grid x_j = 2 j / 1024, j = 0..1023, at the 500 snapshot times
 t = linspace(0, 0.5, 500); shape (1, 500, 1024).
 ```
@@ -31,8 +28,10 @@ Fourier pseudo-spectral + ETDRK4, N=8192, dt=T/(Nt-1)/16
 
 Current record: **0.231 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | hardware |
-|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.231 | 4.43e-07 | 1.10e-04 | NVIDIA GeForce RTX 2080 Ti |
+| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.231 | 4.43e-07 | 1.10e-04 | yes | NVIDIA GeForce RTX 2080 Ti |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
 
 ![activity](figures/activity.png)

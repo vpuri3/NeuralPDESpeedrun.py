@@ -1,4 +1,4 @@
-"""Reference: Kovasznay's closed-form solution (cross-checked with the spec's PN-PN-2 solver at N = 24)."""
+"""Reference: Kovasznay's closed-form solution (cross-checked with the PN-PN-2 spectral solver at N = 24)."""
 import torch
 
 from tracks.kovasznay_common import plot as _plot
@@ -17,4 +17,4 @@ def compute(device="cpu"):
 
 
 def plot(problem, u, extras, figdir):
-    _plot(problem, u, figdir, "Track 6A: Kovasznay flow, Re = 40")
+    _plot(problem, u, figdir, "Track 06A: Kovasznay flow, Re = 40")

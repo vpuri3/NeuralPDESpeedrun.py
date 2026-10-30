@@ -1,4 +1,4 @@
-"""Reference: the spec's single-element Legendre PN-PN-2 discretization at N = 384, BDF3/EXT3 with
+"""Reference: single-element Legendre PN-PN-2 discretization at N = 384, BDF3/EXT3 with
 incremental pressure projection, dt = 2 x (smallest GLL spacing) (self-convergence checked against N = 256;
 the time-step error at this CFL is ~1e-6, see PLAN.md)."""
 from tracks.cavity_common import plot as _plot

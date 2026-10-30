@@ -1,4 +1,4 @@
-"""Track 5C: 1D Kuramoto-Sivashinsky (SNF-ROM / NeuralROMs paper, arXiv:2405.14890, sec. 6.5)."""
+"""Track 05C: 1D Kuramoto-Sivashinsky."""
 import math
 
 import torch

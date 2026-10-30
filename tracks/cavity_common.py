@@ -1,6 +1,5 @@
-"""Shared definition of the lid-driven cavity tracks 7A, 7B (unsteady Navier-Stokes) and 8 (steady Stokes),
-following the `LDC` case of https://github.com/vpuri3/spec (nsSpectral/driver.m): the square [-1, 1]^2,
-classical lid u = 1 on y = 1 (corners included), fluid at rest at t = 0, run to T = 5."""
+"""Shared definition of the lid-driven cavity tracks 07A, 07B (unsteady Navier-Stokes) and 08 (steady Stokes):
+the square [-1, 1]^2, classical lid u = 1 on y = 1 (corners included), fluid at rest at t = 0, run to T = 5."""
 import math
 
 import torch
@@ -17,7 +16,7 @@ CFL = 2.0               # reference/baseline time step: dt = CFL * (smallest GLL
 
 
 def u_bc(x, y):
-    """Lid u = 1 on y = 1, including the two top corners (as in the spec); no-slip elsewhere."""
+    """Lid u = 1 on y = 1, including the two top corners ; no-slip elsewhere."""
     return (y > 1.0 - 1e-12).to(x.dtype)
 
 
@@ -95,7 +94,7 @@ def time_step(N, t_out, cfl=CFL):
 
 
 def sem_solve(p, N, cfl=CFL, callback=None):
-    """The spec's discretization: single-element Legendre PN-PN-2. Unsteady: BDF3/EXT3 + pressure projection
+    """Single-element Legendre PN-PN-2. Unsteady: BDF3/EXT3 + pressure projection
     with fast-diagonalization solves; Stokes: Uzawa CG."""
     S = SEMNavierStokes(N, rectangle_map(-1.0, 1.0, -1.0, 1.0), dtype=p.dtype, device=p.device)
     if p.params["stokes"]:
@@ -114,7 +113,7 @@ def reference(p, N_ref, N_chk):
     c = sem_solve(p, N_chk)
     m = p.linf_mask()
     e = (c - u).abs()
-    meta = {"method": f"single-element Legendre PN-PN-2 (spec), N={N_ref}"
+    meta = {"method": f"single-element Legendre PN-PN-2, N={N_ref}"
                       + (f", BDF3/EXT3, dt={time_step(N_ref, p.axes['t']):.3e}" if "t" in p.axes else ", Uzawa CG"),
             f"check_N{N_chk}_vs_N{N_ref}_linf_scored": float(e[m.expand_as(e)].max()),
             f"check_N{N_chk}_vs_N{N_ref}_linf_all": float(e.max()),

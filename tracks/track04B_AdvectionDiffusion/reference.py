@@ -16,8 +16,8 @@ def compute(device="cpu"):
 
 def plot(problem, u, extras, figdir):
     x, y = problem.axes["x"], problem.axes["y"]
-    plotting.fields2d(x, y, {"u": u[0]}, figdir / "reference.png", suptitle="Track 4B: advection-diffusion, eps = 1e-3",
+    plotting.fields2d(x, y, {"u": u[0]}, figdir / "reference.png", suptitle="Track 04B: advection-diffusion, eps = 1e-3",
                       cmap="viridis")
     n = u.shape[-1]
     plotting.line(x, {"u(x, y=0.5)": u[0, :, n // 2], "u(x, y=x)": u[0].diagonal()}, figdir / "reference_slices.png",
-                  title="Track 4B: slices (boundary layer at x = 1)")
+                  title="Track 04B: slices (boundary layer at x = 1)")

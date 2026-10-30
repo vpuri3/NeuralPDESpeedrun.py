@@ -81,7 +81,7 @@ No vanilla PINN reaches the bar on any track: the best are 06 (7.0e-4) and 05A (
 3. **Look into PINN failures that may be bugs rather than method limits.** 03 ends at RelL2 ≈ 1 (output ≈ 0;
    the strong form ignores flux continuity at the inclusion edges and the residual is scaled by a = 1e3).
    Tracks with RelL2 ≈ 1 after the full budget deserve a second look (loss scaling, output scale).
-4. **Next neural submissions** (new draft PR each, so each gets its own number):
+4. **Next neural submissions** (each with its own submission number, committed directly to master):
    - [ ] vanilla PINN + L-BFGS polish;
    - [ ] PINN + SOAP / natural-gradient (Gauss–Newton with CG);
    - [ ] multilevel explicit ansatz (dense multiresolution B-spline/Hermite grid, no hashing) + sparse
@@ -89,7 +89,6 @@ No vanilla PINN reaches the bar on any track: the best are 06 (7.0e-4) and 05A (
    - [ ] hybrid: classical smoother + learned coarse correction trained in-run from residuals only (03);
    - [ ] stiff time integration (01) and long-time wave propagation (02) for neural/hybrid time-steppers.
    See IDEAS.md for the reasoning.
-5. **H100 re-timing** of every record #0 and of the PINN results (official times).
 
 ### Deferred (fluids numerics: low priority)
 

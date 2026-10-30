@@ -11,10 +11,17 @@ dependencies = [
     "pillow>=10.0",
     "scipy>=1.15.3",
     "array-api-compat>=1.16.0",
+    "jax[cuda13]>=0.12",
+    "flax>=0.12",
+    "optax>=0.2.8",
+    "soap-jax",
 ]
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+soap-jax = { git = "https://github.com/haydn-jones/SOAP_JAX", rev = "a7c92f174c49b13136294a94ae0d46266b4f671f" }
 
 [tool.ruff]
 line-length = 120

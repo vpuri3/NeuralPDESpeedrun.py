@@ -3,7 +3,7 @@ residuals (momentum, continuity) + Dirichlet velocity on the whole boundary; out
 import jax
 import jax.numpy as jnp
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 def ns_steady(m, params, x, y, nu):
     """Steady incompressible NS residuals (ru, rv, rc) of the outputs (u, v, p) at one point."""
     Y, J, H = jet(m, params, x, y)

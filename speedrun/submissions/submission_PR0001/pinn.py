@@ -16,8 +16,9 @@ authors' reference implementation (github.com/PredictiveIntelligenceLab/jaxpi, b
   over time) on the network's features at initialization, as the jaxpi examples' `use_pi_init`.
 
 Speedrun specifics: one time window (the jaxpi runs time-march over several windows of 1e4-1e5 iterations each,
-far beyond the budget); the harness calls `step`, which runs CHUNK training iterations in one jitted
-lax.fori_loop; `done` once the loss plateaus or becomes negligible; the wall-clock budget is the harness's.
+far beyond the budget); `solve` trains in jitted lax.fori_loop chunks of CHUNK iterations and checkpoints the
+parameters after each; it returns once the loss plateaus or becomes negligible; the harness interrupts it at the
+wall-clock budget and queries the last checkpoint.
 Everything is compiled ahead of time in `setup` (lower + compile, nothing is executed there); the
 physics-informed initialization runs in the first (timed) step.
 
@@ -42,7 +43,7 @@ from flax import linen as nn  # noqa: E402
 from jax.nn.initializers import constant, glorot_normal, normal, zeros  # noqa: E402
 from soap_jax import soap  # noqa: E402
 
-CHUNK = 100          # training iterations per harness step
+CHUNK = 50           # training iterations per jitted call; checkpoint after each
 
 
 # ----------------------------------------------------------------------------- network (jaxpi.archs)
@@ -318,7 +319,7 @@ class PINN:
         self._qchunk = min(1 << 16, n_out)
         aval = lambda tree: jax.tree_util.tree_map(lambda x: jax.ShapeDtypeStruct(x.shape, x.dtype), tree)  # noqa: E731
         P, S, W, K = aval(self.params), aval(self.opt_state), aval(self.weights), aval(self.key)
-        self.chunk_c = jax.jit(self._chunk, donate_argnums=(0, 1)).lower(P, S, W, K).compile()
+        self.chunk_c = jax.jit(self._chunk).lower(P, S, W, K).compile()     # no donation: params are checkpointed
         self.weights_c = jax.jit(self._new_weights).lower(P, W, K).compile()
         self.predict_c = jax.jit(self._predict).lower(P, jax.ShapeDtypeStruct((), jnp.int32)).compile()
         self.pi_init_c = (jax.jit(self._pi_init).lower(P).compile()
@@ -326,47 +327,55 @@ class PINN:
         self.iters = 0
         return self
 
-    def step(self) -> bool:
-        """One harness step: CHUNK training iterations. Returns done."""
-        if self.iters == 0:
-            self.t0 = time.perf_counter()
-            self.best, self.best_t = float("inf"), 0.0
-            if self.pi_init_c is not None:
-                self.params = self.pi_init_c(self.params)
-        if self.iters % self.cfg.weight_every == 0:
-            self.key, sub = jax.random.split(self.key)
-            self.weights = self.weights_c(self.params, self.weights, sub)
-        self.params, self.opt_state, self.key, raw = self.chunk_c(self.params, self.opt_state, self.weights,
-                                                                   self.key)
-        self.iters += CHUNK
-        raw, el = float(raw), time.perf_counter() - self.t0
-        self.history.append((el, self.iters, raw))
-        if not math.isfinite(raw):
-            self.stop_reason = "non-finite loss"
-            return True
-        if raw < 0.98 * self.best:
-            self.best, self.best_t = raw, el
-        if raw < 1e-10:
-            self.stop_reason = "loss < 1e-10"
-            return True
-        if el - self.best_t > max(self.cfg.plateau_s, 0.25 * el) and el > 2 * self.cfg.plateau_s:
-            self.stop_reason = f"plateau (no 2% improvement in {el - self.best_t:.0f} s)"
-            return True
-        return False
+    def train(self, checkpoint):
+        """Train until the loss plateaus or becomes negligible (the harness interrupts at the budget). Every CHUNK
+        iterations: checkpoint (pinn, params). A chunk's loss is read only after the next chunk is queued, so
+        the device never waits for the host; parameters are checkpointed once their loss is known to be finite."""
+        t0, best, best_t = time.perf_counter(), float("inf"), 0.0
+        if self.pi_init_c is not None:
+            self.params = self.pi_init_c(self.params)
+        pending, last = None, self.params   # (params, raw loss) of the previous chunk; last finite params
+        while True:
+            if self.iters % self.cfg.weight_every == 0:
+                self.key, sub = jax.random.split(self.key)
+                self.weights = self.weights_c(self.params, self.weights, sub)
+            self.params, self.opt_state, self.key, raw = self.chunk_c(self.params, self.opt_state, self.weights,
+                                                                       self.key)
+            self.iters += CHUNK
+            if pending is not None:
+                params, loss = pending[0], float(pending[1])
+                el = time.perf_counter() - t0
+                self.history.append((el, self.iters - CHUNK, loss))
+                if not math.isfinite(loss):
+                    self.stop_reason = "non-finite loss"
+                    return last
+                last = params
+                checkpoint((self, params))
+                if loss < 0.98 * best:
+                    best, best_t = loss, el
+                if loss < 1e-10:
+                    self.stop_reason = "loss < 1e-10"
+                    return params
+                if el - best_t > max(self.cfg.plateau_s, 0.25 * el) and el > 2 * self.cfg.plateau_s:
+                    self.stop_reason = f"plateau (no 2% improvement in {el - best_t:.0f} s)"
+                    return params
+            pending = (self.params, raw)
 
-    def predict(self):
+    def predict(self, params):
         """The scored fields on the evaluation grid, shape problem.out_shape."""
         shape = [a.shape[0] for a in self.axes]
         n = math.prod(shape)
-        out = [self.predict_c(self.params, jnp.int32(s)) for s in range(0, n, self._qchunk)]
+        out = [self.predict_c(params, jnp.int32(s)) for s in range(0, n, self._qchunk)]
         Y = jnp.concatenate(out)[:n]
         return Y.T.reshape(len(self.fields), *shape)
 
 
 # ----------------------------------------------------------------------------- the per-track solve.py API
-def step(problem, state: PINN):
-    return state, state.step()
+def solve(problem, pinn: PINN, checkpoint):
+    """Train; the state handed to query is (pinn, params)."""
+    return pinn, pinn.train(checkpoint)
 
 
-def query(problem, state: PINN):
-    return state.predict()
+def query(problem, state):
+    pinn, params = state
+    return pinn.predict(params)

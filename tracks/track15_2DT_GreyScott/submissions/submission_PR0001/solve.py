@@ -4,7 +4,7 @@ physics-informed initialization from the sampled initial state; exact periodicit
 import jax
 import jax.numpy as jnp
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 def ic_grid(problem, names):
     """The sampled initial state on its grid: flattened coordinates (x, y) and values (n, len(names))."""
     ic = problem.fns["ic"]

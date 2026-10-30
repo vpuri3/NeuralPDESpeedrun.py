@@ -4,7 +4,7 @@ initialization of (u, v) from the IC."""
 import jax
 import jax.numpy as jnp
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 def ns_unsteady(m, params, t, x, y, nu):
     """Unsteady incompressible NS residuals (ru, rv, rc) of the outputs (u, v, p, ...) at one point (t, x, y)."""
     Y, J, H = jet(m, params, t, x, y)

@@ -3,7 +3,7 @@ residuals (momentum, continuity) with causal weights + initial and Dirichlet vel
 import jax
 import jax.numpy as jnp
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 
 def setup(problem):
     nu, f = problem.params["nu"], problem.fns

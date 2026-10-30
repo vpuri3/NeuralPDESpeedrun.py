@@ -3,7 +3,7 @@ eps = 1e-3: residual + homogeneous Dirichlet boundary; a large Fourier scale for
 import jax
 import jax.numpy as jnp
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 
 def setup(problem):
     eps, (bx, by), f = problem.params["eps"], problem.params["b"], problem.fns

@@ -4,7 +4,7 @@ jaxpi's ks_chaotic config (one time window instead of 10): Fourier scale 1, batc
 import jax
 import jax.numpy as jnp
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 
 def setup(problem):
     a, b, c = problem.params["a"], problem.params["b"], problem.params["c"]

@@ -2,7 +2,7 @@
 causal weights + y(0), y'(0). t enters raw, as in jaxpi, so the Fourier scale is set for t in [0, 3000]."""
 import jax
 
-from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, step, to_jax  # noqa: F401
+from speedrun.submissions.submission_PR0001.pinn import PINN, Config, d, jet, query, solve, to_jax  # noqa: F401
 
 def setup(problem):
     mu, y0, dy0 = problem.params["mu"], problem.fns["y0"], problem.fns["dy0"]

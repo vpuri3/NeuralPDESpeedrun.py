@@ -1,0 +1,15 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "ks_chaotic/data/ks_chaotic.mat",
+  "wall_time_s": 2.1079917112365365,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    250,
+    512
+  ],
+  "sha256_float32": "8d20df43989bff96a5a9f7194e592318cbc13fea6720d96b8706e488b950c0ca",
+  "norm_l2": 382.0502260301813,
+  "max_abs": 3.0214822646029,
+  "sha256_npz": "9181d87e0eb26f4237c785b0769eb8f8e7862090078d38ea17ef8a282c2e86ee"
+}

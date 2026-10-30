@@ -1,31 +1,32 @@
 """Official timing + scoring harness.
 
-    uv run python -m speedrun.run --track 03                       # runs the track's baseline.py
-    uv run python -m speedrun.run --track 03 \
-        --submission tracks/track03_HighContrastDiffusion/submissions/submission_PR0042
+    uv run python -m speedrun.run --track 07                       # runs the track's baseline.py
+    uv run python -m speedrun.run --track 07 \
+        --submission tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0042
 
 A submission is a directory `tracks/<track>/submissions/submission_PR<NNNN>/` (or a single .py file while
 developing) whose `solve.py` defines
 
-    def warmup(problem) -> solver            # untimed: build / compile the solver object  (OPTIONAL)
-    def solve(problem, solver) -> solver     # timed: train / iterate / solve               (REQUIRED)
-    def query(problem, solver) -> Tensor     # timed separately, <= 5 s: evaluate at problem.axes,
-                                             # shape problem.out_shape                      (OPTIONAL)
+    def setup(problem) -> state               # untimed: build / compile, no training      (OPTIONAL)
+    def step(problem, state) -> (state, done) # timed: one chunk of work (e.g. 100 optimizer steps)
+    def query(problem, state) -> array        # timed separately, <= 5 s: the solution at problem.axes,
+                                              # shape problem.out_shape (torch, JAX or numpy)
 
-Without `warmup`, `solve` receives solver=None. If `solve` returns a tensor of shape problem.out_shape, that is
-the output and `query` is not called (query time 0; how the classical baselines work); otherwise `query` is
-required. Learning need not happen on the evaluation points; `query` is the projection onto them. The
-score time is solve + query, and a query slower than QUERY_LIMIT_S fails the run. `warmup` must not train on
-the problem or compute any part of its solution.
+The harness owns the clock and the budget: it calls `step` until it returns done = True or the track's
+wall-clock budget (problem.budget_s) is used up, synchronizing the device (torch and JAX) after every step.
+Make a step a chunk of work of ~0.1-1 s so that the per-step synchronization is negligible. A one-shot solver
+may define `solve(problem, state) -> state` instead of `step` (one step, done). If the final state is a tensor of
+shape problem.out_shape, it is the output and `query` is not called (how the classical baselines work).
+Without `setup`, the first step receives state = None. The score time is solve + query; a query slower than
+QUERY_LIMIT_S fails the run. `setup` must not train on the problem or compute any part of its solution.
 
 Protocol (rules: README.md):
   1. seed everything (seed 0), build the Problem on the target device
-  2. init CUDA libraries (problem-independent), solver = warmup(problem) if present (untimed)
-  3. synchronize, clock `solve(problem, solver)`, synchronize; then clock `query(problem, solver)` the same way
-  4. only THEN is the reference loaded and the returned tensor scored
-  5. (untimed) device check: one more warmup + solve + query under op counting; the reported hardware is the GPU only if
-     essentially all tensor work ran on it (speedrun/devicecheck.py). The env var SPEEDRUN_DEVICE_CHECK=1 is
-     set during this run, so long iterative solvers may shorten it (it is not scored).
+  2. init CUDA libraries (problem-independent), state = setup(problem) if present (untimed)
+  3. synchronize, clock the step loop, synchronize; then clock `query(problem, state)` the same way
+  4. only THEN is the reference loaded and the returned array scored
+  5. (untimed) device check: setup + a DEVICE_CHECK_BUDGET_S step loop + query once more under op counting; the
+     reported hardware is the GPU only if essentially all tensor work ran on it (speedrun/devicecheck.py).
 """
 from __future__ import annotations
 
@@ -53,11 +54,23 @@ from .tracks import ROOT, load_problem, load_reference, resolve, track_dir  # no
 
 
 QUERY_LIMIT_S = 5.0
+DEVICE_CHECK_BUDGET_S = 10.0
 
 
-def _sync(device: str):
+def _jax_arrays(tree):
+    import jax
+    return [x for x in jax.tree_util.tree_leaves(tree) if isinstance(x, jax.Array)]
+
+
+def _sync(device: str, tree=None):
+    """Wait for all queued device work: torch's, and JAX's (asynchronous dispatch) if JAX is in use. JAX work is
+    waited for through the arrays of `tree` if it holds any, else through every live JAX array."""
     if device.startswith("cuda") and torch.cuda.is_available():
         torch.cuda.synchronize()
+    if "jax" in sys.modules:
+        import jax
+        arrays = _jax_arrays(tree) if tree is not None else []
+        jax.block_until_ready(arrays or jax.live_arrays())
 
 
 def _init_device_libs(device: str):
@@ -112,25 +125,51 @@ def hardware_string(device: str) -> str:
 
 
 def is_output(x, problem) -> bool:
-    """Did `solve` return the output grid itself (classical solvers) rather than a solver object?"""
-    return isinstance(x, torch.Tensor) and tuple(x.shape) == tuple(problem.out_shape)
+    """Is x the output grid itself (classical solvers) rather than a solver state?"""
+    return hasattr(x, "shape") and not isinstance(x, (dict, list, tuple)) and tuple(x.shape) == tuple(problem.out_shape)
 
 
-def needs_query(mod, solver, problem) -> bool:
-    if is_output(solver, problem):
+def needs_query(mod, state, problem) -> bool:
+    if is_output(state, problem):
         return False
     if not hasattr(mod, "query"):
-        shape = tuple(solver.shape) if isinstance(solver, torch.Tensor) else type(solver).__name__
-        raise TypeError(f"solve returned {shape}, not a tensor of problem.out_shape = {problem.out_shape}, "
-                        "and the submission defines no query(problem, solver)")
+        shape = tuple(state.shape) if hasattr(state, "shape") else type(state).__name__
+        raise TypeError(f"the solve ended with {shape}, not an array of problem.out_shape = {problem.out_shape}, "
+                        "and the submission defines no query(problem, state)")
     return True
 
 
-def run_submission(mod, problem):
-    """warmup -> solve -> query, untimed (used by the GPU check)."""
-    solver = mod.warmup(problem) if hasattr(mod, "warmup") else None
-    solver = mod.solve(problem, solver)
-    return mod.query(problem, solver) if needs_query(mod, solver, problem) else solver
+def solve_loop(mod, problem, state, budget_s: float, device: str) -> tuple:
+    """The timed part of a run: step until done or out of budget. Returns (state, steps, stop reason)."""
+    if not hasattr(mod, "step"):
+        state = mod.solve(problem, state)
+        _sync(device, state)
+        return state, 1, "done"
+    t0, steps = time.perf_counter(), 0
+    while True:
+        state, done = mod.step(problem, state)
+        steps += 1
+        _sync(device, state)
+        if done:
+            return state, steps, "done"
+        if time.perf_counter() - t0 >= budget_s:
+            return state, steps, "budget"
+
+
+def run_submission(mod, problem, budget_s: float = DEVICE_CHECK_BUDGET_S):
+    """setup -> step loop -> query, untimed (used by the device check)."""
+    device = problem.device
+    state = mod.setup(problem) if hasattr(mod, "setup") else None
+    state, _, _ = solve_loop(mod, problem, state, budget_s, device)
+    return mod.query(problem, state) if needs_query(mod, state, problem) else state
+
+
+def to_torch(u) -> torch.Tensor:
+    """The output as a float64 CPU tensor, whatever array library produced it."""
+    if isinstance(u, torch.Tensor):
+        return u.detach().to("cpu", torch.float64)
+    import numpy as np
+    return torch.from_numpy(np.asarray(u, dtype=np.float64))
 
 
 def submission_file(path: Path) -> Path:
@@ -139,7 +178,9 @@ def submission_file(path: Path) -> Path:
 
 
 def run(track: str, submission: str | None = None, device: str | None = None, seed: int = 0,
-        out: str | None = None, quiet: bool = False, device_check: bool = True) -> dict:
+        out: str | None = None, quiet: bool = False, device_check: bool = True,
+        budget_s: float | None = None) -> dict:
+    """budget_s overrides the track's budget (development runs only; official runs use problem.budget_s)."""
     track = resolve(track)
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     sub_path = submission_file(Path(submission)) if submission else track_dir(track) / "baseline.py"
@@ -150,33 +191,37 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     mod = _import_file(sub_path)
     _init_device_libs(device)
 
-    solver = mod.warmup(problem) if hasattr(mod, "warmup") else None
-    _sync(device)
+    state = mod.setup(problem) if hasattr(mod, "setup") else None
+    _sync(device, state)
 
     if device.startswith("cuda") and torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
+    budget_s = problem.budget_s if budget_s is None else budget_s
     _sync(device)
     t0 = time.perf_counter()
-    solver = mod.solve(problem, solver)
-    _sync(device)
+    state, steps, stop = solve_loop(mod, problem, state, budget_s, device)
     solve_s = time.perf_counter() - t0
     query_s = 0.0
-    u = solver
-    if needs_query(mod, solver, problem):
+    u = state
+    if needs_query(mod, state, problem):
         t1 = time.perf_counter()
-        u = mod.query(problem, solver)
-        _sync(device)
+        u = mod.query(problem, state)
+        _sync(device, u)
         query_s = time.perf_counter() - t1
     elapsed = solve_s + query_s
+    del state
 
-    u = u.detach().to("cpu") if hasattr(u, "detach") else u
+    u = to_torch(u)
     ref = load_reference(track)  # loaded only after the timed solve
     s = score(u, ref, problem.linf_mask(), problem.rel_l2_tol, problem.linf_tol)
     query_ok = query_s <= QUERY_LIMIT_S
 
     if device.startswith("cuda") and torch.cuda.is_available():
         mem_gb = torch.cuda.max_memory_allocated() / 2**30
+        if "jax" in sys.modules:
+            import jax
+            mem_gb += jax.devices()[0].memory_stats().get("peak_bytes_in_use", 0) / 2**30
         mem_kind = "cuda_peak_allocated_gb"
     else:
         mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 2**20  # KiB -> GiB (linux)
@@ -185,11 +230,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     hardware, dev_report = hardware_string(device), None
     if device_check and device.startswith("cuda") and torch.cuda.is_available():
         from .devicecheck import check, classify
-        os.environ["SPEEDRUN_DEVICE_CHECK"] = "1"   # submissions may shorten this untimed, unscored run
-        try:
-            dev_report = check(lambda p: run_submission(mod, p), problem)
-        finally:
-            del os.environ["SPEEDRUN_DEVICE_CHECK"]
+        dev_report = check(lambda p: run_submission(mod, p), problem)
         hardware = classify(dev_report, hardware, cpu_string())
 
     result = {
@@ -198,6 +239,9 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         "time_s": elapsed,
         "solve_time_s": solve_s,
         "query_time_s": query_s,
+        "steps": steps,
+        "stop": stop,
+        "budget_s": budget_s,
         "rel_l2": s["rel_l2"],
         "linf": s["linf"],
         "accurate": s["passed"],
@@ -218,6 +262,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     if not quiet:
         status = "PASS" if result["passed"] else "FAIL"
         q = f" (solve {solve_s:.4f} + query {query_s:.4f}{'' if query_ok else ' > limit'})" if query_s else ""
+        q += f" [{steps} steps, stopped: {stop}]" if steps > 1 or stop != "done" else ""
         print(f"[{track}] {status}  time={elapsed:.4f}s{q}  relL2={s['rel_l2']:.3e} (<= {problem.rel_l2_tol:g})  "
               f"Linf={s['linf']:.3e} (<= {problem.linf_tol:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
     if out:
@@ -235,8 +280,11 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default=None, help="write result json here")
     ap.add_argument("--no-device-check", action="store_true", help="skip the untimed op-device check")
+    ap.add_argument("--budget-s", type=float, default=None,
+                    help="override the track's wall-clock budget (development only, not for records)")
     args = ap.parse_args()
-    r = run(args.track, args.submission, args.device, args.seed, args.out, device_check=not args.no_device_check)
+    r = run(args.track, args.submission, args.device, args.seed, args.out, device_check=not args.no_device_check,
+            budget_s=args.budget_s)
     sys.exit(0 if r["passed"] else 1)
 
 

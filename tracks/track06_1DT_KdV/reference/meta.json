@@ -1,0 +1,15 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "kdv/data/kdv.mat",
+  "wall_time_s": 1.1674135122448206,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    200,
+    512
+  ],
+  "sha256_float32": "f0e1f642a68b1198603a799bbe083480db386295247f4bac894e53c3a7f0e0e0",
+  "norm_l2": 226.24971466024093,
+  "max_abs": 2.6308712158116236,
+  "sha256_npz": "0efd8fbf66a634ce6ccadd0ad35a58dc8af9f8b3a83b51284ce443204e820c94"
+}

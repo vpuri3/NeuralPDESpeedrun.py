@@ -1,0 +1,15 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "allen_cahn/data/allen_cahn.mat",
+  "wall_time_s": 0.7691983971744776,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    200,
+    512
+  ],
+  "sha256_float32": "7bbaea360995d201c84ec5fa0c9a34af7f6aef1e2ab342fe2ae77ca95de026e8",
+  "norm_l2": 227.5810444550196,
+  "max_abs": 0.9999988913232092,
+  "sha256_npz": "5d9d5f1e6a4dc3cb4e337def34b183f6db743a992d26b88583b436f569de095e"
+}

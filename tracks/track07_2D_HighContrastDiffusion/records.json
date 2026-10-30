@@ -1,0 +1,17 @@
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/track07_2D_HighContrastDiffusion/baseline.py",
+    "time_s": 8.359433751087636,
+    "solve_time_s": 8.359433751087636,
+    "query_time_s": 0.0,
+    "rel_l2": 3.833503603315932e-05,
+    "linf": 0.00015841189658882815,
+    "passed": true,
+    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "kind": "classical",
+    "pr": null
+  }
+]

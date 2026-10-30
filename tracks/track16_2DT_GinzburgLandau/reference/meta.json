@@ -1,0 +1,16 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "ginzburg_landau/data/ginzburg_landau_square.mat",
+  "wall_time_s": 17.582344012334943,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    2,
+    100,
+    200,
+    200
+  ],
+  "sha256_float32": "07e6dca17cfa803ad4614ab778b9b017f9112f46c1a4a8b8d59fd26e8b2aff39",
+  "norm_l2": 904.7766498881995,
+  "max_abs": 0.9887495878042473,
+  "sha256_npz": "f56b3543622db0ba5002b6ebba6293c717a8f75413d7e96b870f8e523d3130b7"
+}

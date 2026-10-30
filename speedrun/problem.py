@@ -4,6 +4,10 @@ A `Problem` is the ONLY thing a submission receives. It contains the governing
 equations (as text + parameters), the problem data (initial/boundary conditions,
 forcing, coefficients) as callables, and the fixed evaluation points at which the
 submission must return its solution. It never contains (any part of) the solution.
+
+The callables in `fns` are written against the array API (`xp_of`), so they take and return torch tensors or
+JAX arrays alike (same namespace, device and dtype out as in). Axes and sampled data are torch tensors; a JAX
+submission converts them once in `setup` (e.g. `jnp.asarray(a.cpu().numpy())`).
 """
 from __future__ import annotations
 
@@ -14,10 +18,23 @@ import torch
 
 from .metrics import LINF_TOL, REL_L2_TOL
 
+BUDGET_S = 1000.0   # default wall-clock budget of the timed solve, enforced by the harness
+
+
+def xp_of(*arrays):
+    """Array namespace (torch or jax.numpy, array-API compatible) of the arguments."""
+    from array_api_compat import array_namespace
+    return array_namespace(*arrays)
+
+
+def array_device(x):
+    from array_api_compat import device
+    return device(x)
+
 
 @dataclass
 class Problem:
-    track: str                      # e.g. "track03_HighContrastDiffusion"
+    track: str                      # e.g. "track07_2D_HighContrastDiffusion"
     title: str                      # short human title
     statement: str                  # markdown statement of the PDE problem (equations, domain, BC/IC)
     fields: tuple[str, ...]         # names of the output fields, e.g. ("u",) or ("u", "v")
@@ -31,6 +48,7 @@ class Problem:
     rel_l2_tol: float = REL_L2_TOL  # accuracy bar of this track (default: the speedrun-wide one)
     linf_tol: float = LINF_TOL
     linf_margin: float = 0.0        # L-inf is not scored within this distance of the (x, y) domain boundary
+    budget_s: float = BUDGET_S      # the harness stops the timed solve once this much wall-clock time is used
 
     @property
     def axis_names(self) -> tuple[str, ...]:

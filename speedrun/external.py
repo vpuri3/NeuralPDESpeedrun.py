@@ -1,6 +1,6 @@
 """Reference data from external sources, pinned by commit and sha256.
 
-Tracks 05C, 07 and 11-16 use the reference solutions published with the PirateNet / SOAP-for-PINNs
+Tracks 04, 05, 06, 11 and 15-18 use the reference solutions published with the PirateNet / SOAP-for-PINNs
 benchmarks (github.com/PredictiveIntelligenceLab/jaxpi, branch `pirate`). Files are downloaded once into
 ~/.cache/neuralpdespeedrun/ and checked against the sha256 recorded here. Pickled .npy files are read with a
 restricted unpickler that only reconstructs numpy arrays and plain containers.

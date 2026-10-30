@@ -2,7 +2,7 @@
 tracks/<t>/README.md, and seed record #0.
 
     uv run python -m speedrun.records --track all                 # redraw every activity plot
-    uv run python -m speedrun.records --track 03 --seed-baseline tracks/track03_HighContrastDiffusion/logs/baseline.json
+    uv run python -m speedrun.records --track 07 --seed-baseline tracks/track07_2D_HighContrastDiffusion/logs/baseline.json
 
 A record entry is
     {"date": "YYYY-MM-DD", "author": ..., "name": ...,
@@ -18,7 +18,7 @@ import datetime as dt
 import json
 from pathlib import Path
 
-from .tracks import TRACKS, resolve, track_dir
+from .tracks import TRACKS, dim_label, key, name, resolve, track_dir
 
 KIND_STYLE = {"classical": ("tab:gray", "s"), "neural": ("tab:blue", "o"), "hybrid": ("tab:purple", "D")}
 
@@ -48,6 +48,8 @@ def add_entry(track: str, result_json: str, name: str, kind: str, author: str = 
              "time_s": r["time_s"], "solve_time_s": r.get("solve_time_s", r["time_s"]),
              "query_time_s": r.get("query_time_s", 0.0), "rel_l2": r["rel_l2"], "linf": r["linf"],
              "passed": r["passed"], "hardware": r["hardware"], "kind": kind, "pr": pr}
+    if "steps" in r:
+        entry.update(steps=r["steps"], stop=r["stop"], budget_s=r["budget_s"])
     recs = [e for e in load_records(track) if e.get("submission") != r["submission"]]
     save_records(track, recs + [entry])
     return entry
@@ -75,7 +77,7 @@ def best_submission(recs: list[dict]) -> dict | None:
 
 
 TABLE_BEGIN, TABLE_END = "<!-- tracks-table:begin -->", "<!-- tracks-table:end -->"
-STATUS = {"track04A_Helmholtz": "*on hold*", "track09_CylinderFlow": "*TODO*"}
+STATUS = {"track08_2D_Helmholtz": "*on hold*", "track14_2DT_CylinderFlow": "*TODO*"}
 
 
 def tracks_table() -> str:
@@ -83,7 +85,7 @@ def tracks_table() -> str:
     from .tracks import load_problem
     lines = ["| track | best submission | time [s] | RelL2 | L∞ | bar met |", "|---|---|---|---|---|---|"]
     for t in TRACKS:
-        label = t.replace("track", "", 1).replace("_", " ", 1)
+        label = f"{key(t)} {name(t)} ({dim_label(t)})"
         if t in STATUS or not (track_dir(t) / "problem.py").exists():
             lines.append(f"| {label} | {STATUS.get(t, '*TODO*')} | | | | |")
             continue
@@ -92,8 +94,8 @@ def tracks_table() -> str:
             lines.append(f"| {label} | — | | | | |")
             continue
         p = load_problem(t)
-        name = f"[{b['name']}]({b['submission']})" if b.get("submission") else b["name"]
-        lines.append(f"| {label} | {name} | {b['time_s']:.4g} | {b['rel_l2']:.2e} (≤ {p.rel_l2_tol:g}) | "
+        link = f"[{b['name']}]({b['submission']})" if b.get("submission") else b["name"]
+        lines.append(f"| {label} | {link} | {b['time_s']:.4g} | {b['rel_l2']:.2e} (≤ {p.rel_l2_tol:g}) | "
                      f"{b['linf']:.2e} (≤ {p.linf_tol:g}) | {'yes' if b.get('passed') else 'no'} |")
     return "\n".join(lines)
 
@@ -134,7 +136,7 @@ def plot_accuracy(track: str) -> Path | None:
     ax.set_yscale("log")
     ax.set_xlabel("wall-clock time [s] (solve + query)")
     ax.set_ylabel("RelL2")
-    ax.set_title(f"{track}  (hollow = misses the bar)", fontsize=9)
+    ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)})  (hollow = misses the bar)", fontsize=9)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8, loc="best")
     out = track_dir(track) / "figures" / "accuracy_vs_time.png"
@@ -171,7 +173,7 @@ def plot_activity(track: str) -> Path | None:
     ax.step(xs, ys, where="post", color="k", lw=1.2, label="record")
     ax.set_yscale("log")
     ax.set_ylabel("time to tolerance [s]")
-    ax.set_title(f"{track}: record {best:.4g} s")
+    ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)}): record {best:.4g} s")
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="upper right", fontsize=8)
     fig.autofmt_xdate()
@@ -219,7 +221,8 @@ def write_readme(track: str) -> Path:
     bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, L∞ ≤ {p.linf_tol:g}"
     if p.linf_margin > 0:
         bar += f" (L∞ only at points ≥ {p.linf_margin:g} from the walls)"
-    lines = [f"# {track}: {p.title}", "", "```text", p.statement.strip(), "```", "", bar + ".", ""]
+    bar += f". **Budget:** {p.budget_s:g} s of wall-clock solve time"
+    lines = [f"# {key(track)} {name(track)} ({dim_label(track)}): {p.title}", "", "```text", p.statement.strip(), "```", "", bar + ".", ""]
     figs = sorted((d / "figures").glob("reference*.png")) + sorted((d / "figures").glob("reference*.gif"))
     lines += [f"![{f.stem}](figures/{f.name})" for f in figs] + [""]
     if meta:

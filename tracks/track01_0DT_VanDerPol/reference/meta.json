@@ -1,0 +1,15 @@
+{
+  "method": "Radau IIA (scipy), rtol 1e-12, atol 1e-14, analytic Jacobian",
+  "check_rtol1e-10_linf": 3.5079494864476146e-11,
+  "check_rtol1e-10_rel_l2": 7.452680762039177e-12,
+  "wall_time_s": 13.57494331151247,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    3001
+  ],
+  "sha256_float32": "ce5db2ae8751833aa187dad490e1e0242dc973a20f30ae956341094fd20e024d",
+  "norm_l2": 92.6955221830453,
+  "max_abs": 2.0,
+  "sha256_npz": "d4c2ac1ebd355f49312c812fa510f496e8af5554ea3de200cc80f19986836db6"
+}

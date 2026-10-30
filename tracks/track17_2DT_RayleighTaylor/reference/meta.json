@@ -1,0 +1,16 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "rayleigh_taylor/data/rayleigh_taylor_high_Ra.npy",
+  "wall_time_s": 8.652594746090472,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    3,
+    34,
+    100,
+    200
+  ],
+  "sha256_float32": "12bf5901967d83657b3f4336769ff7740e764df45178a435ce2ad8eae076faa5",
+  "norm_l2": 562.6193050401076,
+  "max_abs": 1.4311809647179206,
+  "sha256_npz": "2a4a9dc0d70907a7cea4f0f3271f879993596724a731eea4a58ef52365df0e27"
+}

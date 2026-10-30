@@ -10,6 +10,7 @@ dependencies = [
     "matplotlib>=3.8",
     "pillow>=10.0",
     "scipy>=1.15.3",
+    "array-api-compat>=1.16.0",
 ]
 
 [tool.uv]

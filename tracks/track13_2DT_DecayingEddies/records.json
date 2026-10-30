@@ -1,0 +1,17 @@
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/track13_2DT_DecayingEddies/baseline.py",
+    "time_s": 0.13470729510299861,
+    "solve_time_s": 0.13470729510299861,
+    "query_time_s": 0.0,
+    "rel_l2": 1.916478908608513e-15,
+    "linf": 7.716050021144838e-15,
+    "passed": true,
+    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "kind": "classical",
+    "pr": null
+  }
+]

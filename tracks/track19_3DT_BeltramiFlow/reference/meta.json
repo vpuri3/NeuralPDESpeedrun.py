@@ -1,0 +1,16 @@
+{
+  "method": "closed form (Ethier & Steinman 1994)",
+  "wall_time_s": 0.0030281897634267807,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    3,
+    4,
+    33,
+    33,
+    33
+  ],
+  "sha256_float32": "8687807c46894f36ef3bdec58980ecde36afc51da0519fc5c0d81cc202dbc6ea",
+  "norm_l2": 557.7428357675062,
+  "max_abs": 2.99282596351922,
+  "sha256_npz": "ae4e85e18213d9d29a9b0e22261b394c3dc5fa50c53930e04b7642fe01198280"
+}

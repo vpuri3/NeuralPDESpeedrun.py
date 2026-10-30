@@ -1,12 +1,15 @@
-"""Where does a submission actually compute? Counts every aten op of one warmup + solve + query by the device of its
+"""Where does a submission actually compute? Counts every aten op of one setup + step loop + query by the device of its
 tensors, so a run on a CUDA problem whose work silently happens on the CPU is reported as such.
 
-Used by the harness (an extra, untimed `solve` after scoring); standalone:
-    uv run python -m speedrun.devicecheck --track track3 [--submission f.py]
-Work done outside torch (numpy, scipy, python loops over floats) is invisible here; it shows up as wall
-time that the CUDA profiler does not account for, which `speedrun.run` does not try to attribute.
+Used by the harness (an extra, untimed run after scoring); standalone:
+    uv run python -m speedrun.devicecheck --track 07 [--submission f.py]
+Work done outside torch (numpy, scipy, python loops over floats) is invisible here. JAX work is not counted op by
+op either; when the submission uses JAX, the report records its backend and the device of the arrays the run
+returned, and a run whose JAX arrays all live on the GPU (with no torch work on the CPU) is classified as GPU.
 """
 from __future__ import annotations
+
+import sys
 
 import torch
 from torch.utils._python_dispatch import TorchDispatchMode
@@ -43,19 +46,27 @@ class _Count(TorchDispatchMode):
 
 
 def check(run, problem) -> dict:
-    """Run run(problem) (warmup + solve + query) once under op counting. `gpu_fraction` = share of tensor work
+    """Run run(problem) once under op counting (setup + a short step loop + query). `gpu_fraction` = share of tensor work
     on CUDA."""
     with _Count() as c:
-        run(problem)
+        out = run(problem)
     total = sum(c.work.values())
     frac = c.work["cuda"] / total if total else 1.0
     top = sorted(c.cpu_ops.items(), key=lambda kv: -kv[1])[:8]
-    return {"gpu_fraction": frac, "ops_cuda": c.ops["cuda"], "ops_cpu": c.ops["cpu"], "cpu_ops_top": dict(top)}
+    report = {"gpu_fraction": frac, "ops_cuda": c.ops["cuda"], "ops_cpu": c.ops["cpu"], "cpu_ops_top": dict(top)}
+    if "jax" in sys.modules:
+        import jax
+        devs = {d.platform for x in [out, *jax.live_arrays()] if isinstance(x, jax.Array) for d in x.devices()}
+        report["jax_backend"] = jax.default_backend()
+        report["jax_platforms"] = sorted(devs)
+    return report
 
 
 def classify(report: dict, gpu_name: str, cpu_name: str) -> str:
     """Hardware label: the GPU only if (essentially) all tensor work ran there."""
     f = report["gpu_fraction"]
+    if report.get("jax_platforms") == ["gpu"] and (report["ops_cpu"] == 0 or f >= 0.99):
+        return f"{gpu_name} (JAX)"
     if report["ops_cuda"] == 0:            # no torch work on the GPU at all (e.g. numpy / scipy solvers)
         return cpu_name
     if f >= 0.99:
@@ -68,7 +79,7 @@ def classify(report: dict, gpu_name: str, cpu_name: str) -> str:
 def main():
     import argparse
 
-    from .run import _import_file, run_submission
+    from .run import _import_file, run_submission, submission_file
     from .tracks import load_problem, resolve, track_dir
     from pathlib import Path
     ap = argparse.ArgumentParser()
@@ -76,7 +87,7 @@ def main():
     ap.add_argument("--submission", default=None)
     a = ap.parse_args()
     t = resolve(a.track)
-    mod = _import_file(Path(a.submission) if a.submission else track_dir(t) / "baseline.py")
+    mod = _import_file(submission_file(Path(a.submission)) if a.submission else track_dir(t) / "baseline.py")
     p = load_problem(t, device="cuda")
     print(t, check(lambda q: run_submission(mod, q), p))
 

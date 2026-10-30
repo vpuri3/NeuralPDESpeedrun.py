@@ -1,0 +1,15 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "ldc/data/ldc_Re5000.mat",
+  "wall_time_s": 0.6387343667447567,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    2,
+    256,
+    256
+  ],
+  "sha256_float32": "869a41bb9aa3018b4d62d01729402f88ab4d20e4819f977d03081f7a831b3de7",
+  "norm_l2": 76.39073789243285,
+  "max_abs": 1.0,
+  "sha256_npz": "dac3513ec6b2b96493344b658ae3dfd8e0a2b5880e161ba57b975688a9b5fc08"
+}

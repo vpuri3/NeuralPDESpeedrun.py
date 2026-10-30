@@ -1,0 +1,16 @@
+{
+  "method": "published data (jaxpi)",
+  "source": "kolmogorov_flow/data/kolmogorov_flow_Re10000_256.npy",
+  "wall_time_s": 15.443599304184318,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    2,
+    49,
+    256,
+    256
+  ],
+  "sha256_float32": "352ca575bd49025663c3a88b4ae468a140b9274a1f8853ae96eec0c3e6892942",
+  "norm_l2": 2166.99723588029,
+  "max_abs": 2.922008991241455,
+  "sha256_npz": "67dea778ad678bb543112bdf9398fec38a45689d89f9feabe2f8084809cdcaa7"
+}

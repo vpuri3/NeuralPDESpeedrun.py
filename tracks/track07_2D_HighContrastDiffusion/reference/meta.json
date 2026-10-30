@@ -1,0 +1,21 @@
+{
+  "method": "cell-centered FV + MG-PCG on 3840^2 and 5376^2 (213, 236 PCG its), Richardson-extrapolated at the observed order p = 1.338",
+  "observed_order": 1.3375536432138113,
+  "check_extrap9_15_vs_ref_rel_l2": 1.0463319994563044e-07,
+  "check_extrap9_15_vs_ref_linf": 1.1681968405952148e-06,
+  "check_N5376_vs_ref_rel_l2": 2.018470323199095e-05,
+  "check_N5376_vs_ref_linf": 8.334368483653432e-05,
+  "check_N2304_vs_ref_rel_l2": 6.269176043364392e-05,
+  "check_N2304_vs_ref_linf": 0.00026000300043604874,
+  "wall_time_s": 10.15663983207196,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    256,
+    256
+  ],
+  "sha256_float32": "748a8b3da1da0be7cc1c54da4fe1806f24d0defd8f2a62aac4c3acaad72dbdf2",
+  "norm_l2": 148.23853305918735,
+  "max_abs": 1.002116095945576,
+  "sha256_npz": "2a3088db5f6d645770c14f5e7701683aab8cd2d5895b096f91446de96f8f3afe"
+}

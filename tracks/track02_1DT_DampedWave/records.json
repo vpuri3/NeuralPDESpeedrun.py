@@ -1,0 +1,17 @@
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/track02_1DT_DampedWave/baseline.py",
+    "time_s": 0.0028691240586340427,
+    "solve_time_s": 0.0028691240586340427,
+    "query_time_s": 0.0,
+    "rel_l2": 8.027695672146336e-16,
+    "linf": 7.771561172376096e-16,
+    "passed": true,
+    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "kind": "classical",
+    "pr": null
+  }
+]

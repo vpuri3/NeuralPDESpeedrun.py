@@ -13,6 +13,7 @@ import numpy as np
 import torch
 
 from speedrun import plotting
+from speedrun.problem import array_device, xp_of
 from speedrun.tracks import TRACKS_DIR
 
 
@@ -39,27 +40,40 @@ def periodic_interp(values: torch.Tensor, lo, length, endpoint=True):
 
     values: (n,) or (nx, ny) samples starting at `lo`; with endpoint=True the last point duplicates the first
     and is dropped. lo, length: scalars or per-axis tuples.
-    Returns f(*coords) evaluating the interpolant at arbitrary points (torch, any shape, same device)."""
+    Returns f(*coords) evaluating the interpolant at arbitrary points: torch or JAX arrays of any shape, same
+    namespace, device and dtype out. Real arithmetic only: Re(sum_k c_k e^{i k x}) with c = a + i b."""
     v = values if not endpoint else (values[:-1] if values.ndim == 1 else values[:-1, :-1])
-    c = torch.fft.fftn(v.to(torch.complex128)) / v.numel()
-    ks = [torch.fft.fftfreq(n, d=1.0 / n, device=v.device, dtype=torch.float64) for n in v.shape]
+    v = v.detach().cpu().numpy().astype(np.float64)
+    c = np.fft.fftn(v) / v.size
+    ks = [np.fft.fftfreq(n, d=1.0 / n) for n in v.shape]
     lo = lo if isinstance(lo, (tuple, list)) else (lo,)
     length = length if isinstance(length, (tuple, list)) else (length,)
+    cache = {}
+
+    def consts(xp, dev, dtype):
+        k = (xp.__name__, str(dev), str(dtype))
+        if k not in cache:
+            put = lambda a: xp.asarray(np.ascontiguousarray(a), dtype=dtype, device=dev)  # noqa: E731
+            cache[k] = [put(kk) for kk in ks], put(c.real), put(c.imag)
+        return cache[k]
 
     def f(*coords, chunk=4096):
+        xp = xp_of(*coords)
+        dev, dtype = array_device(coords[0]), coords[0].dtype
+        (kx, *ky), a, b = consts(xp, dev, dtype)
         shape = coords[0].shape
-        flat = [x.reshape(-1).to(torch.float64) for x in coords]
-        out = torch.empty(flat[0].numel(), dtype=torch.float64, device=flat[0].device)
-        for s in range(0, flat[0].numel(), chunk):
-            sl = slice(s, s + chunk)
+        flat = [xp.reshape(x, (-1,)) for x in coords]
+        out = []
+        for s in range(0, flat[0].shape[0], chunk):
+            th = 2 * math.pi * kx[None, :] * ((flat[0][s:s + chunk, None] - lo[0]) / length[0])
+            cx, sx = xp.cos(th), xp.sin(th)
             if len(flat) == 1:
-                ph = torch.exp(2j * math.pi * ks[0][None, :] * ((flat[0][sl, None] - lo[0]) / length[0]))
-                out[sl] = (ph * c[None, :]).sum(1).real
+                out.append(cx @ a - sx @ b)
             else:
-                px = torch.exp(2j * math.pi * ks[0][None, :] * ((flat[0][sl, None] - lo[0]) / length[0]))
-                py = torch.exp(2j * math.pi * ks[1][None, :] * ((flat[1][sl, None] - lo[1]) / length[1]))
-                out[sl] = torch.einsum("nk,kl,nl->n", px, c, py).real
-        return out.reshape(shape).to(coords[0].dtype)
+                ph = 2 * math.pi * ky[0][None, :] * ((flat[1][s:s + chunk, None] - lo[1]) / length[1])
+                re, im = cx @ a - sx @ b, cx @ b + sx @ a           # (e^{i kx x} c)_l
+                out.append(xp.sum(re * xp.cos(ph) - im * xp.sin(ph), axis=1))
+        return xp.reshape(xp.concat(out), shape)
 
     return f
 

@@ -1,0 +1,15 @@
+{
+  "method": "exact modal sine series, closed-form coefficients, K=512",
+  "check_K256_linf": 0.0,
+  "wall_time_s": 0.7675027027726173,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    801,
+    1001
+  ],
+  "sha256_float32": "c2d491971dd0263aaf01846a6f535f8c4466d2a643072b51fdc53739a3f612d4",
+  "norm_l2": 78.55698921823345,
+  "max_abs": 1.0000000000000004,
+  "sha256_npz": "2ce1073bd08a3b9ef2eef4a0b170df261c4375ef1220647af58d913cc0042d0b"
+}

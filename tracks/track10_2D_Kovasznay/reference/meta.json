@@ -1,0 +1,15 @@
+{
+  "method": "closed form (Kovasznay 1948)",
+  "check_sem_N24_linf": 8.541778395709798e-14,
+  "wall_time_s": 21.79498198349029,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    2,
+    251,
+    201
+  ],
+  "sha256_float32": "b89c52f308e2dc9c28de7bedd8610b3b2d34b2e56ca5d723c36c095f7d4bc34d",
+  "norm_l2": 254.63420685672477,
+  "max_abs": 2.619099729265964,
+  "sha256_npz": "d14b625543326894518575bfd82489f906bedb839aa64b180da4e75b16d8037f"
+}

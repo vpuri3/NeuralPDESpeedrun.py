@@ -2,7 +2,7 @@
 
     uv run python -m speedrun.run_submission --submission submission_PR0001 --gpus 0,1,2,3 \
         --name "PirateNet + SOAP" --kind neural --pr 1
-    uv run python -m speedrun.run_submission --submission submission_PR0001 --tracks 05A,11 --gpus 0
+    uv run python -m speedrun.run_submission --submission submission_PR0001 --tracks 03,05 --gpus 0
 
 For each track with tracks/<track>/submissions/<submission>/solve.py this runs the official harness
 (`python -m speedrun.run`), writing <submission dir>/result.json and run.log. With --name, the results are added

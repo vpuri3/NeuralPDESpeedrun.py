@@ -1,9 +1,10 @@
-"""Shared definition of the Kovasznay-flow track 06 (and any future Kovasznay variants)."""
+"""Shared definition of the Kovasznay-flow track 10 (and any future Kovasznay variants)."""
 import math
 
 import torch
 
 from speedrun import plotting
+from speedrun.problem import xp_of
 
 RE = 40.0
 LAM = RE / 2 - math.sqrt(RE**2 / 4 + 4 * math.pi**2)
@@ -19,11 +20,13 @@ Dirichlet velocity on the whole boundary, equal to the Kovasznay (1948) solution
 
 
 def u_bc(x, y):
-    return 1.0 - torch.exp(LAM * x) * torch.cos(2 * math.pi * y)
+    xp = xp_of(x, y)
+    return 1.0 - xp.exp(LAM * x) * xp.cos(2 * math.pi * y)
 
 
 def v_bc(x, y):
-    return LAM / (2 * math.pi) * torch.exp(LAM * x) * torch.sin(2 * math.pi * y)
+    xp = xp_of(x, y)
+    return LAM / (2 * math.pi) * xp.exp(LAM * x) * xp.sin(2 * math.pi * y)
 
 
 def sem_solve(problem, N):

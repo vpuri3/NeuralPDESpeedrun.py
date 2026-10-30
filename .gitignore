@@ -221,10 +221,6 @@ __marimo__/
 
 # speedrun
 tracks/*/logs/
-tracks/track05B_Burgers2D/reference/ref.npz
+tracks/*/reference/ref.npz
 *.gif.tmp
-tracks/track13_GreyScott/reference/ref.npz
-tracks/track14_GinzburgLandau/reference/ref.npz
-tracks/track15_RayleighTaylor/reference/ref.npz
-tracks/track16_KolmogorovFlow/reference/ref.npz
 tracks/*/submissions/*/run.log

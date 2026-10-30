@@ -2,6 +2,23 @@
   {
     "date": "2026-10-30",
     "author": "maintainers",
+    "name": "PirateNet + SOAP",
+    "submission": "tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py",
+    "time_s": 1000.3759637083858,
+    "solve_time_s": 1000.140590810217,
+    "query_time_s": 0.23537289816886187,
+    "rel_l2": 0.004485393993348398,
+    "linf": 0.006415701175366828,
+    "passed": false,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 1,
+    "stop": "budget",
+    "budget_s": 1000.0
+  },
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track13_2DT_DecayingEddies/baseline.py",
     "time_s": 0.13470729510299861,

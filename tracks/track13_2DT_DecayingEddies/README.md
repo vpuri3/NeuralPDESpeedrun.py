@@ -30,6 +30,7 @@ Current record: **0.1347 s** (record #0: classical baseline, maintainers, 2026-1
 
 | date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 1000 | 4.49e-03 | 6.42e-03 | no | NVIDIA H100 80GB HBM3 (JAX) |
 | 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.1347 | 1.92e-15 | 7.72e-15 | yes | NVIDIA GeForce RTX 2080 Ti |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)

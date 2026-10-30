@@ -158,25 +158,25 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 <!-- tracks-table:begin -->
 | track | best submission | time [s] | RelL2 | L∞ | bar met |
 |---|---|---|---|---|---|
-| 01 VanDerPol (ODE) | — | | | | |
-| 02 DampedWave (1D + Time) | — | | | | |
-| 03 Burgers (1D + Time) | — | | | | |
-| 04 KuramotoSivashinsky (1D + Time) | — | | | | |
-| 05 AllenCahn (1D + Time) | — | | | | |
-| 06 KdV (1D + Time) | — | | | | |
-| 07 HighContrastDiffusion (2D) | — | | | | |
+| 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 363.2 | 1.09e+00 (≤ 0.0001) | 3.34e+00 (≤ 0.001) | no |
+| 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.66e-02 (≤ 0.0001) | 1.53e-02 (≤ 0.001) | no |
+| 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 1.04e-04 (≤ 0.0001) | 5.40e-03 (≤ 0.001) | no |
+| 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1001 | 9.30e-01 (≤ 0.05) | 3.42e+00 (≤ 0.5) | no |
+| 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 403.1 | 2.77e-03 (≤ 0.0001) | 3.70e-02 (≤ 0.001) | no |
+| 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1000 | 1.46e-03 (≤ 0.001) | 1.08e-02 (≤ 0.01) | no |
+| 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 1.35e-01 (≤ 0.0001) | 2.04e-01 (≤ 0.001) | no |
 | 08 Helmholtz (2D) | *on hold* | | | | |
-| 09 AdvectionDiffusion (2D) | — | | | | |
-| 10 Kovasznay (2D) | — | | | | |
-| 11 LidDrivenCavity (2D) | — | | | | |
-| 12 Burgers (2D + Time) | — | | | | |
-| 13 DecayingEddies (2D + Time) | — | | | | |
+| 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 1000 | 3.45e-02 (≤ 0.0001) | 3.64e-01 (≤ 0.001) | no |
+| 10 Kovasznay (2D) | [PirateNet + SOAP](tracks/track10_2D_Kovasznay/submissions/submission_PR0001/solve.py) | 561.6 | 8.96e-04 (≤ 0.0001) | 5.59e-03 (≤ 0.001) | no |
+| 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 928.7 | 1.00e+00 (≤ 0.05) | 5.39e-01 (≤ 0.1) | no |
+| 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 8.70e-04 (≤ 0.0001) | 1.65e-02 (≤ 0.001) | no |
+| 13 DecayingEddies (2D + Time) | [PirateNet + SOAP](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py) | 1000 | 4.49e-03 (≤ 0.0001) | 6.42e-03 (≤ 0.001) | no |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
-| 15 GreyScott (2D + Time) | — | | | | |
-| 16 GinzburgLandau (2D + Time) | — | | | | |
-| 17 RayleighTaylor (2D + Time) | — | | | | |
-| 18 KolmogorovFlow (2D + Time) | — | | | | |
-| 19 BeltramiFlow (3D + Time) | — | | | | |
+| 15 GreyScott (2D + Time) | [PirateNet + SOAP](tracks/track15_2DT_GreyScott/submissions/submission_PR0001/solve.py) | 1001 | 6.17e-01 (≤ 0.001) | 7.32e-01 (≤ 0.01) | no |
+| 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 300.9 | 9.99e-01 (≤ 0.01) | 1.02e+00 (≤ 0.05) | no |
+| 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 1001 | 8.67e-01 (≤ 0.02) | 1.43e+00 (≤ 0.1) | no |
+| 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 1.23e+00 (≤ 0.05) | 4.18e+00 (≤ 0.5) | no |
+| 19 BeltramiFlow (3D + Time) | [PirateNet + SOAP](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0001/solve.py) | 1000 | 5.26e-04 (≤ 0.0001) | 1.88e-03 (≤ 0.001) | no |
 <!-- tracks-table:end -->
 
 ### 01 VanDerPol (ODE)

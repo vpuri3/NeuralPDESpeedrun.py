@@ -1,0 +1,38 @@
+{
+  "track": "track12_2DT_Burgers",
+  "submission": "tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py",
+  "time_s": 1000.8074252856895,
+  "solve_time_s": 1000.4781964682043,
+  "query_time_s": 0.3292288174852729,
+  "checkpoints": 1201,
+  "stop": "budget",
+  "budget_s": 1000.0,
+  "rel_l2": 0.0008699462535686523,
+  "linf": 0.016541044388609483,
+  "accurate": false,
+  "query_within_limit": true,
+  "passed": false,
+  "tolerances": {
+    "rel_l2": 0.0001,
+    "linf": 0.001
+  },
+  "linf_margin": 0.0,
+  "device": "cuda",
+  "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+  "device_check": {
+    "gpu_fraction": 1.0,
+    "ops_cuda": 0,
+    "ops_cpu": 0,
+    "cpu_ops_top": {},
+    "jax_backend": "gpu",
+    "jax_platforms": [
+      "gpu"
+    ]
+  },
+  "cuda_peak_allocated_gb": 2.3953351974487305,
+  "torch": "2.15.0+cu132",
+  "python": "3.13.15",
+  "git_commit": "b4ddd28",
+  "seed": 0,
+  "date": "2026-10-30T18:14:19"
+}

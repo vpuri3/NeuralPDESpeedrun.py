@@ -1,9 +1,10 @@
-"""Plot helpers for reference solutions: crisp PNGs (200 dpi) and GIF animations."""
+"""Plot helpers for reference solutions: filled-contour PNGs (200 dpi) and GIF animations."""
 from __future__ import annotations
 
 from pathlib import Path
 
 import matplotlib
+import matplotlib.ticker
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
@@ -13,7 +14,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter  # noqa: E402
 plt.rcParams.update({
     "figure.dpi": 100, "savefig.dpi": 200, "savefig.bbox": "tight", "savefig.pad_inches": 0.05,
     "font.size": 11, "axes.titlesize": 12, "axes.labelsize": 11, "figure.titlesize": 13,
-    "image.interpolation": "nearest", "axes.linewidth": 0.8,
+    "axes.linewidth": 0.8,
 })
 GIF_DPI = 110
 DIVERGING = {"RdBu_r", "seismic", "coolwarm", "bwr"}
@@ -30,9 +31,24 @@ def _norm(F, cmap):
     return float(F.min()), float(F.max())
 
 
+LEVELS = 64
+
+
+def _contour(ax, x, y, F, cmap, lo, hi):
+    """Filled contours of F[iy, ix] on fixed levels (identical color scale across panels / frames)."""
+    if hi <= lo:
+        hi = lo + 1e-12
+    levels = np.linspace(lo, hi, LEVELS + 1)
+    cs = ax.contourf(x, y, np.clip(F, lo, hi), levels=levels, cmap=cmap, extend="neither")
+    cs.set_rasterized(True)
+    return cs
+
+
 def _cbar(fig, ax, im):
     """Colorbar exactly as tall as its (aspect-locked) axes."""
-    fig.colorbar(im, cax=ax.inset_axes([1.04, 0.0, 0.05, 1.0]))
+    cb = fig.colorbar(im, cax=ax.inset_axes([1.04, 0.0, 0.05, 1.0]))
+    cb.locator = matplotlib.ticker.MaxNLocator(6)
+    cb.update_ticks()
 
 
 def _cmap_for(name, F, cmaps):
@@ -65,7 +81,7 @@ def fields2d(x, y, fields: dict, path: Path, suptitle="", cmap=None, streamplot=
         F = _np(F)
         cm = cmap or _cmap_for(k, F, cmaps)
         lo, hi = _norm(F, cm)
-        im = ax.pcolormesh(xs, ys, F.T, shading="nearest", cmap=cm, vmin=lo, vmax=hi, rasterized=True)
+        im = _contour(ax, xs, ys, F.T, cm, lo, hi)
         ax.set(title=k, xlabel="x", ylabel="y", aspect="equal")
         _cbar(fig, ax, im)
     if streamplot and "u" in fields and "v" in fields:
@@ -83,9 +99,11 @@ def spacetime(x, t, U, path: Path, title="", xlabel="x", cmap=None):
     cm = cmap or _cmap_for("u", U, None)
     lo, hi = _norm(U, cm)
     fig, ax = plt.subplots(figsize=(7, 4), layout="constrained")
-    im = ax.pcolormesh(_np(x), _np(t), U, shading="nearest", cmap=cm, vmin=lo, vmax=hi, rasterized=True)
+    im = _contour(ax, _np(x), _np(t), U, cm, lo, hi)
     ax.set(title=title, xlabel=xlabel, ylabel="t")
-    fig.colorbar(im, ax=ax, pad=0.02)
+    cb = fig.colorbar(im, ax=ax, pad=0.02)
+    cb.locator = matplotlib.ticker.MaxNLocator(6)
+    cb.update_ticks()
     fig.savefig(path)
     plt.close(fig)
 
@@ -134,19 +152,21 @@ def gif_fields2d(x, y, fields: dict, times, path: Path, title="", fps=10, frames
     w = 4.0 if aspect <= 1.2 else 2.6
     fig, axs = plt.subplots(1, n, figsize=((w + 1.0) * n, w * min(aspect, 2.2) + 0.8), squeeze=False,
                             layout="constrained")
-    ims = []
+    ims, styles = [], []
     for ax, (k, A) in zip(axs[0], F.items()):
         cm = _cmap_for(k, A, cmaps)
         lo, hi = _norm(A, cm)
-        im = ax.pcolormesh(xs, ys, A[0].T, shading="nearest", cmap=cm, vmin=lo, vmax=hi)
+        im = _contour(ax, xs, ys, A[0].T, cm, lo, hi)
         ax.set(title=k, xlabel="x", ylabel="y", aspect="equal")
         _cbar(fig, ax, im)
         ims.append(im)
+        styles.append((cm, lo, hi))
     sup = fig.suptitle("")
 
     def upd(j):
-        for im, A in zip(ims, F.values()):
-            im.set_array(A[idx[j]].T.ravel())
+        for n, (ax, A, (cm, lo, hi)) in enumerate(zip(axs[0], F.values(), styles)):
+            ims[n].remove()
+            ims[n] = _contour(ax, xs, ys, A[idx[j]].T, cm, lo, hi)
         sup.set_text(f"{title}   t = {times[idx[j]]:.3f}")
         return ims
 

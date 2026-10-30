@@ -3,7 +3,7 @@ name = "neuralpdespeedrun"
 version = "0.1.0"
 description = "Data-free neural PDE solver speedrun"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "torch>=2.15",          # PyPI wheels: CUDA 13.2 (H100; NVIDIA driver >= 580)
     "numpy>=2.0",

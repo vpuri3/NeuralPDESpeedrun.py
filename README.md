@@ -20,7 +20,7 @@ uv run python -m speedrun.run_submission --submission submission_PR0001 --gpus 0
 uv run python -m speedrun.records --track all                       # leaderboards, plots, READMEs
 ```
 
-The environment targets H100 GPUs (NVIDIA driver ≥ 580): `uv sync` installs torch 2.15 built for CUDA 13.2;
+The environment targets H100 GPUs (NVIDIA driver ≥ 580): `uv sync` installs Python 3.13 and torch 2.15 built for CUDA 13.2;
 submissions that use JAX add it with its CUDA 13 wheels (`jax[cuda13]`).
 
 Reference solutions are not in git. They are assets of the GitHub release

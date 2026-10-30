@@ -76,35 +76,57 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   also dropped physical modes. Only the constant null mode is removed now.
 - **3, 4B.** Forcing scaled so max|u| ≈ 1, which makes the absolute L∞ bar meaningful.
 
-## 4. Open work
+## 4. Next steps (in order)
 
-- [ ] **04A Helmholtz: on hold.** Original setup: `−Δu − (ω/c)² u = f` on [0, 1]², u = 0 on the boundary, ω = 40,
-      `c = 1 − 0.4 exp(−((x−0.65)² + (y−0.6)²)/(2·0.12²))`, Gaussian source at (0.35, 0.4), σ = 0.05. It is resonant
-      (lossless Dirichlet box): shifted-Laplacian GMRES does not converge in 3000 its at N = 256, and max|u|
-      changes 7× between ω = 39.5 and 40. Needs absorption (sponge layer / PML / impedance BC), with the reference
-      as sine pseudo-spectral + complex-shifted-Laplacian-preconditioned GMRES.
-- [ ] **07A / 07B cavity references: TODO.** N=384 runs (BDF3/EXT3, dt = 2× smallest GLL spacing) take
-      ~35 min each on a 2080 Ti; the first attempt was invalidated by the pressure-FDM null-mode bug (fixed).
-      From the N ≤ 256 study: Re=100 N=192 vs 256 differs by 1.8e-4 (RelL2 inside the margin), Re=1000 by
-      1.0e-3, so 07B likely needs a looser bar or a better reference method.
-- [ ] **10 CylinderFlow**: TODO notes in `tracks/track10_CylinderFlow/TODO.md`.
-- [ ] H100 re-timing of every record #0 (official times).
-- [ ] Cavity references closer to the default bar (singularity subtraction, or multi-element SEM with corner
-      refinement).
+Where things stood when work stopped (2026-10-30): the solve/query API, the vanilla PINN code
+(`submission_PR0001`), and the accuracy-vs-time plots are committed. Every track's PINN `solve`/`query` passed
+a 20 s smoke test (shapes correct, query ≤ 0.11 s). The 1000 s runs were **stopped before any finished**:
+there are no PINN results yet, and no `result.json` files. 20 s smoke RelL2 (indicative only):
+01 1.9e-4 · 02A 4.1e-2 · 02B 1.3 · 03 1.0 · 04B 0.88 · 05A 0.18 · 05B 0.90 · 05C 0.99 · 06A 0.46 · 06B 8.4e-2 ·
+08 1.0 · 09 1.0.
 
-## 5. First neural records (see IDEAS.md)
+1. **Open the draft PR for the vanilla PINN** and check that its GitHub number is #1, so it matches
+   `submission_PR0001`. Otherwise rename the directories (`tracks/*/submissions/submission_PR0001/`,
+   `speedrun/submissions/submission_PR0001/`) and their imports. Requires `gh` (not installed on the dev box) or
+   the web UI.
+2. **Run the vanilla PINN on every active track** (1000 s budget each; one run per GPU at a time so budgets are
+   not shared; ≈ 51 min on 4 GPUs):
+   ```bash
+   d=$(ls -d tracks/track${t}_*)/submissions/submission_PR0001
+   uv run python -m speedrun.run --track $t --submission $d --out $d/result.json
+   uv run python -m speedrun.records --track $t --add $d/result.json --name "vanilla PINN" --kind neural --pr 1
+   ```
+   Then `uv run python -m speedrun.records --track all` (tracker plots, per-track READMEs), commit, and mark
+   the PR ready for review.
+3. **Sanity-check PINN failures that look like bugs, not method limits:** 08 and 09 sat at RelL2 ≈ 1.0 after
+   20 s (output ≈ 0?). 03's strong form ignores the flux-continuity conditions at the inclusion edges (by
+   design for a vanilla PINN, but document the outcome).
+4. **Next neural submissions** (new draft PR each, so each gets its own number):
+   - [ ] vanilla PINN + L-BFGS polish;
+   - [ ] PINN + SOAP / natural-gradient (Gauss–Newton with CG);
+   - [ ] multilevel explicit ansatz (dense multiresolution B-spline/Hermite grid, no hashing) + sparse
+         Gauss–Newton with level-preconditioned CG, exact analytic derivatives (targets 03, 04B, later 04A);
+   - [ ] hybrid: classical smoother + learned coarse correction trained in-run from residuals only (03);
+   - [ ] curved / non-tensor geometry (06B, later 10) for mesh-free and hybrid methods.
+   See IDEAS.md for the reasoning.
+5. **H100 re-timing** of every record #0 and of the PINN results (official times).
 
-- [x] **submission_PR0001: vanilla PINN** on every active track: tanh MLP 4 × 64, strong-form residual + BC/IC
-      penalties (weights 1), 4096 resampled collocation points, Adam (lr 1e-3 → 1e-5), fp32, 1000 s budget.
-      Shared code: `speedrun/submissions/submission_PR0001/pinn.py`. Results: §7.
-- [ ] Vanilla PINN + L-BFGS polish.
-- [ ] PINN + SOAP / natural-gradient (Gauss–Newton with CG) on the same tracks.
-- [ ] Multilevel explicit ansatz (dense multiresolution B-spline/Hermite grid, no hashing) + sparse Gauss–Newton
-      with level-preconditioned CG, exact analytic derivatives. Targets: 03, 04A, 04B.
-- [ ] Hybrid: classical smoother + learned coarse correction trained in-run with residual loss only (03, 04A).
-- [ ] Curved / non-tensor geometry (06B, 10) for mesh-free and hybrid methods.
+### Deferred (fluids numerics: low priority)
 
-## 6. Open questions
+- [ ] **07A / 07B cavity: TODO.** The reference is not finalized. N = 384 runs (BDF3/EXT3, dt = 2× smallest GLL
+      spacing) take ~35 min each on a 2080 Ti; the first attempt was invalidated by the pressure-FDM null-mode bug
+      (fixed since). From the N ≤ 256 study, N = 192 vs 256 differs inside the margin by 1.8e-4 RelL2 at Re = 100
+      and 1.0e-3 at Re = 1000, so 07B needs a looser bar or a better reference method (singularity subtraction,
+      or multi-element SEM with corner refinement).
+- [ ] **04A Helmholtz: on hold.** Original setup: `−Δu − (ω/c)² u = f` on [0, 1]², u = 0 on the boundary,
+      ω = 40, `c = 1 − 0.4 exp(−((x−0.65)² + (y−0.6)²)/(2·0.12²))`, Gaussian source at (0.35, 0.4), σ = 0.05. It is
+      resonant (lossless Dirichlet box): shifted-Laplacian GMRES does not converge in 3000 iterations at N = 256,
+      and max|u| changes 7× between ω = 39.5 and 40. Needs absorption (sponge layer / PML / impedance BC), with
+      the reference as sine pseudo-spectral + complex-shifted-Laplacian-preconditioned GMRES.
+- [ ] **10 CylinderFlow**: set-up notes in `tracks/track10_CylinderFlow/TODO.md`.
+- [ ] Cavity references closer to the default bar (07, 08).
+
+## 5. Open questions
 
 - Second precision tier (e.g. RelL2 ≤ 1e-6) once the default tier saturates?
 - Separate "neural-field-only" leaderboard (no mesh solver inside) next to the open hybrid board?

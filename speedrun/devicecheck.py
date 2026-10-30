@@ -13,6 +13,10 @@ from torch.utils._python_dispatch import TorchDispatchMode
 from torch.utils._pytree import tree_flatten
 
 SMALL = 64            # tensors with fewer elements (scalars, tiny metadata) are ignored
+# data movement and views do no arithmetic; they say nothing about where the work runs
+MOVES = {"_to_copy", "copy_", "copy", "detach", "lift_fresh", "lift_fresh_copy", "alias", "clone", "contiguous",
+         "view", "_unsafe_view", "reshape", "unsqueeze", "squeeze", "expand", "select", "slice", "t", "transpose",
+         "permute", "as_strided", "empty_like", "empty", "zeros_like", "ones_like", "new_empty", "new_zeros"}
 
 
 class _Count(TorchDispatchMode):
@@ -24,6 +28,8 @@ class _Count(TorchDispatchMode):
 
     def __torch_dispatch__(self, func, types, args=(), kwargs=None):
         out = func(*args, **(kwargs or {}))
+        if func.overloadpacket.__name__ in MOVES:
+            return out
         ts = [t for t in tree_flatten((args, kwargs, out))[0]
               if isinstance(t, torch.Tensor) and t.numel() >= SMALL and t.device.type in ("cuda", "cpu")]
         if ts:                                          # (meta tensors = shape inference, not compute)
@@ -50,6 +56,8 @@ def check(run, problem) -> dict:
 def classify(report: dict, gpu_name: str, cpu_name: str) -> str:
     """Hardware label: the GPU only if (essentially) all tensor work ran there."""
     f = report["gpu_fraction"]
+    if report["ops_cuda"] == 0:            # no torch work on the GPU at all (e.g. numpy / scipy solvers)
+        return cpu_name
     if f >= 0.99:
         return gpu_name
     if f <= 0.01:

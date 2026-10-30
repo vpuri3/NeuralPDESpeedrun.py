@@ -1,4 +1,4 @@
-"""Shared definition of the lid-driven cavity tracks 07A, 07B (unsteady Navier-Stokes) and 08 (steady Stokes):
+"""Shared definition of the lid-driven cavity track 07 (unsteady Navier-Stokes; steady Stokes also supported):
 the square [-1, 1]^2, classical lid u = 1 on y = 1 (corners included), fluid at rest at t = 0, run to T = 5."""
 import math
 
@@ -76,6 +76,7 @@ def make_cavity_problem(track, Re, device="cpu", dtype=torch.float64, rel_l2_tol
         fields=("u", "v"),
         axes=axes,
         domain=domain,
+        periodic={"x": False, "y": False},
         params={"Re": Re, "nu": (1.0 / Re) if Re else 1.0, "stokes": Re == 0},
         fns=fns,
         device=device,

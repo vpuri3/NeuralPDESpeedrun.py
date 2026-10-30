@@ -44,6 +44,7 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         fields=("u",),
         axes={"x": xc, "y": xc.clone()},
         domain={"x": (0.0, 1.0), "y": (0.0, 1.0)},
+        periodic={"x": False, "y": False},
         params={"kappa": KAPPA, "f0": F0, "inclusion_edges": EDGES},
         fns={"a": coefficient, "forcing": forcing, "bc": lambda x, y: torch.zeros_like(x)},
         device=device,

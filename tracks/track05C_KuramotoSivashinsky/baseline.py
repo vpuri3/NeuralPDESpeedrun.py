@@ -1,10 +1,10 @@
 """Record #0 (classical baseline): Fourier pseudo-spectral (2/3 dealiasing) + ETDRK4 directly on the
-prescribed N = 256 grid, one ETDRK4 step per snapshot interval."""
+prescribed N = 256 grid, 16 ETDRK4 steps per snapshot interval."""
 import math
 
 from speedrun.numerics.periodic import scalar_conservation_1d
 
-SUBSTEPS = 1
+SUBSTEPS = 16
 
 
 def solve(problem, solver=None):

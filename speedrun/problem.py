@@ -24,7 +24,8 @@ class Problem:
     axes: dict[str, torch.Tensor]   # ordered tensor-product evaluation axes, e.g. {"t": ..., "x": ...}
     params: dict = field(default_factory=dict)              # scalar constants (viscosity, wavenumber, ...)
     fns: dict[str, Callable] = field(default_factory=dict)  # problem data: IC, BC, forcing, coefficients
-    domain: dict = field(default_factory=dict)              # bounds / periodicity / time span
+    domain: dict = field(default_factory=dict)              # bounds / time span
+    periodic: dict = field(default_factory=dict)            # per spatial axis, e.g. {"x": True, "y": False}
     device: str = "cpu"
     dtype: torch.dtype = torch.float64
     rel_l2_tol: float = REL_L2_TOL  # accuracy bar of this track (default: the speedrun-wide one)
@@ -44,6 +45,9 @@ class Problem:
     def grid(self) -> list[torch.Tensor]:
         """Tensor-product mesh of the evaluation axes (indexing='ij')."""
         return list(torch.meshgrid(*self.axes.values(), indexing="ij"))
+
+    def is_periodic(self, axis: str) -> bool:
+        return bool(self.periodic.get(axis, False))
 
     def linf_mask(self) -> torch.Tensor | None:
         """Boolean mask (broadcastable to out_shape) of the points where L-inf is scored, or None (all)."""

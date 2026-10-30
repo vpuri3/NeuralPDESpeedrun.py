@@ -1,6 +1,6 @@
 """Reference: Fourier pseudo-spectral (2/3 dealiasing) + ETDRK4 at N = 1024 (4x the prescribed grid),
-4 steps per snapshot interval; restricted to the prescribed grid by injection.
-Self-convergence is checked against N = 512 with 2 steps per interval."""
+64 steps per snapshot interval; restricted to the prescribed grid by injection. The error is dominated by the
+time step (max|u| ~ 34); self-convergence is checked against 32 steps per interval."""
 import math
 
 import torch
@@ -21,11 +21,11 @@ def run(p, N, substeps):
 
 def compute(device="cpu"):
     p = make_problem(device=device)
-    ref = run(p, 1024, 4)
-    chk = run(p, 512, 2)
-    meta = {"method": "Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/4",
-            "check_N512_vs_N1024_linf": float((chk - ref).abs().max()),
-            "check_N512_vs_N1024_rel_l2": float(torch.linalg.norm(chk - ref) / torch.linalg.norm(ref))}
+    ref = run(p, 1024, 64)
+    chk = run(p, 1024, 32)
+    meta = {"method": "Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/64",
+            "check_dt_x2_linf": float((chk - ref).abs().max()),
+            "check_dt_x2_rel_l2": float(torch.linalg.norm(chk - ref) / torch.linalg.norm(ref))}
     return ref[None], meta, {}
 
 

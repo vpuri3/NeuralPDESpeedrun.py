@@ -19,7 +19,7 @@ uv run python -m speedrun.run --track 01                            # time + sco
 uv run python -m speedrun.records --track all                       # leaderboards, plots, per-track READMEs
 ```
 
-Tracks can be named in full (`track07A_CavityRe100`) or by key (`07A`).
+Tracks can be named in full (`track05B_Burgers2D`) or by key (`05B`).
 
 ## Scoring
 
@@ -29,7 +29,7 @@ reference on all fields and evaluation points:
 - **RelL2** `‖u − u_ref‖₂ / ‖u_ref‖₂ ≤ 1e-4`
 - **L∞** `max |u − u_ref| ≤ 1e-3`
 
-Tracks may override the bar or exclude a wall margin from L∞ (noted per track). Pressure is never scored.
+Tracks may override the bar or exclude a wall margin from L∞. Pressure is never scored.
 
 ## Rules
 
@@ -68,9 +68,9 @@ def query(problem, solver):       # timed separately, <= 5 s: evaluate at the ou
   `problem.out_shape = (n_fields, len(axis_0), ...)` on the tensor grid of `problem.axes` (`indexing="ij"`).
 - If `solve` returns that tensor directly, `query` is skipped (this is how the classical baselines work).
 
-`Problem` holds the statement and `params`, IC/BC/forcing/coefficient callables (`fns`, plus the domain map on
-curved domains), the `domain`, the evaluation `axes` and output layout, `device`/`dtype` (CUDA, float64; compute
-in any precision), and the track's bar.
+`Problem` holds the statement and `params`, IC/BC/forcing/coefficient callables (`fns`), the `domain` bounds,
+per-axis `periodic` flags, the evaluation `axes` and output layout, `device`/`dtype` (CUDA, float64; compute in
+any precision), and the track's bar.
 
 **Shared code.** Code a submission reuses across tracks goes in `speedrun/submissions/submission_PR<NNNN>/`, and
 the per-track `solve.py` files import it (e.g. `speedrun/submissions/submission_PR0001/pinn.py`). The classical
@@ -103,41 +103,32 @@ submission, bar dashed. Record #0 times are on an RTX 2080 Ti (fp64, GPU-checked
 
 | track | record #0 | time |
 |---|---|---|
-| 01 ThirdOrderODE | Chebyshev N=16 | 1.5 ms |
-| 02A Wave | sine spectral N=32 | 1.2 ms |
-| 02B DampedWave | sine spectral N=512 | 1.9 ms |
-| 03 HighContrastDiffusion | FV 3328² + MG-PCG | 8.39 s |
+| 01 VanDerPol | LSODA, rtol 1e-8 (CPU) | 37 ms |
+| 02 DampedWave | sine modes N=256, exact in time | 2.9 ms |
+| 03 HighContrastDiffusion | FV 3328² + MG-PCG | 8.36 s |
 | 04A Helmholtz | *on hold* | — |
 | 04B AdvectionDiffusion | Chebyshev N=96 | 1.16 s |
 | 05A Burgers1D | Fourier N=1024 + ETDRK4 | 0.23 s |
 | 05B Burgers2D | Fourier 1024² + ETDRK4 | 7.83 s |
-| 05C KuramotoSivashinsky | Fourier N=256 + ETDRK4 | 0.46 s |
-| 06A Kovasznay | PN–PN-2 N=16, Newton | 0.19 s |
-| 06B KovasznayCurved | PN–PN-2 N=16, Newton | 0.22 s |
-| 07A CavityRe100 | *TODO* | — |
-| 07B CavityRe1000 | *TODO* | — |
-| 08 StokesCavity | PN–PN-2 N=192, Uzawa | 0.22 s |
-| 09 DecayingEddies | Fourier N=32 + ETDRK4 | 0.14 s |
-| 10 CylinderFlow | *TODO* | — |
+| 05C KuramotoSivashinsky | Fourier N=256 + ETDRK4 | 6.24 s |
+| 06 Kovasznay | PN–PN-2 N=16, Newton | 0.19 s |
+| 07 CavityRe1000 | *TODO* | — |
+| 08 DecayingEddies | Fourier N=32 + ETDRK4 | 0.13 s |
+| 09 CylinderFlow | *TODO* | — |
 
-### 01 ThirdOrderODE
-`u''' = cos(πx)` on [0, 1], `u(0) = 0`, `u(1) = −1`, `u'(1) = 1`. Output: u at 1001 uniform points. Reference:
-closed form.
+### 01 VanDerPol
+Stiff ODE: `y'' − μ(1 − y²) y' + y = 0`, μ = 1000, `y(0) = 2`, `y'(0) = 0`, t ∈ [0, 3000] (almost two relaxation
+periods: slow drifts on a time scale ~μ, jumps lasting ~1/μ). Output: y at 3001 uniform times. Reference: Radau
+IIA, rtol 1e-12.
 
-<p><img src="tracks/track01_ThirdOrderODE/figures/reference.png" width="54%" alt="01 reference"> <img src="tracks/track01_ThirdOrderODE/figures/accuracy_vs_time.png" width="42%" alt="01 RelL2 vs time"></p>
+<p><img src="tracks/track01_VanDerPol/figures/reference.png" width="54%" alt="01 reference"> <img src="tracks/track01_VanDerPol/figures/accuracy_vs_time.png" width="42%" alt="01 RelL2 vs time"></p>
 
-### 02A Wave
-`u_tt = u_xx` on (t, x) ∈ [0, 1]², `u = 0` at x = 0, 1, `u(0, x) = x(1 − x)`, `u_t(0, x) = 0`. Output: 201 × 201
-(t, x). Reference: d'Alembert (exact).
+### 02 DampedWave
+`u_tt = u_xx − 0.5 u_t` on (t, x) ∈ [0, 4] × [0, 1], `u = 0` at x = 0, 1, a narrow Gaussian pulse
+`u(0, x) = exp(−(x − 0.3)²/(2·0.02²))`, `u_t(0, x) = 0`. The two halves cross the domain four times, reflecting
+off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-form coefficients).
 
-<p><img src="tracks/track02A_Wave/figures/reference.png" width="54%" alt="02A reference"> <img src="tracks/track02A_Wave/figures/accuracy_vs_time.png" width="42%" alt="02A RelL2 vs time"></p>
-
-### 02B DampedWave
-`u_tt = 9 u_xx − 18 u_t` on [0, 1]², Dirichlet walls, `u(0, x) = x(1 − x)`, `u_t(0, x) = 1 − 2x`. The initial
-velocity does not vanish at the walls, so u_t jumps along the corner characteristics. Output: 201 × 201 (t, x).
-Reference: exact modal sine series, K = 32768.
-
-<p><img src="tracks/track02B_DampedWave/figures/reference.png" width="54%" alt="02B reference"> <img src="tracks/track02B_DampedWave/figures/accuracy_vs_time.png" width="42%" alt="02B RelL2 vs time"></p>
+<p><img src="tracks/track02_DampedWave/figures/reference.png" width="54%" alt="02 reference"> <img src="tracks/track02_DampedWave/figures/accuracy_vs_time.png" width="42%" alt="02 RelL2 vs time"></p>
 
 ### 03 HighContrastDiffusion
 `−∇·(a∇u) = 18` on [0, 1]², `u = 0` on the boundary, `a = 1e3` in a 3 × 3 array of square inclusions, 1
@@ -169,42 +160,30 @@ t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 <p><img src="tracks/track05B_Burgers2D/figures/reference_t0.50.png" width="54%" alt="05B reference"> <img src="tracks/track05B_Burgers2D/figures/accuracy_vs_time.png" width="42%" alt="05B RelL2 vs time"></p>
 
 ### 05C KuramotoSivashinsky
-`u_t + u u_x + u_xx + ν u_xxxx = 0`, ν = 0.01, periodic x ∈ [−π, π), t ∈ [0, 0.1], Gaussian IC (σ = 0.2). Output:
-1000 t × 256 x. Reference: Fourier + ETDRK4, N = 1024.
+`u_t + u u_x + u_xx + ν u_xxxx = 0`, ν = 0.01, x ∈ [−π, π) periodic, t ∈ [0, 1], Gaussian IC (σ = 0.2).
+Output: 1000 t × 256 x. Reference: Fourier + ETDRK4, N = 1024, 64 steps per snapshot.
 
 <p><img src="tracks/track05C_KuramotoSivashinsky/figures/reference.png" width="54%" alt="05C reference"> <img src="tracks/track05C_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="42%" alt="05C RelL2 vs time"></p>
 
-### 06A Kovasznay
+### 06 Kovasznay
 Steady incompressible NS, Re = 40, on [−0.5, 2] × [−0.5, 1.5], with the Kovasznay velocity as Dirichlet data on the
 whole boundary. Output: (u, v) on 251 × 201. Reference: closed form.
 
-<p><img src="tracks/track06A_Kovasznay/figures/reference.png" width="54%" alt="06A reference"> <img src="tracks/track06A_Kovasznay/figures/accuracy_vs_time.png" width="42%" alt="06A RelL2 vs time"></p>
+<p><img src="tracks/track06_Kovasznay/figures/reference.png" width="54%" alt="06 reference"> <img src="tracks/track06_Kovasznay/figures/accuracy_vs_time.png" width="42%" alt="06 RelL2 vs time"></p>
 
-### 06B KovasznayCurved
-The same flow on a trapezoid with a parabolic top: the image of [−1, 1]² under `x = r(3 + s)/4`,
-`y = (1 + s)/2 · (1 − r²/2) − (1 − s)/4` (`problem.fns["map"]`). Output: (u, v) at the mapped 201 × 201 (r, s) grid.
-Reference: closed form.
+### 07 CavityRe1000: TODO
+Unsteady NS in [−1, 1]², Re = 1000, lid `u = 1` on y = 1 (corners included), no-slip elsewhere, at rest at
+t = 0, t ∈ [0, 5]. Output: (u, v) at t = 0.5, 1, …, 5 on 129². The corner singularities limit the reference;
+it is not finalized (see PLAN.md).
 
-<p><img src="tracks/track06B_KovasznayCurved/figures/reference.png" width="54%" alt="06B reference"> <img src="tracks/track06B_KovasznayCurved/figures/accuracy_vs_time.png" width="42%" alt="06B RelL2 vs time"></p>
-
-### 07A CavityRe100 / 07B CavityRe1000: TODO
-Unsteady NS in [−1, 1]², lid `u = 1` on y = 1 (corners included), no-slip elsewhere, at rest at t = 0, t ∈ [0, 5],
-Re = 100 / 1000. Output: (u, v) at t = 0.5, 1, …, 5 on 129². The reference is not finalized (see PLAN.md).
-
-### 08 StokesCavity
-Steady Stokes flow in the 07 cavity. Output: (u, v) on 129². Reference: PN–PN-2, N = 768. **Bar: RelL2 ≤ 1e-3**,
-L∞ ≤ 1e-3 at points ≥ 0.05 from the walls: the lid corners are singular, which limits every reference.
-
-<p><img src="tracks/track08_StokesCavity/figures/reference.png" width="54%" alt="08 reference"> <img src="tracks/track08_StokesCavity/figures/accuracy_vs_time.png" width="42%" alt="08 RelL2 vs time"></p>
-
-### 09 DecayingEddies
+### 08 DecayingEddies
 Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,
 `v = cos 5x + 0.75 sin 3x sin 4y` (Walsh 1992). Output: (u, v) at 11 t × 128². Reference: closed form.
 
-<p><img src="tracks/track09_DecayingEddies/figures/reference_t5.0.png" width="54%" alt="09 reference"> <img src="tracks/track09_DecayingEddies/figures/accuracy_vs_time.png" width="42%" alt="09 RelL2 vs time"></p>
+<p><img src="tracks/track08_DecayingEddies/figures/reference_t5.0.png" width="54%" alt="08 reference"> <img src="tracks/track08_DecayingEddies/figures/accuracy_vs_time.png" width="42%" alt="08 RelL2 vs time"></p>
 
-### 10 CylinderFlow: TODO
-Flow past a cylinder; see `tracks/track10_CylinderFlow/TODO.md`.
+### 09 CylinderFlow: TODO
+Flow past a cylinder; see `tracks/track09_CylinderFlow/TODO.md`.
 
 ## Layout
 

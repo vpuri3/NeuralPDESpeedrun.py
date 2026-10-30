@@ -15,27 +15,23 @@ TRACKS_DIR = ROOT / "tracks"
 
 # Ordered list of tracks. Folder name == track id == "track<KK>[A|B]_<ProblemName>" (two-digit number).
 TRACKS = [
-    "track01_ThirdOrderODE",           # 3rd-order ODE
-    "track02A_Wave",                   # 1D wave equation, Dirichlet
-    "track02B_DampedWave",             # 1D damped wave equation
-    "track03_HighContrastDiffusion",   # 2D variable-coefficient diffusion, high contrast
-    "track04A_Helmholtz",              # 2D Helmholtz, heterogeneous medium, moderate frequency
-    "track04B_AdvectionDiffusion",     # 2D advection-diffusion, high Peclet
-    "track05A_Burgers1D",              # 1D viscous Burgers
-    "track05B_Burgers2D",              # 2D viscous Burgers
-    "track05C_KuramotoSivashinsky",    # 1D Kuramoto-Sivashinsky
-    "track06A_Kovasznay",              # Kovasznay flow, Re = 40, rectangle (steady Navier-Stokes)
-    "track06B_KovasznayCurved",        # Kovasznay flow, Re = 40, curved trapezoid
-    "track07A_CavityRe100",            # Lid-driven cavity, Re = 100, impulsive start, t in [0, 5]
-    "track07B_CavityRe1000",           # Lid-driven cavity, Re = 1000, impulsive start, t in [0, 5]
-    "track08_StokesCavity",            # Steady Stokes, lid-driven cavity
-    "track09_DecayingEddies",          # Decaying eddies (Walsh 1992), periodic
-    "track10_CylinderFlow",            # Flow past a cylinder (TODO: not set up yet)
+    "track01_VanDerPol",              # stiff ODE: Van der Pol oscillator, mu = 1000
+    "track02_DampedWave",             # 1D damped wave, narrow pulse, many reflections
+    "track03_HighContrastDiffusion",  # 2D variable-coefficient diffusion, high contrast
+    "track04A_Helmholtz",             # 2D Helmholtz, heterogeneous medium (on hold)
+    "track04B_AdvectionDiffusion",    # 2D advection-diffusion, high Peclet
+    "track05A_Burgers1D",             # 1D viscous Burgers, periodic
+    "track05B_Burgers2D",             # 2D viscous Burgers, periodic
+    "track05C_KuramotoSivashinsky",   # 1D Kuramoto-Sivashinsky, periodic
+    "track06_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)
+    "track07_CavityRe1000",           # lid-driven cavity, Re = 1000, impulsive start (TODO)
+    "track08_DecayingEddies",         # decaying eddies (Walsh 1992), periodic
+    "track09_CylinderFlow",           # flow past a cylinder (TODO)
 ]
 
 
 def resolve(track: str) -> str:
-    """Full track id from the full id, a short id ("track07A", "track7A") or a bare key ("07A", "7A")."""
+    """Full track id from the full id, a short id ("track05B", "track5B") or a bare key ("05B", "5B")."""
     if track in TRACKS:
         return track
     m = re.fullmatch(r"(?:track)?0*(\d+)([A-Z]?)(?:_\w+)?", track)

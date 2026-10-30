@@ -36,6 +36,7 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         fields=("u",),
         axes={"x": xe, "y": xe.clone()},
         domain={"x": (0.0, 1.0), "y": (0.0, 1.0)},
+        periodic={"x": False, "y": False},
         params={"eps": EPS, "b": (1.0, 1.0)},
         fns={"forcing": lambda x, y: g(x) + g(y), "bc": lambda x, y: torch.zeros_like(x)},
         device=device,

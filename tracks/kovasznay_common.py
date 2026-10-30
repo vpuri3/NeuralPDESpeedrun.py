@@ -1,4 +1,4 @@
-"""Shared definition of the Kovasznay-flow tracks 06A (rectangle) and 06B (curved trapezoid)."""
+"""Shared definition of the Kovasznay-flow track 06 (and any future Kovasznay variants)."""
 import math
 
 import torch

@@ -1,15 +1,15 @@
 {
-  "method": "Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/4",
-  "check_N512_vs_N1024_linf": 1.3531398224131408e-12,
-  "check_N512_vs_N1024_rel_l2": 2.377982516753067e-13,
-  "wall_time_s": 1.0856896689999758,
-  "torch": "0.0-numpy-shim",
+  "method": "Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/64",
+  "check_dt_x2_linf": 1.8974033260121814e-06,
+  "check_dt_x2_rel_l2": 4.838970689486638e-09,
+  "wall_time_s": 38.20181153900921,
+  "torch": "2.15.0+cu132",
   "shape": [
     1,
     1000,
     256
   ],
-  "sha256_float32": "53382298b5efb3e153caa11b768ec2763fda0eb818d1843b984c12ccdeeb244e",
-  "norm_l2": 269.5874079479386,
-  "max_abs": 3.9460296253070393
+  "sha256_float32": "aafeacc33b9b86e9fe7b2ba591fbc0f24f8887e3ae6ecc0e2d3ca3a5fe3064bf",
+  "norm_l2": 5966.149586055241,
+  "max_abs": 34.200529053738464
 }

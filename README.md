@@ -65,32 +65,52 @@ checkpointed state.
 
 ## Submission API
 
-Per track, `tracks/<track>/submissions/submission_PR<NNNN>/solve.py` defines:
+Per track, `tracks/<track>/submissions/submission_PR<NNNN>/solve.py` defines up to three functions:
+
+| function | timed | required | role |
+|---|---|---|---|
+| `setup(problem) -> state` | no | no | build, allocate, compile; no training, no part of the solution |
+| `solve(problem, state, checkpoint) -> state` | yes | yes | train / iterate for as long as you like; `checkpoint(state)` often |
+| `query(problem, state) -> array` | yes, ≤ 5 s | unless `solve` returns the output | evaluate the solution at the output points |
 
 ```python
-def setup(problem):                      # optional, untimed: build + compile, no training
-    return MySolver(problem).compile()
+def setup(problem):
+    return MySolver(problem).compile()               # untimed
 
-def solve(problem, solver, checkpoint):  # timed: train for as long as you like
-    while not solver.converged():
+def solve(problem, solver, checkpoint):
+    while True:                                      # open-ended: the harness enforces the budget
         solver.train(iterations=50)
-        checkpoint(solver.snapshot())    # the state query() gets if the budget runs out now
-    return solver.snapshot()
+        checkpoint(solver.snapshot())                # what query() gets if the budget runs out now
+        if solver.converged():
+            return solver.snapshot()                 # or stop early yourself
 
-def query(problem, state):               # timed separately, <= 5 s: evaluate at the output points
-    return state.predict(problem.axes)   # torch / JAX / numpy array of shape problem.out_shape
+def query(problem, state):
+    return state.predict(problem.axes)               # torch / JAX / numpy, shape problem.out_shape
 ```
 
-- The harness keeps the budget: when it is used up, `checkpoint` raises (and a timer interrupts `solve` 1 s
-  later if it has not checkpointed since); the last checkpointed state is queried. A run that has not
-  checkpointed by then fails.
-- `checkpoint(state)` only keeps a reference, so it is cheap: call it every few iterations. Do not modify a
-  checkpointed state in place afterwards (JAX arrays are immutable; copy torch tensors or parameters).
-- All state lives in the state objects; no module-level globals. Without `setup`, `solve` receives `None`.
+What the harness does (`speedrun/run.py`):
+
+1. Seeds everything (seed 0), builds the `Problem` on the GPU, imports `solve.py`, calls `setup` (untimed).
+2. Starts the clock and calls `solve(problem, state, checkpoint)`.
+3. `solve` ends when it returns, or when the track's budget (`problem.budget_s`, 1000 s by default) is used up:
+   then the next `checkpoint` call raises `BudgetExceeded`, and if `solve` does not checkpoint within 1 s more,
+   a timer interrupts it. The state is the returned one, or else the last checkpointed one; a run that has not
+   checkpointed by the budget fails.
+4. Synchronizes the device (torch and JAX), stops the clock; then times `query` on that state the same way.
+5. Only then loads the reference and scores the output; finally reruns setup + solve (10 s budget) + query
+   untimed to check where the work ran.
+
+Notes:
+
+- `checkpoint(state)` only stores a reference, so it is cheap; call it every few iterations. Never modify a
+  checkpointed state in place afterwards (JAX arrays are immutable; snapshot torch tensors or parameters).
+  `BudgetExceeded` is a `BaseException`, so `except Exception` does not swallow it.
+- The state can be any Python object; no module-level globals. Without `setup`, `solve` receives `None`.
 - A one-shot solver may define `solve(problem, state)` without `checkpoint`. If it returns an array of shape
   `problem.out_shape`, `query` is skipped (this is how the classical baselines work).
 - Learning need not happen on the evaluation points: `query` projects onto them, an array of shape
   `problem.out_shape = (n_fields, len(axis_0), ...)` on the tensor grid of `problem.axes` (`indexing="ij"`).
+- `--budget-s` on `speedrun.run` overrides the budget for development runs; records use the track's budget.
 
 `Problem` holds the statement and `params`, IC/BC/forcing/coefficient callables (`fns`; array-API, so they take
 torch tensors or JAX arrays; on tracks whose initial state is only known as data, `fns["ic"]` holds it as

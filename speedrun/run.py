@@ -1,0 +1,139 @@
+"""Official timing + scoring harness.
+
+    uv run python -m speedrun.run --track track3                      # runs tracks/track3/baseline.py
+    uv run python -m speedrun.run --track track3 --submission path/to/my_solver.py
+
+A submission is a python file defining
+
+    def solve(problem: speedrun.Problem) -> torch.Tensor   # shape == problem.out_shape  (REQUIRED)
+    def warmup(problem: speedrun.Problem) -> None          # untimed compile/autotune     (OPTIONAL)
+
+Protocol (see SPEEDRUN.md for the rules):
+  1. seed everything (seed 0), build the Problem on the target device
+  2. call `warmup(problem)` if present (untimed)
+  3. synchronize, start the clock, call `solve(problem)`, synchronize, stop the clock
+  4. only THEN is the reference loaded and the returned tensor scored
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import importlib.util
+import json
+import platform
+import resource
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import torch
+
+from .metrics import LINF_TOL, REL_L2_TOL, score
+from .tracks import ROOT, load_problem, load_reference, resolve, track_dir
+
+
+def _sync(device: str):
+    if device.startswith("cuda") and torch.cuda.is_available():
+        torch.cuda.synchronize()
+
+
+def _import_file(path: Path):
+    sys.dont_write_bytecode = True  # never run a stale cached submission
+    spec = importlib.util.spec_from_file_location(f"submission_{path.stem}", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.path.insert(0, str(path.parent))
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _git_commit() -> str:
+    try:
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT,
+                                       stderr=subprocess.DEVNULL).decode().strip()
+    except Exception:
+        return "unknown"
+
+
+def hardware_string(device: str) -> str:
+    if device.startswith("cuda") and torch.cuda.is_available():
+        return torch.cuda.get_device_name(0)
+    return f"CPU ({platform.processor() or platform.machine()})"
+
+
+def run(track: str, submission: str | None = None, device: str | None = None, seed: int = 0,
+        out: str | None = None, quiet: bool = False) -> dict:
+    track = resolve(track)
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    sub_path = Path(submission) if submission else track_dir(track) / "baseline.py"
+    sub_path = sub_path.resolve()
+
+    torch.manual_seed(seed)
+    problem = load_problem(track, device=device)
+    mod = _import_file(sub_path)
+
+    if hasattr(mod, "warmup"):
+        mod.warmup(problem)
+        _sync(device)
+
+    if device.startswith("cuda") and torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
+    _sync(device)
+    t0 = time.perf_counter()
+    u = mod.solve(problem)
+    _sync(device)
+    elapsed = time.perf_counter() - t0
+
+    u = u.detach().to("cpu") if hasattr(u, "detach") else u
+    ref = load_reference(track)  # loaded only after the timed solve
+    s = score(u, ref)
+
+    if device.startswith("cuda") and torch.cuda.is_available():
+        mem_gb = torch.cuda.max_memory_allocated() / 2**30
+        mem_kind = "cuda_peak_allocated_gb"
+    else:
+        mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 2**20  # KiB -> GiB (linux)
+        mem_kind = "host_peak_rss_gb"
+
+    result = {
+        "track": track,
+        "submission": str(sub_path.relative_to(ROOT)) if sub_path.is_relative_to(ROOT) else str(sub_path),
+        "time_s": elapsed,
+        "rel_l2": s["rel_l2"],
+        "linf": s["linf"],
+        "passed": s["passed"],
+        "tolerances": {"rel_l2": REL_L2_TOL, "linf": LINF_TOL},
+        "device": device,
+        "hardware": hardware_string(device),
+        mem_kind: mem_gb,
+        "torch": torch.__version__,
+        "python": platform.python_version(),
+        "git_commit": _git_commit(),
+        "seed": seed,
+        "date": dt.datetime.now().isoformat(timespec="seconds"),
+    }
+    if not quiet:
+        status = "PASS" if result["passed"] else "FAIL"
+        print(f"[{track}] {status}  time={elapsed:.4f}s  relL2={s['rel_l2']:.3e} (<= {REL_L2_TOL:g})  "
+              f"Linf={s['linf']:.3e} (<= {LINF_TOL:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
+    if out:
+        Path(out).parent.mkdir(parents=True, exist_ok=True)
+        Path(out).write_text(json.dumps(result, indent=2) + "\n")
+    return result
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--track", required=True)
+    ap.add_argument("--submission", default=None, help="path to submission .py (default: the track's baseline.py)")
+    ap.add_argument("--device", default=None, help="cuda | cpu (default: cuda if available)")
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--out", default=None, help="write result json here")
+    args = ap.parse_args()
+    r = run(args.track, args.submission, args.device, args.seed, args.out)
+    sys.exit(0 if r["passed"] else 1)
+
+
+if __name__ == "__main__":
+    main()

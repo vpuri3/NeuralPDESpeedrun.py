@@ -1,0 +1,13 @@
+{
+  "method": "closed form (NeuralPDE.jl docs)",
+  "check_chebyshev_N32_linf": 2.97556592953374e-11,
+  "wall_time_s": 0.0017179379999561206,
+  "torch": "0.0-numpy-shim",
+  "shape": [
+    1,
+    1001
+  ],
+  "sha256_float32": "9ff93bdf1e42bee18cc815180eddd3d805fc4c793ef04da08e5bb0a72f5de513",
+  "norm_l2": 28.412975615632277,
+  "max_abs": 1.1288621831572425
+}

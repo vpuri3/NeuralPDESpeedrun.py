@@ -218,3 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# speedrun
+tracks/*/logs/
+tracks/track5B/reference/ref.npz
+*.gif.tmp

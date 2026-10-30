@@ -1,0 +1,18 @@
+[project]
+name = "neuralpdespeedrun"
+version = "0.1.0"
+description = "Data-free neural PDE solver speedrun"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.4",
+    "numpy>=1.26",
+    "matplotlib>=3.8",
+    "pillow>=10.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 120

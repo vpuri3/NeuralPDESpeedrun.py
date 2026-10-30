@@ -1,0 +1,15 @@
+{
+  "method": "Fourier pseudo-spectral + ETDRK4, N=8192, dt=T/(Nt-1)/16",
+  "check_N4096_vs_N8192_linf": 2.123345987925518e-08,
+  "check_N4096_vs_N8192_rel_l2": 9.921012213280244e-11,
+  "wall_time_s": 8.591318244000036,
+  "torch": "0.0-numpy-shim",
+  "shape": [
+    1,
+    500,
+    1024
+  ],
+  "sha256_float32": "b498ccaf678bfe126e4f08873c8495f10a4ac054b567e284a2c62060e8c7b266",
+  "norm_l2": 836.7397375937105,
+  "max_abs": 1.6
+}

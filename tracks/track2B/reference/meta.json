@@ -1,0 +1,14 @@
+{
+  "method": "exact modal sine series, K=32768",
+  "check_K8192_vs_K32768_linf": 2.9524942772828078e-06,
+  "wall_time_s": 0.44959201700004314,
+  "torch": "0.0-numpy-shim",
+  "shape": [
+    1,
+    201,
+    201
+  ],
+  "sha256_float32": "0ac3636606cda35699b775ad8b069752a579f8ee2ef48f486fd0d972347f0192",
+  "norm_l2": 13.26563359679898,
+  "max_abs": 0.24999999999999645
+}

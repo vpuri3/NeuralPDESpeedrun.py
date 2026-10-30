@@ -1,15 +1,14 @@
 {
-  "method": "Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/64",
-  "check_dt_x2_linf": 1.8974033260121814e-06,
-  "check_dt_x2_rel_l2": 4.838970689486638e-09,
-  "wall_time_s": 38.20181153900921,
+  "method": "published data (jaxpi)",
+  "source": "ks_chaotic/data/ks_chaotic.mat",
+  "wall_time_s": 0.33792147412896156,
   "torch": "2.15.0+cu132",
   "shape": [
     1,
-    1000,
-    256
+    250,
+    512
   ],
-  "sha256_float32": "aafeacc33b9b86e9fe7b2ba591fbc0f24f8887e3ae6ecc0e2d3ca3a5fe3064bf",
-  "norm_l2": 5966.149586055241,
-  "max_abs": 34.200529053738464
+  "sha256_float32": "8d20df43989bff96a5a9f7194e592318cbc13fea6720d96b8706e488b950c0ca",
+  "norm_l2": 382.05022603018136,
+  "max_abs": 3.0214822646029
 }

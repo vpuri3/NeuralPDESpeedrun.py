@@ -2,21 +2,6 @@
   {
     "date": "2026-10-30",
     "author": "maintainers",
-    "name": "vanilla PINN",
-    "submission": "tracks/track08_DecayingEddies/submissions/submission_PR0001/solve.py",
-    "time_s": 1000.8292185319588,
-    "solve_time_s": 1000.8230050660204,
-    "query_time_s": 0.006213465938344598,
-    "rel_l2": 0.7996477511614513,
-    "linf": 1.7223612068983756,
-    "passed": false,
-    "hardware": "NVIDIA GeForce RTX 2080 Ti",
-    "kind": "neural",
-    "pr": null
-  },
-  {
-    "date": "2026-10-30",
-    "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track08_DecayingEddies/baseline.py",
     "time_s": 0.13470729510299861,

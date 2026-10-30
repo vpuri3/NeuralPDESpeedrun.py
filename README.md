@@ -68,7 +68,8 @@ def query(problem, solver):       # timed separately, <= 5 s: evaluate at the ou
   `problem.out_shape = (n_fields, len(axis_0), ...)` on the tensor grid of `problem.axes` (`indexing="ij"`).
 - If `solve` returns that tensor directly, `query` is skipped (this is how the classical baselines work).
 
-`Problem` holds the statement and `params`, IC/BC/forcing/coefficient callables (`fns`), the `domain` bounds,
+`Problem` holds the statement and `params`, IC/BC/forcing/coefficient callables (`fns`; on tracks whose initial
+state is only known as data, `fns["ic"]` holds it as samples on the output grid), the `domain` bounds,
 per-axis `periodic` flags, the evaluation `axes` and output layout, `device`/`dtype` (CUDA, float64; compute in
 any precision), and the track's bar.
 
@@ -96,10 +97,11 @@ Results that miss the bar stay as points on the track's accuracy-vs-time plot, b
 
 ## Tracks
 
-Each track shows its reference solution and, below it, its tracker: RelL2 vs wall-clock time, one point per
-submission, bar dashed. Record #0 times are on an RTX 2080 Ti (fp64, GPU-checked) pending H100 re-timing.
-`submission_PR0001` on every active track is a vanilla PINN (standard MLP + Adam, 1000 s budget). Each
-`tracks/<track>/README.md` has the full statement and leaderboard.
+Each track shows its reference solution (animation where time-dependent) and, once it has submissions, its
+tracker: RelL2 vs wall-clock time, one point per submission, bar dashed. Record #0 times are on an RTX 2080 Ti
+(fp64, GPU-checked) pending H100 re-timing. Tracks 05C, 07 and 11–16 are the benchmarks of the PirateNet /
+SOAP-for-PINNs study (Wang et al.); their references are the published solutions (`speedrun/external.py`) and
+they have no classical baseline. Each `tracks/<track>/README.md` has the full statement and leaderboard.
 
 | track | record #0 | time |
 |---|---|---|
@@ -110,12 +112,18 @@ submission, bar dashed. Record #0 times are on an RTX 2080 Ti (fp64, GPU-checked
 | 04B AdvectionDiffusion | Chebyshev N=96 | 1.16 s |
 | 05A Burgers1D | Fourier N=1024 + ETDRK4 | 0.23 s |
 | 05B Burgers2D | Fourier 1024² + ETDRK4 | 7.83 s |
-| 05C KuramotoSivashinsky | Fourier N=256 + ETDRK4 | 6.24 s |
+| 05C KuramotoSivashinsky | — (no classical baseline) | — |
 | 06 Kovasznay | PN–PN-2 N=16, Newton | 0.19 s |
-| 07 CavityRe1000 | *TODO* | — |
+| 07 LidDrivenCavity | — (no classical baseline) | — |
 | 08 DecayingEddies | Fourier N=32 + ETDRK4 | 0.13 s |
 | 09 CylinderFlow | *TODO* | — |
 | 10 BeltramiFlow | *TODO* | — |
+| 11 AllenCahn | — (no classical baseline) | — |
+| 12 KdV | — (no classical baseline) | — |
+| 13 GreyScott | — (no classical baseline) | — |
+| 14 GinzburgLandau | — (no classical baseline) | — |
+| 15 RayleighTaylor | — (no classical baseline) | — |
+| 16 KolmogorovFlow | — (no classical baseline) | — |
 
 ### 01 VanDerPol
 Stiff ODE: `y'' − μ(1 − y²) y' + y = 0`, μ = 1000, `y(0) = 2`, `y'(0) = 0`, t ∈ [0, 3000] (almost two relaxation
@@ -124,16 +132,16 @@ IIA, rtol 1e-12.
 
 <img src="tracks/track01_VanDerPol/figures/reference.png" width="100%" alt="01 reference">
 
-<img src="tracks/track01_VanDerPol/figures/accuracy_vs_time.png" width="100%" alt="01 RelL2 vs time">
+<img src="tracks/track01_VanDerPol/figures/accuracy_vs_time.png" width="100%" alt="01 accuracy_vs_time">
 
 ### 02 DampedWave
 `u_tt = u_xx − 0.5 u_t` on (t, x) ∈ [0, 4] × [0, 1], `u = 0` at x = 0, 1, a narrow Gaussian pulse
 `u(0, x) = exp(−(x − 0.3)²/(2·0.02²))`, `u_t(0, x) = 0`. The two halves cross the domain four times, reflecting
 off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-form coefficients).
 
-<img src="tracks/track02_DampedWave/figures/reference.png" width="100%" alt="02 reference">
+<img src="tracks/track02_DampedWave/figures/reference.gif" width="100%" alt="02 reference">
 
-<img src="tracks/track02_DampedWave/figures/accuracy_vs_time.png" width="100%" alt="02 RelL2 vs time">
+<img src="tracks/track02_DampedWave/figures/accuracy_vs_time.png" width="100%" alt="02 accuracy_vs_time">
 
 ### 03 HighContrastDiffusion
 `−∇·(a∇u) = 18` on [0, 1]², `u = 0` on the boundary, `a = 1e3` in a 3 × 3 array of square inclusions, 1
@@ -142,7 +150,7 @@ and 5376², Richardson-extrapolated at the measured order 1.34.
 
 <img src="tracks/track03_HighContrastDiffusion/figures/reference.png" width="100%" alt="03 reference">
 
-<img src="tracks/track03_HighContrastDiffusion/figures/accuracy_vs_time.png" width="100%" alt="03 RelL2 vs time">
+<img src="tracks/track03_HighContrastDiffusion/figures/accuracy_vs_time.png" width="100%" alt="03 accuracy_vs_time">
 
 ### 04A Helmholtz: on hold
 The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
@@ -154,31 +162,29 @@ and y = 1. Output: 257² Chebyshev–Lobatto grid. Reference: closed form (f was
 
 <img src="tracks/track04B_AdvectionDiffusion/figures/reference.png" width="100%" alt="04B reference">
 
-<img src="tracks/track04B_AdvectionDiffusion/figures/accuracy_vs_time.png" width="100%" alt="04B RelL2 vs time">
+<img src="tracks/track04B_AdvectionDiffusion/figures/accuracy_vs_time.png" width="100%" alt="04B accuracy_vs_time">
 
 ### 05A Burgers1D
 `u_t + u u_x = ν u_xx`, ν = 1e-4, periodic x ∈ [0, 2), t ∈ [0, 0.5], smooth bump IC steepening toward a shock at
 t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 
-<img src="tracks/track05A_Burgers1D/figures/reference.png" width="100%" alt="05A reference">
+<img src="tracks/track05A_Burgers1D/figures/reference.gif" width="100%" alt="05A reference">
 
-<img src="tracks/track05A_Burgers1D/figures/accuracy_vs_time.png" width="100%" alt="05A RelL2 vs time">
+<img src="tracks/track05A_Burgers1D/figures/accuracy_vs_time.png" width="100%" alt="05A accuracy_vs_time">
 
 ### 05B Burgers2D
 `u_t + (u·∇)u = ν Δu`, ν = 1e-3, periodic [−0.25, 0.75)², t ∈ [0, 0.5], `u = v = sin(2πx) sin(2πy)` on [0, 0.5]²,
 0 elsewhere; shocks of width ~ν form. Output: (u, v) at 11 t × 512². Reference: Fourier + ETDRK4, 2048².
 
-<img src="tracks/track05B_Burgers2D/figures/reference_t0.50.png" width="100%" alt="05B reference">
+<img src="tracks/track05B_Burgers2D/figures/reference.gif" width="100%" alt="05B reference">
 
-<img src="tracks/track05B_Burgers2D/figures/accuracy_vs_time.png" width="100%" alt="05B RelL2 vs time">
+<img src="tracks/track05B_Burgers2D/figures/accuracy_vs_time.png" width="100%" alt="05B accuracy_vs_time">
 
 ### 05C KuramotoSivashinsky
-`u_t + u u_x + u_xx + ν u_xxxx = 0`, ν = 0.01, x ∈ [−π, π) periodic, t ∈ [0, 1], Gaussian IC (σ = 0.2).
-Output: 1000 t × 256 x. Reference: Fourier + ETDRK4, N = 1024, 64 steps per snapshot.
+`u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
+the initial state is given as samples. Output: 250 t × 512 x. **Bar: RelL2 ≤ 5e-2, L∞ ≤ 0.5.** Reference: published data.
 
-<img src="tracks/track05C_KuramotoSivashinsky/figures/reference.png" width="100%" alt="05C reference">
-
-<img src="tracks/track05C_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="100%" alt="05C RelL2 vs time">
+<img src="tracks/track05C_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="05C reference">
 
 ### 06 Kovasznay
 Steady incompressible NS, Re = 40, on [−0.5, 2] × [−0.5, 1.5], with the Kovasznay velocity as Dirichlet data on the
@@ -186,20 +192,19 @@ whole boundary. Output: (u, v) on 251 × 201. Reference: closed form.
 
 <img src="tracks/track06_Kovasznay/figures/reference.png" width="100%" alt="06 reference">
 
-<img src="tracks/track06_Kovasznay/figures/accuracy_vs_time.png" width="100%" alt="06 RelL2 vs time">
+<img src="tracks/track06_Kovasznay/figures/accuracy_vs_time.png" width="100%" alt="06 accuracy_vs_time">
 
-### 07 CavityRe1000: TODO
-Unsteady NS in [−1, 1]², Re = 1000, lid `u = 1` on y = 1 (corners included), no-slip elsewhere, at rest at
-t = 0, t ∈ [0, 5]. Output: (u, v) at t = 0.5, 1, …, 5 on 129². The corner singularities limit the reference;
-it is not finalized (see PLAN.md).
+### 07 LidDrivenCavity
+Steady NS, Re = 5000, in [0, 1]², lid `u = 1 − cosh(50(x − 0.5))/cosh(25)` on y = 1, no-slip elsewhere. Output: (u, v)
+on 256². **Bar: RelL2 ≤ 5e-2, L∞ ≤ 0.1 at points ≥ 0.05 from the walls.** Reference: published data.
+
+<img src="tracks/track07_LidDrivenCavity/figures/reference.png" width="100%" alt="07 reference">
 
 ### 08 DecayingEddies
 Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,
 `v = cos 5x + 0.75 sin 3x sin 4y` (Walsh 1992). Output: (u, v) at 11 t × 128². Reference: closed form.
 
-<img src="tracks/track08_DecayingEddies/figures/reference_t5.0.png" width="100%" alt="08 reference">
-
-<img src="tracks/track08_DecayingEddies/figures/accuracy_vs_time.png" width="100%" alt="08 RelL2 vs time">
+<img src="tracks/track08_DecayingEddies/figures/accuracy_vs_time.png" width="100%" alt="08 accuracy_vs_time">
 
 ### 09 CylinderFlow: TODO
 Flow past a cylinder; see `tracks/track09_CylinderFlow/TODO.md`.
@@ -207,6 +212,42 @@ Flow past a cylinder; see `tracks/track09_CylinderFlow/TODO.md`.
 ### 10 BeltramiFlow: TODO
 3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1] with the Ethier–Steinman exact solution (as in
 arXiv:2402.10680, §4.2); see `tracks/track10_BeltramiFlow/TODO.md`.
+
+### 11 AllenCahn
+`u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.
+Reference: published data.
+
+<img src="tracks/track11_AllenCahn/figures/reference.gif" width="100%" alt="11 reference">
+
+### 12 KdV
+`u_t + u u_x + 0.022² u_xxx = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = cos(πx)`; the cosine breaks into
+solitons. Output: 200 t × 512 x. **Bar: RelL2 ≤ 1e-3, L∞ ≤ 1e-2.** Reference: published data.
+
+<img src="tracks/track12_KdV/figures/reference.gif" width="100%" alt="12 reference">
+
+### 13 GreyScott
+`u_t = 0.2 Δu + 40(1 − u) − 1000 u v²`, `v_t = 0.1 Δv − 100 v + 1000 u v²` on [−1, 1]² periodic, t ∈ [0, 2], initial
+state given as samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1e-3, L∞ ≤ 1e-2.** Reference: published data.
+
+<img src="tracks/track13_GreyScott/figures/reference.gif" width="100%" alt="13 reference">
+
+### 14 GinzburgLandau
+Complex Ginzburg–Landau for A = u + iv, ε = 0.004, k = 10, on [−1, 1]² periodic, t ∈ [0, 1], initial state given as
+samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1e-2, L∞ ≤ 5e-2.** Reference: published data.
+
+<img src="tracks/track14_GinzburgLandau/figures/reference.gif" width="100%" alt="14 reference">
+
+### 15 RayleighTaylor
+Boussinesq Rayleigh–Taylor instability, Ra = 1e6, Pr = 0.71, on [0, 1] × [0, 2], t ∈ [0, 8.5], initial state given as
+samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. **Bar: RelL2 ≤ 2e-2, L∞ ≤ 0.1.** Reference: published data.
+
+<img src="tracks/track15_RayleighTaylor/figures/reference.gif" width="100%" alt="15 reference">
+
+### 16 KolmogorovFlow
+Forced 2D NS, Re = 1e4, forcing `2 sin(4πy)` in x, on [0, 1)² periodic, t ∈ [0, 1.96], initial state given as
+samples; turbulent. Output: (u, v) at 49 t × 256². **Bar: RelL2 ≤ 5e-2, L∞ ≤ 0.5.** Reference: published data.
+
+<img src="tracks/track16_KolmogorovFlow/figures/reference.gif" width="100%" alt="16 reference">
 
 ## Layout
 

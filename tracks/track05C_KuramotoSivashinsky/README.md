@@ -1,37 +1,26 @@
-# track05C_KuramotoSivashinsky: 1D Kuramoto-Sivashinsky, nu = 0.01
+# track05C_KuramotoSivashinsky: Kuramoto-Sivashinsky (chaotic)
 
 ```text
-1D Kuramoto-Sivashinsky on x in [-pi, pi), t in [0, 1], with periodic boundary conditions in x:
+Kuramoto-Sivashinsky equation on x in [0, 2 pi] (periodic), t in [0, 1], in the chaotic regime:
 
-    u_t + u u_x + u_xx + nu u_xxxx = 0,        nu = 0.01
-    u(0, x) = exp(-x^2 / (2 sigma0^2)),         sigma0 = 0.2
+    u_t + a u u_x + b u_xx + c u_xxxx = 0,      a = 100/16,  b = 100/16^2,  c = 100/16^4
 
-Output: u on the prescribed grid x_j = -pi + 2 pi j / 256, j = 0..255, at the 1000 snapshot
-times t = linspace(0, 1, 1000); shape (1, 1000, 256).
+Initial condition: u(0, x) is given as samples on the output x grid (problem.fns["ic"]; problem.fns["u0"] is
+its trigonometric interpolant). Small errors grow exponentially; the bar reflects that.
+
+Output: u at t_k = k / 250, k = 1..250, and x_j = 2 pi j / 511, j = 0..511; shape (1, 250, 512).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001.
+**Accuracy bar:** RelL2 ≤ 0.05, L∞ ≤ 0.5.
 
 ![reference](figures/reference.png)
-![reference_snapshots](figures/reference_snapshots.png)
 ![reference](figures/reference.gif)
 
 ## Reference
 
-Fourier pseudo-spectral + ETDRK4, N=1024, dt=T/(Nt-1)/64
+published data (jaxpi)
 
-- `check_dt_x2_linf`: 1.897e-06
-- `check_dt_x2_rel_l2`: 4.839e-09
 
 ## Records
 
-Current record: **6.243 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
-
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
-|---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | vanilla PINN | neural | 1001 | 9.99e-01 | 3.43e+01 | no | NVIDIA GeForce RTX 2080 Ti |
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 6.243 | 1.04e-07 | 4.06e-05 | yes | NVIDIA GeForce RTX 2080 Ti |
-
-![accuracy_vs_time](figures/accuracy_vs_time.png)
-
-![activity](figures/activity.png)
+No records yet.

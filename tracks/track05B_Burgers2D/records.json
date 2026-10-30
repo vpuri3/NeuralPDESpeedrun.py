@@ -2,21 +2,6 @@
   {
     "date": "2026-10-30",
     "author": "maintainers",
-    "name": "vanilla PINN",
-    "submission": "tracks/track05B_Burgers2D/submissions/submission_PR0001/solve.py",
-    "time_s": 1000.9628112639766,
-    "solve_time_s": 1000.8718799049966,
-    "query_time_s": 0.09093135898001492,
-    "rel_l2": 0.2528424182784705,
-    "linf": 0.6548501499354458,
-    "passed": false,
-    "hardware": "NVIDIA GeForce RTX 2080 Ti",
-    "kind": "neural",
-    "pr": null
-  },
-  {
-    "date": "2026-10-30",
-    "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track05B_Burgers2D/baseline.py",
     "time_s": 7.827334921807051,

@@ -22,12 +22,18 @@ TRACKS = [
     "track04B_AdvectionDiffusion",    # 2D advection-diffusion, high Peclet
     "track05A_Burgers1D",             # 1D viscous Burgers, periodic
     "track05B_Burgers2D",             # 2D viscous Burgers, periodic
-    "track05C_KuramotoSivashinsky",   # 1D Kuramoto-Sivashinsky, periodic
+    "track05C_KuramotoSivashinsky",   # 1D Kuramoto-Sivashinsky, chaotic, periodic (published data)
     "track06_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)
-    "track07_CavityRe1000",           # lid-driven cavity, Re = 1000, impulsive start (TODO)
+    "track07_LidDrivenCavity",        # lid-driven cavity, Re = 5000, steady (published data)
     "track08_DecayingEddies",         # decaying eddies (Walsh 1992), periodic
     "track09_CylinderFlow",           # flow past a cylinder (TODO)
     "track10_BeltramiFlow",           # 3D unsteady Beltrami flow, Re = 1 (TODO)
+    "track11_AllenCahn",              # Allen-Cahn, periodic (published data)
+    "track12_KdV",                    # Korteweg-de Vries, periodic (published data)
+    "track13_GreyScott",              # Grey-Scott reaction-diffusion, 2D periodic (published data)
+    "track14_GinzburgLandau",         # complex Ginzburg-Landau, 2D periodic (published data)
+    "track15_RayleighTaylor",         # Rayleigh-Taylor instability, Ra = 1e6 (published data)
+    "track16_KolmogorovFlow",         # Kolmogorov flow, Re = 1e4, 2D periodic (published data)
 ]
 
 

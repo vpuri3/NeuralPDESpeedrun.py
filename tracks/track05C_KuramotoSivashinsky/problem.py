@@ -1,39 +1,40 @@
-"""Track 05C: 1D Kuramoto-Sivashinsky."""
+"""Track 05C: chaotic Kuramoto-Sivashinsky (benchmark from the PirateNet / SOAP-PINN study)."""
 import math
 
 import torch
 
 from speedrun.problem import Problem
+from tracks.data_common import load_problem_data, periodic_interp
 
-NU = 0.01
-SIGMA0 = 0.2
-T_END = 1.0
-NX = 256
-NT = 1000
+TRACK = "track05C_KuramotoSivashinsky"
+A, B, C = 100 / 16, 100 / 16**2, 100 / 16**4
 
-STATEMENT = rf"""
-1D Kuramoto-Sivashinsky on x in [-pi, pi), t in [0, {T_END:g}], with periodic boundary conditions in x:
+STATEMENT = r"""
+Kuramoto-Sivashinsky equation on x in [0, 2 pi] (periodic), t in [0, 1], in the chaotic regime:
 
-    u_t + u u_x + u_xx + nu u_xxxx = 0,        nu = {NU}
-    u(0, x) = exp(-x^2 / (2 sigma0^2)),         sigma0 = {SIGMA0}
+    u_t + a u u_x + b u_xx + c u_xxxx = 0,      a = 100/16,  b = 100/16^2,  c = 100/16^4
 
-Output: u on the prescribed grid x_j = -pi + 2 pi j / {NX}, j = 0..{NX - 1}, at the {NT} snapshot
-times t = linspace(0, {T_END:g}, {NT}); shape (1, {NT}, {NX}).
+Initial condition: u(0, x) is given as samples on the output x grid (problem.fns["ic"]; problem.fns["u0"] is
+its trigonometric interpolant). Small errors grow exponentially; the bar reflects that.
+
+Output: u at t_k = k / 250, k = 1..250, and x_j = 2 pi j / 511, j = 0..511; shape (1, 250, 512).
 """
 
 
 def make_problem(device="cpu", dtype=torch.float64) -> Problem:
+    d = load_problem_data(TRACK, device, dtype)
     return Problem(
-        track="track05C_KuramotoSivashinsky",
-        title="1D Kuramoto-Sivashinsky, nu = 0.01",
+        track=TRACK,
+        title="Kuramoto-Sivashinsky (chaotic)",
         statement=STATEMENT,
         fields=("u",),
-        axes={"t": torch.linspace(0.0, T_END, NT, dtype=dtype, device=device),
-              "x": -math.pi + 2.0 * math.pi * torch.arange(NX, dtype=dtype, device=device) / NX},
-        domain={"x": (-math.pi, math.pi), "t": (0.0, T_END)},
+        axes={"t": d["t"], "x": d["x"]},
+        domain={"t": (0.0, 1.0), "x": (0.0, 2 * math.pi)},
         periodic={"x": True},
-        params={"nu": NU},
-        fns={"u0": lambda x: torch.exp(-0.5 * (x / SIGMA0) ** 2)},
+        params={"a": A, "b": B, "c": C},
+        fns={"u0": periodic_interp(d["u0"], 0.0, 2 * math.pi), "ic": {"x": d["x"], "u": d["u0"]}},
+        rel_l2_tol=5e-2,
+        linf_tol=0.5,
         device=device,
         dtype=dtype,
     )

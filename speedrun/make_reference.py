@@ -28,14 +28,15 @@ from .tracks import TRACKS, load_problem, load_reference, resolve, save_referenc
 def make(track: str, device: str = "cpu", plot_only: bool = False):
     track = resolve(track)
     mod = importlib.import_module(f"tracks.{track}.reference")
-    problem = load_problem(track, device="cpu")
     if plot_only:
         u, extras = load_reference(track), {}
+        problem = load_problem(track, device="cpu")
     else:
         t0 = time.perf_counter()
         u, meta, extras = mod.compute(device=device)
         meta["wall_time_s"] = time.perf_counter() - t0
         meta["torch"] = torch.__version__
+        problem = load_problem(track, device="cpu")     # after compute: data tracks write their problem data
         u = u.detach().to("cpu", torch.float64) if hasattr(u, "detach") else torch.as_tensor(np.asarray(u))
         assert tuple(u.shape) == problem.out_shape, (tuple(u.shape), problem.out_shape)
         save_reference(track, u, meta)

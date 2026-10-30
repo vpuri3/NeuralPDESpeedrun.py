@@ -15,8 +15,8 @@ shape (2, 11, 128, 128).
 
 **Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001.
 
-![reference_t0.0](figures/reference_t0.0.png)
-![reference_t5.0](figures/reference_t5.0.png)
+![reference](figures/reference.png)
+![reference](figures/reference.gif)
 
 ## Reference
 

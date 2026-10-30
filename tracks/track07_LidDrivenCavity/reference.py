@@ -21,7 +21,5 @@ def compute(device="cpu"):
 
 
 def plot(problem, u, extras, figdir):
-    speed = torch.sqrt(u[0] ** 2 + u[1] ** 2)
-    plotting.fields2d(problem.axes["x"], problem.axes["y"], {"u": u[0], "v": u[1], "|u|": speed},
-                      figdir / "reference.png", suptitle="Track 07: lid-driven cavity, Re = 5000",
-                      cmaps={"|u|": "viridis"})
+    plotting.cavity(problem.axes["x"], problem.axes["y"], u[0], u[1], figdir / "reference.png",
+                    title="Track 07: lid-driven cavity, Re = 5000")

@@ -30,4 +30,4 @@ def compute(device="cpu"):
 
 def plot(problem, u, extras, figdir):
     plot_2d_time(problem, u, figdir, "Track 15: Rayleigh-Taylor", names=("u", "v", "T"),
-                 cmaps={"T": "inferno"})
+                 cmaps={"T": "twilight_shifted"})

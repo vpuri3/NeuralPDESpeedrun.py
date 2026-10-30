@@ -25,4 +25,4 @@ def compute(device="cpu"):
 
 
 def plot(problem, u, extras, figdir):
-    plot_2d_time(problem, u, figdir, "Track 16: Kolmogorov flow")
+    plot_2d_time(problem, u, figdir, "Track 16: Kolmogorov flow", vorticity=True)

@@ -144,6 +144,8 @@ IIA, rtol 1e-12.
 `u(0, x) = exp(−(x − 0.3)²/(2·0.02²))`, `u_t(0, x) = 0`. The two halves cross the domain four times, reflecting
 off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-form coefficients).
 
+<img src="tracks/track02_DampedWave/figures/reference.png" width="100%" alt="02 reference">
+
 <img src="tracks/track02_DampedWave/figures/reference.gif" width="100%" alt="02 reference">
 
 <img src="tracks/track02_DampedWave/figures/accuracy_vs_time.png" width="100%" alt="02 accuracy_vs_time">
@@ -173,6 +175,8 @@ and y = 1. Output: 257² Chebyshev–Lobatto grid. Reference: closed form (f was
 `u_t + u u_x = ν u_xx`, ν = 1e-4, periodic x ∈ [0, 2), t ∈ [0, 0.5], smooth bump IC steepening toward a shock at
 t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 
+<img src="tracks/track05A_Burgers1D/figures/reference.png" width="100%" alt="05A reference">
+
 <img src="tracks/track05A_Burgers1D/figures/reference.gif" width="100%" alt="05A reference">
 
 <img src="tracks/track05A_Burgers1D/figures/accuracy_vs_time.png" width="100%" alt="05A accuracy_vs_time">
@@ -181,6 +185,8 @@ t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 `u_t + (u·∇)u = ν Δu`, ν = 1e-3, periodic [−0.25, 0.75)², t ∈ [0, 0.5], `u = v = sin(2πx) sin(2πy)` on [0, 0.5]²,
 0 elsewhere; shocks of width ~ν form. Output: (u, v) at 11 t × 512². Reference: Fourier + ETDRK4, 2048².
 
+<img src="tracks/track05B_Burgers2D/figures/reference.png" width="100%" alt="05B reference">
+
 <img src="tracks/track05B_Burgers2D/figures/reference.gif" width="100%" alt="05B reference">
 
 <img src="tracks/track05B_Burgers2D/figures/accuracy_vs_time.png" width="100%" alt="05B accuracy_vs_time">
@@ -188,6 +194,8 @@ t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 ### 05C KuramotoSivashinsky
 `u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
 the initial state is given as samples. Output: 250 t × 512 x. **Bar: RelL2 ≤ 5e-2, L∞ ≤ 0.5.** Reference: published data.
+
+<img src="tracks/track05C_KuramotoSivashinsky/figures/reference.png" width="100%" alt="05C reference">
 
 <img src="tracks/track05C_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="05C reference">
 
@@ -209,6 +217,10 @@ on 256². **Bar: RelL2 ≤ 5e-2, L∞ ≤ 0.1 at points ≥ 0.05 from the walls.
 Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,
 `v = cos 5x + 0.75 sin 3x sin 4y` (Walsh 1992). Output: (u, v) at 11 t × 128². Reference: closed form.
 
+<img src="tracks/track08_DecayingEddies/figures/reference.png" width="100%" alt="08 reference">
+
+<img src="tracks/track08_DecayingEddies/figures/reference.gif" width="100%" alt="08 reference">
+
 <img src="tracks/track08_DecayingEddies/figures/accuracy_vs_time.png" width="100%" alt="08 accuracy_vs_time">
 
 ### 09 CylinderFlow: TODO
@@ -222,11 +234,15 @@ arXiv:2402.10680, §4.2); see `tracks/track10_BeltramiFlow/TODO.md`.
 `u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.
 Reference: published data.
 
+<img src="tracks/track11_AllenCahn/figures/reference.png" width="100%" alt="11 reference">
+
 <img src="tracks/track11_AllenCahn/figures/reference.gif" width="100%" alt="11 reference">
 
 ### 12 KdV
 `u_t + u u_x + 0.022² u_xxx = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = cos(πx)`; the cosine breaks into
 solitons. Output: 200 t × 512 x. **Bar: RelL2 ≤ 1e-3, L∞ ≤ 1e-2.** Reference: published data.
+
+<img src="tracks/track12_KdV/figures/reference.png" width="100%" alt="12 reference">
 
 <img src="tracks/track12_KdV/figures/reference.gif" width="100%" alt="12 reference">
 
@@ -234,11 +250,15 @@ solitons. Output: 200 t × 512 x. **Bar: RelL2 ≤ 1e-3, L∞ ≤ 1e-2.** Refere
 `u_t = 0.2 Δu + 40(1 − u) − 1000 u v²`, `v_t = 0.1 Δv − 100 v + 1000 u v²` on [−1, 1]² periodic, t ∈ [0, 2], initial
 state given as samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1e-3, L∞ ≤ 1e-2.** Reference: published data.
 
+<img src="tracks/track13_GreyScott/figures/reference.png" width="100%" alt="13 reference">
+
 <img src="tracks/track13_GreyScott/figures/reference.gif" width="100%" alt="13 reference">
 
 ### 14 GinzburgLandau
 Complex Ginzburg–Landau for A = u + iv, ε = 0.004, k = 10, on [−1, 1]² periodic, t ∈ [0, 1], initial state given as
 samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1e-2, L∞ ≤ 5e-2.** Reference: published data.
+
+<img src="tracks/track14_GinzburgLandau/figures/reference.png" width="100%" alt="14 reference">
 
 <img src="tracks/track14_GinzburgLandau/figures/reference.gif" width="100%" alt="14 reference">
 
@@ -246,11 +266,15 @@ samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1e-2, L∞ ≤ 5e-2.
 Boussinesq Rayleigh–Taylor instability, Ra = 1e6, Pr = 0.71, on [0, 1] × [0, 2], t ∈ [0, 8.5], initial state given as
 samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. **Bar: RelL2 ≤ 2e-2, L∞ ≤ 0.1.** Reference: published data.
 
+<img src="tracks/track15_RayleighTaylor/figures/reference.png" width="100%" alt="15 reference">
+
 <img src="tracks/track15_RayleighTaylor/figures/reference.gif" width="100%" alt="15 reference">
 
 ### 16 KolmogorovFlow
 Forced 2D NS, Re = 1e4, forcing `2 sin(4πy)` in x, on [0, 1)² periodic, t ∈ [0, 1.96], initial state given as
 samples; turbulent. Output: (u, v) at 49 t × 256². **Bar: RelL2 ≤ 5e-2, L∞ ≤ 0.5.** Reference: published data.
+
+<img src="tracks/track16_KolmogorovFlow/figures/reference.png" width="100%" alt="16 reference">
 
 <img src="tracks/track16_KolmogorovFlow/figures/reference.gif" width="100%" alt="16 reference">
 

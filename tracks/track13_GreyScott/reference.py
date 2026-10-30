@@ -23,4 +23,4 @@ def compute(device="cpu"):
 
 
 def plot(problem, u, extras, figdir):
-    plot_2d_time(problem, u, figdir, "Track 13: Grey-Scott", cmaps={"u": "viridis", "v": "viridis"})
+    plot_2d_time(problem, u, figdir, "Track 13: Grey-Scott")

@@ -36,8 +36,7 @@ def sem_solve(problem, N):
 
 def plot(problem, u, figdir, title):
     if "x" in problem.axes:
-        plotting.fields2d(problem.axes["x"], problem.axes["y"], {"u": u[0], "v": u[1]}, figdir / "reference.png",
-                          suptitle=title, cmap="viridis", streamplot=True)
+        plotting.cavity(problem.axes["x"], problem.axes["y"], u[0], u[1], figdir / "reference.png", title=title)
         return
     import matplotlib
     matplotlib.use("Agg")

@@ -3,7 +3,6 @@ nonlinear term is a pure gradient and u(t) = exp(-25 nu t) u(0).
 Cross-checked against the Fourier pseudo-spectral baseline at N = 64."""
 import torch
 
-from speedrun import plotting
 
 from .problem import make_problem
 
@@ -19,7 +18,5 @@ def compute(device="cpu"):
 
 
 def plot(problem, u, extras, figdir):
-    x, y, t = problem.axes["x"], problem.axes["y"], problem.axes["t"]
-    for k in (0, len(t) - 1):
-        plotting.fields2d(x, y, {"u": u[0, k], "v": u[1, k]}, figdir / f"reference_t{float(t[k]):.1f}.png",
-                          suptitle=f"Track 08: decaying eddies, t = {float(t[k]):.1f}", streamplot=True)
+    from tracks.data_common import plot_2d_time
+    plot_2d_time(problem, u, figdir, "Track 08: decaying eddies", vorticity=True)

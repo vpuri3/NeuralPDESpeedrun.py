@@ -15,9 +15,7 @@ Output: (u, v) on the prescribed 512 x 512 grid x_i = -0.25 + i / 512, y_j = -0.
 
 **Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001.
 
-![reference_t0.00](figures/reference_t0.00.png)
-![reference_t0.25](figures/reference_t0.25.png)
-![reference_t0.50](figures/reference_t0.50.png)
+![reference](figures/reference.png)
 ![reference](figures/reference.gif)
 
 ## Reference

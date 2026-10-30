@@ -43,6 +43,10 @@ from flax import linen as nn  # noqa: E402
 from jax.nn.initializers import constant, glorot_normal, normal, zeros  # noqa: E402
 from soap_jax import soap  # noqa: E402
 
+# True float32 matmuls. JAX's default on H100 is TF32 (~3 significant digits), which caps the residual's
+# derivatives: on 03 Burgers it holds L-inf at ~5e-3 against the 1e-3 bar; with "highest", 6e-4 in 120 s.
+jax.config.update("jax_default_matmul_precision", "highest")
+
 CHUNK = 50           # training iterations per jitted call; checkpoint after each
 
 

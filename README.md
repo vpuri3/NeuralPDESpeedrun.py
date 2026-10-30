@@ -158,9 +158,9 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 <!-- tracks-table:begin -->
 | track | best submission | time [s] | RelL2 | L∞ | bar met |
 |---|---|---|---|---|---|
-| 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 363.2 | 1.09e+00 (≤ 0.0001) | 3.34e+00 (≤ 0.001) | no |
+| 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.6 | 1.15e+00 (≤ 0.0001) | 3.53e+00 (≤ 0.001) | no |
 | 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.66e-02 (≤ 0.0001) | 1.53e-02 (≤ 0.001) | no |
-| 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 1.04e-04 (≤ 0.0001) | 5.40e-03 (≤ 0.001) | no |
+| 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 1000 | 8.08e-06 (≤ 0.0001) | 3.86e-05 (≤ 0.001) | yes |
 | 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1001 | 9.30e-01 (≤ 0.05) | 3.42e+00 (≤ 0.5) | no |
 | 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 403.1 | 2.77e-03 (≤ 0.0001) | 3.70e-02 (≤ 0.001) | no |
 | 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1000 | 1.46e-03 (≤ 0.001) | 1.08e-02 (≤ 0.01) | no |

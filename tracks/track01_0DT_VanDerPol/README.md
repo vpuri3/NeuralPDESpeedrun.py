@@ -29,7 +29,7 @@ Current record: **0.03922 s** (record #0: classical baseline, maintainers, 2026-
 
 | date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 363.2 | 1.09e+00 | 3.34e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 300.6 | 1.15e+00 | 3.53e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
 | 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.03922 | 8.65e-07 | 5.37e-05 | yes | CPU (Intel(R) Core(TM) i9-7920X CPU @ 2.90GHz) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)

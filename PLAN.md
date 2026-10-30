@@ -19,8 +19,6 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   scored times exclude t = 0. No classical baselines on these tracks. Per-track bars are set near what SOAP
   reports in the paper (their references do not support 1e-4 everywhere): 05C 5e-2, 07 5e-2, 11 1e-4, 12 1e-3,
   13 1e-3, 14 1e-2, 15 2e-2, 16 5e-2 (RelL2).
-- The vanilla PINN was a workflow draft, not a submission: it now lives in `submissions/draft_vanilla_pinn/` and
-  is not in the records.
 - Times are on an **RTX 2080 Ti** (fp64 for the baselines, fp32 for the PINNs); H100 re-timing is pending.
 
 | track | reference (self-check) | record #0 | time | RelL2 | L∞ |

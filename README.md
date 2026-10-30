@@ -14,12 +14,17 @@ submission competes per track.
 
 ```bash
 uv sync
-uv run python -m speedrun.make_reference --track all --device cuda   # references + figures
+uv run python -m speedrun.make_reference --track all --device cuda   # references + figures (once per machine)
 uv run python -m speedrun.run --track 01                            # time + score track 01's baseline
-uv run python -m speedrun.records --track all                       # leaderboards, plots, per-track READMEs
+uv run python -m speedrun.run_submission --submission submission_PR0001 --gpus 0,1,2,3 \
+    --name "PirateNet + SOAP" --kind neural --pr 1                  # one submission on all its tracks
+uv run python -m speedrun.records --track all                       # leaderboards, plots, READMEs
 ```
 
-Tracks can be named in full (`track05B_Burgers2D`) or by key (`05B`).
+`make_reference` downloads the published benchmark data (~300 MB, cached in `~/.cache/neuralpdespeedrun`) and
+computes the classical references; the large `ref.npz` files are not in git. `run_submission` runs one job per
+GPU at a time, writes each track's `result.json`, and with `--name` adds the results to the records and
+regenerates the plots and tables. Tracks can be named in full (`track05B_Burgers2D`) or by key (`05B`).
 
 ## Scoring
 
@@ -87,9 +92,10 @@ toolbox `speedrun/numerics/` is available to everyone.
      solve.py  result.json  previous.json (current record, same GPU)  README.md (method, what changed)
    ```
    ```bash
-   d=tracks/track03_HighContrastDiffusion/submissions/submission_PR0042
+   uv run python -m speedrun.run_submission --submission submission_PR0042 --gpus 0 \
+       --name "my method" --kind hybrid --pr 42       # all tracks the submission covers
+   d=tracks/track03_HighContrastDiffusion/submissions/submission_PR0042      # or one track at a time:
    uv run python -m speedrun.run --track 03 --submission $d --out $d/result.json
-   uv run python -m speedrun.records --track 03 --add $d/result.json --name "my method" --kind hybrid --pr 42
    ```
 3. **Mark the PR ready for review** when you want the maintainers to re-time it.
 

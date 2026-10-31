@@ -16,7 +16,7 @@ Steady incompressible Navier-Stokes in the unit square [0, 1]^2, Re = {RE:g} (nu
     u = v = 0                                        on the other three walls
 
 (The lid profile is 1 except within ~0.05 of the corners, which removes the corner singularities.)
-Pressure is not scored. L-inf is scored only at points >= 0.05 from the walls.
+Pressure is not scored. RelL-inf is scored only at points >= 0.05 from the walls.
 
 Output: (u, v) on the {N} x {N} grid x, y = linspace(0, 1, {N}); shape (2, {N}, {N}).
 """
@@ -45,7 +45,7 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         params={"Re": RE, "nu": 1.0 / RE},
         fns={"u_bc": u_bc, "v_bc": v_bc},
         rel_l2_tol=5e-2,
-        linf_tol=1e-1,
+        rel_linf_tol=1e-1,
         linf_margin=0.05,
         device=device,
         dtype=dtype,

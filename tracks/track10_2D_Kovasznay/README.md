@@ -16,7 +16,7 @@ Output: (u, v) on the tensor grid x = linspace(-0.5, 2.0, 251) x y = linspace(-0
 shape (2, 251, 201).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 
@@ -28,12 +28,11 @@ closed form (Kovasznay 1948)
 
 ## Records
 
-Current record: **0.1933 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
+Current record: **0.1212 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 561.6 | 8.96e-04 | 5.59e-03 | no | NVIDIA H100 80GB HBM3 (JAX) |
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.1933 | 1.43e-07 | 4.71e-07 | yes | NVIDIA GeForce RTX 2080 Ti |
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.1212 | 1.17e-06 | 1.39e-06 | yes | NVIDIA H100 80GB HBM3 |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

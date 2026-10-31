@@ -13,7 +13,7 @@ the domain 4 times while decaying like exp(-gamma t / 2).
 Output: u on the tensor grid t = linspace(0, 4, 801) x x = linspace(0, 1, 1001); shape (1, 801, 1001).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference_snapshots](figures/reference_snapshots.png)
@@ -27,12 +27,11 @@ exact modal sine series, closed-form coefficients, K=512
 
 ## Records
 
-Current record: **0.002869 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
+Current record: **0.05692 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 1001 | 1.66e-02 | 1.53e-02 | no | NVIDIA H100 80GB HBM3 (JAX) |
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.002869 | 8.03e-16 | 7.77e-16 | yes | NVIDIA GeForce RTX 2080 Ti |
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.05692 | 8.03e-16 | 7.77e-16 | yes | NVIDIA H100 80GB HBM3 |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

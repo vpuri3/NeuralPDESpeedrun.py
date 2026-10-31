@@ -14,7 +14,7 @@ Output: (u, v, w) at t = 0.25, 0.5, 0.75, 1 on the 33^3 grid x, y, z = linspace(
 shape (3, 4, 33, 33, 33).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 
@@ -25,10 +25,4 @@ closed form (Ethier & Steinman 1994)
 
 ## Records
 
-Current record: **1000 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
-
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
-|---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 1000 | 5.26e-04 | 1.88e-03 | no | NVIDIA H100 80GB HBM3 (JAX) |
-
-![accuracy_vs_time](figures/accuracy_vs_time.png)
+No records yet.

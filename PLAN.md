@@ -5,7 +5,8 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 ## 1. Status (2026-10-30)
 
-- Harness: default bar RelL2 ≤ 1e-4, L∞ ≤ 1e-3 (overridable per track); API `setup(problem) -> state`
+- Harness: default bar RelL2 ≤ 0.5%, RelL∞ ≤ 1%, per field (overridable per track; until 2026-10-30:
+  RelL2 ≤ 1e-4, absolute L∞ ≤ 1e-3, which TF32 training cannot reach); API `setup(problem) -> state`
   (untimed), `solve(problem, state, checkpoint)` (timed; loops as long as it likes and calls `checkpoint(state)`
   every few iterations; the harness interrupts it once the track's wall-clock budget, `Problem.budget_s`,
   default 1000 s, is used up and queries the last checkpoint), `query(problem, state)` (≤ 5 s; skipped if the
@@ -22,10 +23,11 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   github.com/PredictiveIntelligenceLab/jaxpi, branch `pirate`, commit 9b5196b). References are their published
   solutions, downloaded and sha256-checked by `speedrun/external.py` (pickled .npy files go through a restricted
   unpickler). Initial states that are only known as data are given to solvers as samples (`fns["ic"]`), and the
-  scored times exclude t = 0. No classical baselines on these tracks. Per-track bars are set near what SOAP
-  reports in the paper (their references do not support 1e-4 everywhere): 04 5e-2, 11 5e-2, 05 1e-4, 06 1e-3,
-  15 1e-3, 16 1e-2, 17 2e-2, 18 5e-2 (RelL2).
-- Times are on an **RTX 2080 Ti** (fp64 for the baselines, fp32 for the PINNs); H100 re-timing is pending.
+  scored times exclude t = 0. No classical baselines on these tracks. The chaotic / turbulent ones keep looser bars,
+  near what SOAP reports in the paper (RelL2 / RelL∞): 04 5% / 15%, 11 5% / 10%, 16 1% / 5%, 17 2% / 10%,
+  18 5% / 15%; 05, 06 and 15 use the default 0.5% / 1%.
+- Times in this table are on an **RTX 2080 Ti** (fp64 for the baselines, fp32 for the PINNs). The records
+  (record #0) were re-timed and rescored on an H100 on 2026-10-30, under the RelL2 / RelL∞ bar.
 
 | track | reference (self-check) | record #0 | time | RelL2 | L∞ |
 |---|---|---|---|---|---|

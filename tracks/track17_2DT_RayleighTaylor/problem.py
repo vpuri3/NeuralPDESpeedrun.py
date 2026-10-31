@@ -38,7 +38,7 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
                 "a4": float(d["a4"])},
         fns={"ic": {"x": d["x"], "y": d["y"], "u": d["u0"], "v": d["v0"], "p": d["p0"], "T": d["T0"]}},
         rel_l2_tol=2e-2,
-        linf_tol=1e-1,
+        rel_linf_tol=1e-1,
         device=device,
         dtype=dtype,
     )

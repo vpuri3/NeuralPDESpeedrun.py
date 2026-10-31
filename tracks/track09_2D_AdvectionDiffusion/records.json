@@ -2,33 +2,18 @@
   {
     "date": "2026-10-30",
     "author": "maintainers",
-    "name": "PirateNet + SOAP",
-    "submission": "tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py",
-    "time_s": 1000.2313614990562,
-    "solve_time_s": 1000.0733083290979,
-    "query_time_s": 0.15805316995829344,
-    "rel_l2": 0.034455391552055535,
-    "linf": 0.36436723089292805,
-    "passed": false,
-    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
-    "kind": "neural",
-    "pr": 1,
-    "stop": "budget",
-    "budget_s": 1000.0
-  },
-  {
-    "date": "2026-10-30",
-    "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track09_2D_AdvectionDiffusion/baseline.py",
-    "time_s": 1.1594818748999387,
-    "solve_time_s": 1.1594818748999387,
+    "time_s": 0.07110726647078991,
+    "solve_time_s": 0.07110726647078991,
     "query_time_s": 0.0,
-    "rel_l2": 2.903669692640474e-05,
-    "linf": 3.342269622708116e-05,
+    "rel_l2": 2.9036696926435e-05,
+    "rel_linf": 3.396371474657189e-05,
     "passed": true,
-    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "hardware": "NVIDIA H100 80GB HBM3",
     "kind": "classical",
-    "pr": null
+    "pr": null,
+    "stop": "done",
+    "budget_s": 1000.0
   }
 ]

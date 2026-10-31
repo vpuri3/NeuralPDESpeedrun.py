@@ -13,7 +13,7 @@ Output: (u, v) on the prescribed 512 x 512 grid x_i = -0.25 + i / 512, y_j = -0.
 11 snapshot times t = linspace(0, 0.5, 11); shape (2, 11, 512, 512).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)
@@ -27,12 +27,11 @@ Fourier pseudo-spectral + ETDRK4, 2048^2, dt=0.00025
 
 ## Records
 
-Current record: **7.827 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
+Current record: **1.074 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 1001 | 8.70e-04 | 1.65e-02 | no | NVIDIA H100 80GB HBM3 (JAX) |
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 7.827 | 9.70e-06 | 2.63e-04 | yes | NVIDIA GeForce RTX 2080 Ti |
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 1.074 | 9.70e-06 | 2.63e-04 | yes | NVIDIA H100 80GB HBM3 |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

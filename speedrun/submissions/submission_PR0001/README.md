@@ -23,8 +23,7 @@ code (github.com/PredictiveIntelligenceLab/jaxpi, branch `pirate`) and its `pira
 - **Execution**: `solve` is one open-ended training loop; every 50 iterations (one jitted `lax.fori_loop`,
   collocation points resampled every iteration) it checkpoints the parameters for the harness. Losses are read
   one chunk late, so the GPU never waits for the host. All functions are compiled ahead of time in `setup`.
-  Matmuls run in true float32 (`jax_default_matmul_precision = highest`), not JAX's TF32 default: TF32
-  caps the accuracy of the residual's derivatives (03 Burgers: L∞ 5e-3 with TF32, 6e-4 with float32 in 120 s).
+  Matmuls use JAX's default precision (TF32 on H100), as jaxpi.
 - **Stopping**: `solve` returns once the loss stops improving by 2% for max(150 s, 25% of the elapsed time), or
   drops below 1e-10; otherwise the harness interrupts it at the track's budget (1000 s) and queries the last
   checkpoint. No reference is used.

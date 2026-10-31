@@ -15,5 +15,22 @@
     "pr": 1,
     "stop": "done",
     "budget_s": 1000.0
+  },
+  {
+    "date": "2026-10-31",
+    "author": "maintainers",
+    "name": "PINN + Gauss-Newton (D-NGD)",
+    "submission": "tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0002/solve.py",
+    "time_s": 367.6699583539739,
+    "solve_time_s": 367.6539063313976,
+    "query_time_s": 0.016052022576332092,
+    "rel_l2": 0.03994495991514453,
+    "rel_linf": 0.1108068709769106,
+    "passed": false,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 2,
+    "stop": "done",
+    "budget_s": 1000.0
   }
 ]

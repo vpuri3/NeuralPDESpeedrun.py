@@ -32,5 +32,22 @@
     "pr": null,
     "stop": "done",
     "budget_s": 1000.0
+  },
+  {
+    "date": "2026-10-31",
+    "author": "maintainers",
+    "name": "PINN + Gauss-Newton (D-NGD)",
+    "submission": "tracks/track02_1DT_DampedWave/submissions/submission_PR0002/solve.py",
+    "time_s": 456.74642448779196,
+    "solve_time_s": 456.71462351456285,
+    "query_time_s": 0.03180097322911024,
+    "rel_l2": 0.4322449799044629,
+    "rel_linf": 0.5023856859499037,
+    "passed": false,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 2,
+    "stop": "done",
+    "budget_s": 1000.0
   }
 ]

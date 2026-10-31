@@ -32,6 +32,7 @@ Current record: **1001 s** (PirateNet + SOAP, maintainers, 2026-10-31, NVIDIA H1
 | date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-31 | maintainers | PirateNet + SOAP | neural | 1001 | 7.35e-04 | 7.92e-03 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-10-31 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 298.9 | 5.59e-02 | 7.91e-01 | no | NVIDIA H100 80GB HBM3 (JAX) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

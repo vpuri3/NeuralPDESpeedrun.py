@@ -168,7 +168,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 383 | 0.195% | 2.98% | no |
 | 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1001 | 0.0552% | 0.115% | yes |
 | 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 13.6% | 20.3% | no |
-| 08 Helmholtz (2D) | *on hold* | | | | |
+| 08 Helmholtz (2D) | *TODO* | | | | |
 | 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 94.4% | 72.4% | no |
 | 10 Kovasznay (2D) | [PirateNet + SOAP](tracks/track10_2D_Kovasznay/submissions/submission_PR0001/solve.py) | 616.9 | 0.0147% | 0.0165% | yes |
 | 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
@@ -265,7 +265,7 @@ and 5376², Richardson-extrapolated at the measured order 1.34.
 <img src="tracks/track07_2D_HighContrastDiffusion/figures/accuracy_vs_time.png" width="49%" alt="07 accuracy_vs_time"> <img src="tracks/track07_2D_HighContrastDiffusion/figures/activity.png" width="49%" alt="07 activity">
 <!-- figures:07:end -->
 
-### 08 Helmholtz (2D): on hold
+### 08 Helmholtz (2D): TODO
 The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
 PML, or impedance BC) first.
 

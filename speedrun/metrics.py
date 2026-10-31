@@ -1,9 +1,9 @@
-"""Acceptance metrics: RelL2 and RelL∞ against the reference, with a per-track accuracy bar."""
+"""Acceptance metrics: RelL2 and RelL∞ against the reference, and the accuracy bar."""
 from __future__ import annotations
 
 import torch
 
-# Default accuracy bar. A track may set its own (Problem.rel_l2_tol / Problem.rel_linf_tol). All fields and
+# Accuracy bar, the same on every track. All fields and
 # evaluation points are flattened into one vector ((n_fields, ...) -> (n_fields * N,)) and both errors are taken
 # relative to that vector.
 REL_L2_TOL = 5e-3     # ||u - ref||_2 / ||ref||_2

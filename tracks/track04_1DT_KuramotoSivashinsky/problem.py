@@ -33,8 +33,6 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         periodic={"x": True},
         params={"a": A, "b": B, "c": C},
         fns={"u0": periodic_interp(d["u0"], 0.0, 2 * math.pi), "ic": {"x": d["x"], "u": d["u0"]}},
-        rel_l2_tol=5e-2,
-        rel_linf_tol=0.15,
         device=device,
         dtype=dtype,
     )

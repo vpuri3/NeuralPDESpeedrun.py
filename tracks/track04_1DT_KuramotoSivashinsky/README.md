@@ -11,7 +11,7 @@ its trigonometric interpolant). Small errors grow exponentially; the bar reflect
 Output: u at t_k = k / 250, k = 1..250, and x_j = 2 pi j / 511, j = 0..511; shape (1, 250, 512).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.05, RelL∞ ≤ 0.15. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)

@@ -13,7 +13,7 @@ Output: (u, v) at t_k = 0.01 k, k = 1..100, on the 200 x 200 grid x_i, y_j = -1 
 shape (2, 100, 200, 200).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.01, RelL∞ ≤ 0.05. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)

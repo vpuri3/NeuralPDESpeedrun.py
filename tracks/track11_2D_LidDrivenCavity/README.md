@@ -24,4 +24,12 @@ published data (jaxpi)
 
 ## Records
 
-No records yet.
+Current record: **1001 s** (PirateNet + SOAP, maintainers, 2026-10-31, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-31 | maintainers | PirateNet + SOAP | neural | 1001 | 1.00e+00 | 1.00e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

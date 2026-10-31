@@ -1,0 +1,39 @@
+{
+  "track": "track11_2D_LidDrivenCavity",
+  "submission": "tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py",
+  "time_s": 1000.644517717883,
+  "solve_time_s": 1000.5064971148968,
+  "query_time_s": 0.13802060298621655,
+  "checkpoints": 735,
+  "stop": "budget",
+  "budget_s": 1000.0,
+  "impose_budget": true,
+  "rel_l2": 1.0000000001862055,
+  "rel_linf": 0.999997488664683,
+  "accurate": false,
+  "query_within_limit": true,
+  "passed": false,
+  "tolerances": {
+    "rel_l2": 0.05,
+    "rel_linf": 0.1
+  },
+  "linf_margin": 0.05,
+  "device": "cuda",
+  "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+  "device_check": {
+    "gpu_fraction": 1.0,
+    "ops_cuda": 0,
+    "ops_cpu": 0,
+    "cpu_ops_top": {},
+    "jax_backend": "gpu",
+    "jax_platforms": [
+      "gpu"
+    ]
+  },
+  "cuda_peak_allocated_gb": 6.319239139556885,
+  "torch": "2.15.0+cu132",
+  "python": "3.13.15",
+  "git_commit": "e2969d8",
+  "seed": 0,
+  "date": "2026-10-31T00:01:01"
+}

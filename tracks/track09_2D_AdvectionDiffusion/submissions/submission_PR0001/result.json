@@ -1,0 +1,39 @@
+{
+  "track": "track09_2D_AdvectionDiffusion",
+  "submission": "tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py",
+  "time_s": 300.73196788690984,
+  "solve_time_s": 300.52014575339854,
+  "query_time_s": 0.21182213351130486,
+  "checkpoints": 221,
+  "stop": "done",
+  "budget_s": 1000.0,
+  "impose_budget": true,
+  "rel_l2": 0.9439205964568855,
+  "rel_linf": 0.7237947718991123,
+  "accurate": false,
+  "query_within_limit": true,
+  "passed": false,
+  "tolerances": {
+    "rel_l2": 0.005,
+    "rel_linf": 0.01
+  },
+  "linf_margin": 0.0,
+  "device": "cuda",
+  "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+  "device_check": {
+    "gpu_fraction": 1.0,
+    "ops_cuda": 0,
+    "ops_cpu": 0,
+    "cpu_ops_top": {},
+    "jax_backend": "gpu",
+    "jax_platforms": [
+      "gpu"
+    ]
+  },
+  "cuda_peak_allocated_gb": 5.014383316040039,
+  "torch": "2.15.0+cu132",
+  "python": "3.13.15",
+  "git_commit": "2f10d1b",
+  "seed": 0,
+  "date": "2026-10-30T23:27:15"
+}

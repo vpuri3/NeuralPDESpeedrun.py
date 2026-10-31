@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "PirateNet + SOAP",
+    "submission": "tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py",
+    "time_s": 1000.7116392478347,
+    "solve_time_s": 1000.5495823947713,
+    "query_time_s": 0.16205685306340456,
+    "rel_l2": 0.0005521257205323955,
+    "rel_linf": 0.0011544303399420512,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 1,
+    "stop": "budget",
+    "budget_s": 1000.0
+  }
+]

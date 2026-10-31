@@ -25,4 +25,12 @@ closed form (Ethier & Steinman 1994)
 
 ## Records
 
-No records yet.
+Current record: **566.7 s** (PirateNet + SOAP, maintainers, 2026-10-31, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-31 | maintainers | PirateNet + SOAP | neural | 566.7 | 9.69e-04 | 1.65e-03 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

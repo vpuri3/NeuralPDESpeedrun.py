@@ -27,4 +27,12 @@ closed form u = g(x) g(y)
 
 ## Records
 
-No records yet.
+Current record: **300.7 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 300.7 | 9.44e-01 | 7.24e-01 | no | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

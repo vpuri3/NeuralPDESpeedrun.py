@@ -26,4 +26,12 @@ Fourier pseudo-spectral + ETDRK4, N=8192, dt=T/(Nt-1)/16
 
 ## Records
 
-No records yet.
+Current record: **655.6 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 655.6 | 1.46e-05 | 7.56e-05 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

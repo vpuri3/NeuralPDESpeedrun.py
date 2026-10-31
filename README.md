@@ -161,25 +161,25 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 <!-- tracks-table:begin -->
 | track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
-| 01 VanDerPol (ODE) | — | | | | |
-| 02 DampedWave (1D + Time) | — | | | | |
-| 03 Burgers (1D + Time) | — | | | | |
-| 04 KuramotoSivashinsky (1D + Time) | — | | | | |
-| 05 AllenCahn (1D + Time) | — | | | | |
-| 06 KdV (1D + Time) | — | | | | |
-| 07 HighContrastDiffusion (2D) | — | | | | |
+| 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
+| 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
+| 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 655.6 | 0.00146% | 0.00756% | yes |
+| 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1000 | 93.1% | 113% | no |
+| 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 383 | 0.195% | 2.98% | no |
+| 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1001 | 0.0552% | 0.115% | yes |
+| 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 13.6% | 20.3% | no |
 | 08 Helmholtz (2D) | *on hold* | | | | |
-| 09 AdvectionDiffusion (2D) | — | | | | |
-| 10 Kovasznay (2D) | — | | | | |
-| 11 LidDrivenCavity (2D) | — | | | | |
-| 12 Burgers (2D + Time) | — | | | | |
-| 13 DecayingEddies (2D + Time) | — | | | | |
+| 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 94.4% | 72.4% | no |
+| 10 Kovasznay (2D) | [PirateNet + SOAP](tracks/track10_2D_Kovasznay/submissions/submission_PR0001/solve.py) | 616.9 | 0.0147% | 0.0165% | yes |
+| 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
+| 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 0.0735% | 0.792% | yes |
+| 13 DecayingEddies (2D + Time) | [PirateNet + SOAP](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py) | 1000 | 0.258% | 0.255% | yes |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
-| 15 GreyScott (2D + Time) | — | | | | |
-| 16 GinzburgLandau (2D + Time) | — | | | | |
-| 17 RayleighTaylor (2D + Time) | — | | | | |
-| 18 KolmogorovFlow (2D + Time) | — | | | | |
-| 19 BeltramiFlow (3D + Time) | — | | | | |
+| 15 GreyScott (2D + Time) | [PirateNet + SOAP](tracks/track15_2DT_GreyScott/submissions/submission_PR0001/solve.py) | 1002 | 60.4% | 73.5% | no |
+| 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 301.7 | 99.9% | 102% | no |
+| 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 396.8 | 86.3% | 99.8% | no |
+| 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 121% | 141% | no |
+| 19 BeltramiFlow (3D + Time) | [PirateNet + SOAP](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0001/solve.py) | 566.7 | 0.0969% | 0.165% | yes |
 <!-- tracks-table:end -->
 
 ### 01 VanDerPol (ODE)
@@ -190,6 +190,7 @@ IIA, rtol 1e-12.
 <img src="tracks/track01_0DT_VanDerPol/figures/reference.png" width="100%" alt="01 reference">
 
 <!-- figures:01:begin -->
+<img src="tracks/track01_0DT_VanDerPol/figures/accuracy_vs_time.png" width="49%" alt="01 accuracy_vs_time"> <img src="tracks/track01_0DT_VanDerPol/figures/activity.png" width="49%" alt="01 activity">
 <!-- figures:01:end -->
 
 ### 02 DampedWave (1D + Time)
@@ -202,6 +203,7 @@ off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-for
 <img src="tracks/track02_1DT_DampedWave/figures/reference.gif" width="100%" alt="02 reference">
 
 <!-- figures:02:begin -->
+<img src="tracks/track02_1DT_DampedWave/figures/accuracy_vs_time.png" width="49%" alt="02 accuracy_vs_time"> <img src="tracks/track02_1DT_DampedWave/figures/activity.png" width="49%" alt="02 activity">
 <!-- figures:02:end -->
 
 ### 03 Burgers (1D + Time)
@@ -213,6 +215,7 @@ t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 <img src="tracks/track03_1DT_Burgers/figures/reference.gif" width="100%" alt="03 reference">
 
 <!-- figures:03:begin -->
+<img src="tracks/track03_1DT_Burgers/figures/accuracy_vs_time.png" width="49%" alt="03 accuracy_vs_time"> <img src="tracks/track03_1DT_Burgers/figures/activity.png" width="49%" alt="03 activity">
 <!-- figures:03:end -->
 
 ### 04 KuramotoSivashinsky (1D + Time)
@@ -224,6 +227,7 @@ the initial state is given as samples. Output: 250 t × 512 x. Reference: publis
 <img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="04 reference">
 
 <!-- figures:04:begin -->
+<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="49%" alt="04 accuracy_vs_time"> <img src="tracks/track04_1DT_KuramotoSivashinsky/figures/activity.png" width="49%" alt="04 activity">
 <!-- figures:04:end -->
 
 ### 05 AllenCahn (1D + Time)
@@ -235,6 +239,7 @@ Reference: published data.
 <img src="tracks/track05_1DT_AllenCahn/figures/reference.gif" width="100%" alt="05 reference">
 
 <!-- figures:05:begin -->
+<img src="tracks/track05_1DT_AllenCahn/figures/accuracy_vs_time.png" width="49%" alt="05 accuracy_vs_time"> <img src="tracks/track05_1DT_AllenCahn/figures/activity.png" width="49%" alt="05 activity">
 <!-- figures:05:end -->
 
 ### 06 KdV (1D + Time)
@@ -246,6 +251,7 @@ solitons. Output: 200 t × 512 x. Reference: published data.
 <img src="tracks/track06_1DT_KdV/figures/reference.gif" width="100%" alt="06 reference">
 
 <!-- figures:06:begin -->
+<img src="tracks/track06_1DT_KdV/figures/accuracy_vs_time.png" width="49%" alt="06 accuracy_vs_time"> <img src="tracks/track06_1DT_KdV/figures/activity.png" width="49%" alt="06 activity">
 <!-- figures:06:end -->
 
 ### 07 HighContrastDiffusion (2D)
@@ -256,6 +262,7 @@ and 5376², Richardson-extrapolated at the measured order 1.34.
 <img src="tracks/track07_2D_HighContrastDiffusion/figures/reference.png" width="100%" alt="07 reference">
 
 <!-- figures:07:begin -->
+<img src="tracks/track07_2D_HighContrastDiffusion/figures/accuracy_vs_time.png" width="49%" alt="07 accuracy_vs_time"> <img src="tracks/track07_2D_HighContrastDiffusion/figures/activity.png" width="49%" alt="07 activity">
 <!-- figures:07:end -->
 
 ### 08 Helmholtz (2D): on hold
@@ -272,6 +279,7 @@ and y = 1. Output: 257² Chebyshev–Lobatto grid. Reference: closed form (f was
 <img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="100%" alt="09 reference">
 
 <!-- figures:09:begin -->
+<img src="tracks/track09_2D_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="09 accuracy_vs_time"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/activity.png" width="49%" alt="09 activity">
 <!-- figures:09:end -->
 
 ### 10 Kovasznay (2D)
@@ -281,6 +289,7 @@ whole boundary. Output: (u, v) on 251 × 201. Reference: closed form.
 <img src="tracks/track10_2D_Kovasznay/figures/reference.png" width="100%" alt="10 reference">
 
 <!-- figures:10:begin -->
+<img src="tracks/track10_2D_Kovasznay/figures/accuracy_vs_time.png" width="49%" alt="10 accuracy_vs_time"> <img src="tracks/track10_2D_Kovasznay/figures/activity.png" width="49%" alt="10 activity">
 <!-- figures:10:end -->
 
 ### 11 LidDrivenCavity (2D)
@@ -290,6 +299,7 @@ on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: publis
 <img src="tracks/track11_2D_LidDrivenCavity/figures/reference.png" width="100%" alt="11 reference">
 
 <!-- figures:11:begin -->
+<img src="tracks/track11_2D_LidDrivenCavity/figures/accuracy_vs_time.png" width="49%" alt="11 accuracy_vs_time"> <img src="tracks/track11_2D_LidDrivenCavity/figures/activity.png" width="49%" alt="11 activity">
 <!-- figures:11:end -->
 
 ### 12 Burgers (2D + Time)
@@ -301,6 +311,7 @@ on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: publis
 <img src="tracks/track12_2DT_Burgers/figures/reference.gif" width="100%" alt="12 reference">
 
 <!-- figures:12:begin -->
+<img src="tracks/track12_2DT_Burgers/figures/accuracy_vs_time.png" width="49%" alt="12 accuracy_vs_time"> <img src="tracks/track12_2DT_Burgers/figures/activity.png" width="49%" alt="12 activity">
 <!-- figures:12:end -->
 
 ### 13 DecayingEddies (2D + Time)
@@ -312,6 +323,7 @@ Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + co
 <img src="tracks/track13_2DT_DecayingEddies/figures/reference.gif" width="100%" alt="13 reference">
 
 <!-- figures:13:begin -->
+<img src="tracks/track13_2DT_DecayingEddies/figures/accuracy_vs_time.png" width="49%" alt="13 accuracy_vs_time"> <img src="tracks/track13_2DT_DecayingEddies/figures/activity.png" width="49%" alt="13 activity">
 <!-- figures:13:end -->
 
 ### 14 CylinderFlow (2D + Time): TODO
@@ -329,6 +341,7 @@ state given as samples. Output: (u, v) at 100 t × 200². Reference: published d
 <img src="tracks/track15_2DT_GreyScott/figures/reference.gif" width="100%" alt="15 reference">
 
 <!-- figures:15:begin -->
+<img src="tracks/track15_2DT_GreyScott/figures/accuracy_vs_time.png" width="49%" alt="15 accuracy_vs_time"> <img src="tracks/track15_2DT_GreyScott/figures/activity.png" width="49%" alt="15 activity">
 <!-- figures:15:end -->
 
 ### 16 GinzburgLandau (2D + Time)
@@ -340,6 +353,7 @@ samples. Output: (u, v) at 100 t × 200². Reference: published data.
 <img src="tracks/track16_2DT_GinzburgLandau/figures/reference.gif" width="100%" alt="16 reference">
 
 <!-- figures:16:begin -->
+<img src="tracks/track16_2DT_GinzburgLandau/figures/accuracy_vs_time.png" width="49%" alt="16 accuracy_vs_time"> <img src="tracks/track16_2DT_GinzburgLandau/figures/activity.png" width="49%" alt="16 activity">
 <!-- figures:16:end -->
 
 ### 17 RayleighTaylor (2D + Time)
@@ -351,6 +365,7 @@ samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. Reference: published da
 <img src="tracks/track17_2DT_RayleighTaylor/figures/reference.gif" width="100%" alt="17 reference">
 
 <!-- figures:17:begin -->
+<img src="tracks/track17_2DT_RayleighTaylor/figures/accuracy_vs_time.png" width="49%" alt="17 accuracy_vs_time"> <img src="tracks/track17_2DT_RayleighTaylor/figures/activity.png" width="49%" alt="17 activity">
 <!-- figures:17:end -->
 
 ### 18 KolmogorovFlow (2D + Time)
@@ -362,6 +377,7 @@ samples; turbulent. Output: (u, v) at 49 t × 256². Reference: published data.
 <img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.gif" width="100%" alt="18 reference">
 
 <!-- figures:18:begin -->
+<img src="tracks/track18_2DT_KolmogorovFlow/figures/accuracy_vs_time.png" width="49%" alt="18 accuracy_vs_time"> <img src="tracks/track18_2DT_KolmogorovFlow/figures/activity.png" width="49%" alt="18 activity">
 <!-- figures:18:end -->
 
 ### 19 BeltramiFlow (3D + Time)
@@ -372,6 +388,7 @@ Reference: closed form.
 <img src="tracks/track19_3DT_BeltramiFlow/figures/reference.png" width="100%" alt="19 reference">
 
 <!-- figures:19:begin -->
+<img src="tracks/track19_3DT_BeltramiFlow/figures/accuracy_vs_time.png" width="49%" alt="19 accuracy_vs_time"> <img src="tracks/track19_3DT_BeltramiFlow/figures/activity.png" width="49%" alt="19 activity">
 <!-- figures:19:end -->
 
 ## Layout

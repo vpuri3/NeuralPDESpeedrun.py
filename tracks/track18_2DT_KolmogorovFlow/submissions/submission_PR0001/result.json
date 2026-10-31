@@ -1,0 +1,39 @@
+{
+  "track": "track18_2DT_KolmogorovFlow",
+  "submission": "tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py",
+  "time_s": 1000.7991954134777,
+  "solve_time_s": 1000.2860111389309,
+  "query_time_s": 0.513184274546802,
+  "checkpoints": 287,
+  "stop": "budget",
+  "budget_s": 1000.0,
+  "impose_budget": true,
+  "rel_l2": 1.214677374036038,
+  "rel_linf": 1.4085611670692246,
+  "accurate": false,
+  "query_within_limit": true,
+  "passed": false,
+  "tolerances": {
+    "rel_l2": 0.05,
+    "rel_linf": 0.15
+  },
+  "linf_margin": 0.0,
+  "device": "cuda",
+  "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+  "device_check": {
+    "gpu_fraction": 1.0,
+    "ops_cuda": 0,
+    "ops_cpu": 0,
+    "cpu_ops_top": {},
+    "jax_backend": "gpu",
+    "jax_platforms": [
+      "gpu"
+    ]
+  },
+  "cuda_peak_allocated_gb": 18.460673332214355,
+  "torch": "2.15.0+cu132",
+  "python": "3.13.15",
+  "git_commit": "27d4173",
+  "seed": 0,
+  "date": "2026-10-31T00:21:14"
+}

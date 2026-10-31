@@ -1,0 +1,39 @@
+{
+  "track": "track13_2DT_DecayingEddies",
+  "submission": "tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py",
+  "time_s": 1000.4396212762222,
+  "solve_time_s": 1000.200311454013,
+  "query_time_s": 0.2393098222091794,
+  "checkpoints": 834,
+  "stop": "budget",
+  "budget_s": 1000.0,
+  "impose_budget": true,
+  "rel_l2": 0.002577752972151091,
+  "rel_linf": 0.0025499070929929646,
+  "accurate": true,
+  "query_within_limit": true,
+  "passed": true,
+  "tolerances": {
+    "rel_l2": 0.005,
+    "rel_linf": 0.01
+  },
+  "linf_margin": 0.0,
+  "device": "cuda",
+  "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+  "device_check": {
+    "gpu_fraction": 1.0,
+    "ops_cuda": 0,
+    "ops_cpu": 0,
+    "cpu_ops_top": {},
+    "jax_backend": "gpu",
+    "jax_platforms": [
+      "gpu"
+    ]
+  },
+  "cuda_peak_allocated_gb": 4.956849813461304,
+  "torch": "2.15.0+cu132",
+  "python": "3.13.15",
+  "git_commit": "e2969d8",
+  "seed": 0,
+  "date": "2026-10-31T00:01:13"
+}

@@ -30,4 +30,12 @@ cell-centered FV + MG-PCG on 3840^2 and 5376^2 (213, 236 PCG its), Richardson-ex
 
 ## Records
 
-No records yet.
+Current record: **1001 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 1001 | 1.36e-01 | 2.03e-01 | no | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

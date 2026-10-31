@@ -164,21 +164,21 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 1.14e+00 (≤ 0.005) | 1.75e+00 (≤ 0.01) | no |
 | 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43e-02 (≤ 0.005) | 8.14e-03 (≤ 0.01) | no |
 | 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 655.6 | 1.46e-05 (≤ 0.005) | 7.56e-05 (≤ 0.01) | yes |
-| 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1000 | 9.31e-01 (≤ 0.05) | 1.13e+00 (≤ 0.15) | no |
+| 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1000 | 9.31e-01 (≤ 0.005) | 1.13e+00 (≤ 0.01) | no |
 | 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 383 | 1.95e-03 (≤ 0.005) | 2.98e-02 (≤ 0.01) | no |
 | 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1001 | 5.52e-04 (≤ 0.005) | 1.15e-03 (≤ 0.01) | yes |
 | 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 1.36e-01 (≤ 0.005) | 2.03e-01 (≤ 0.01) | no |
 | 08 Helmholtz (2D) | *on hold* | | | | |
 | 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 9.44e-01 (≤ 0.005) | 7.24e-01 (≤ 0.01) | no |
 | 10 Kovasznay (2D) | [PirateNet + SOAP](tracks/track10_2D_Kovasznay/submissions/submission_PR0001/solve.py) | 616.9 | 1.47e-04 (≤ 0.005) | 1.65e-04 (≤ 0.01) | yes |
-| 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 1.00e+00 (≤ 0.05) | 1.00e+00 (≤ 0.1) | no |
+| 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 1.00e+00 (≤ 0.005) | 1.00e+00 (≤ 0.01) | no |
 | 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 7.35e-04 (≤ 0.005) | 7.92e-03 (≤ 0.01) | yes |
 | 13 DecayingEddies (2D + Time) | [PirateNet + SOAP](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py) | 1000 | 2.58e-03 (≤ 0.005) | 2.55e-03 (≤ 0.01) | yes |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
 | 15 GreyScott (2D + Time) | [PirateNet + SOAP](tracks/track15_2DT_GreyScott/submissions/submission_PR0001/solve.py) | 1002 | 6.04e-01 (≤ 0.005) | 7.35e-01 (≤ 0.01) | no |
-| 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 301.7 | 9.99e-01 (≤ 0.01) | 1.02e+00 (≤ 0.05) | no |
-| 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 396.8 | 8.63e-01 (≤ 0.02) | 9.98e-01 (≤ 0.1) | no |
-| 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 1.21e+00 (≤ 0.05) | 1.41e+00 (≤ 0.15) | no |
+| 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 301.7 | 9.99e-01 (≤ 0.005) | 1.02e+00 (≤ 0.01) | no |
+| 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 396.8 | 8.63e-01 (≤ 0.005) | 9.98e-01 (≤ 0.01) | no |
+| 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 1.21e+00 (≤ 0.005) | 1.41e+00 (≤ 0.01) | no |
 | 19 BeltramiFlow (3D + Time) | [PirateNet + SOAP](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0001/solve.py) | 566.7 | 9.69e-04 (≤ 0.005) | 1.65e-03 (≤ 0.01) | yes |
 <!-- tracks-table:end -->
 

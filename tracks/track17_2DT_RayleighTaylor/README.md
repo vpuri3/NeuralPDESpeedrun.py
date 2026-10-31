@@ -17,7 +17,7 @@ Output: (u, v, T) at the 34 snapshot times problem.axes["t"] (spacing 0.25) on t
 problem.axes["x"], ["y"]; shape (3, 34, 100, 200). Pressure is not scored.
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.02, RelL∞ ≤ 0.1 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.02, RelL∞ ≤ 0.1. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)

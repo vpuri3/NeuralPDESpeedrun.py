@@ -13,7 +13,7 @@ Steady diffusion with a discontinuous, high-contrast coefficient on the unit squ
 Output: u at the 256 x 256 cell centers x_i = y_i = (i + 1/2) / 256; shape (1, 256, 256).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 

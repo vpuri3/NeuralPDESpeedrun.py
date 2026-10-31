@@ -14,7 +14,7 @@ Output: u on the tensor grid x_i = y_i = (1 - cos(pi i / 256)) / 2, i = 0..256
 shape (1, 257, 257).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference_slices](figures/reference_slices.png)

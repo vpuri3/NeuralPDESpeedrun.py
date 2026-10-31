@@ -13,7 +13,7 @@ the domain 4 times while decaying like exp(-gamma t / 2).
 Output: u on the tensor grid t = linspace(0, 4, 801) x x = linspace(0, 1, 1001); shape (1, 801, 1001).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference_snapshots](figures/reference_snapshots.png)

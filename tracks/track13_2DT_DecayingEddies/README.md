@@ -13,7 +13,7 @@ Output: (u, v) on the 128 x 128 grid x_i = y_i = 2 pi i / 128 at the 11 times t 
 shape (2, 11, 128, 128).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)
@@ -26,11 +26,11 @@ closed form (Walsh 1992)
 
 ## Records
 
-Current record: **0.1713 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
+Current record: **0.1506 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
 
 | date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.1713 | 2.05e-15 | 3.82e-15 | yes | NVIDIA H100 80GB HBM3 |
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.1506 | 1.93e-15 | 3.75e-15 | yes | NVIDIA H100 80GB HBM3 |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

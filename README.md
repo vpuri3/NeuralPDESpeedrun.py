@@ -111,6 +111,8 @@ Notes:
 - Learning need not happen on the evaluation points: `query` projects onto them, an array of shape
   `problem.out_shape = (n_fields, len(axis_0), ...)` on the tensor grid of `problem.axes` (`indexing="ij"`).
 - `--budget-s` on `speedrun.run` overrides the budget for development runs; records use the track's budget.
+  `--no-impose-budget` lifts it entirely (`solve` runs until it returns by itself), for studies; such
+  results cannot be recorded.
 
 `Problem` holds the statement and `params`, IC/BC/forcing/coefficient callables (`fns`; array-API, so they take
 torch tensors or JAX arrays; on tracks whose initial state is only known as data, `fns["ic"]` holds it as

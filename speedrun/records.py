@@ -44,6 +44,8 @@ def add_entry(track: str, result_json: str, name: str, kind: str, author: str = 
     track = resolve(track)
     r = json.loads(Path(result_json).read_text())
     assert r["track"] == track, f"{result_json} is a {r['track']} result, not {track}"
+    if not r.get("impose_budget", True):
+        raise ValueError(f"{result_json} ran without the budget (--no-impose-budget): not a record")
     entry = {"date": date or r["date"][:10], "author": author, "name": name, "submission": r["submission"],
              "time_s": r["time_s"], "solve_time_s": r.get("solve_time_s", r["time_s"]),
              "query_time_s": r.get("query_time_s", 0.0), "rel_l2": r["rel_l2"], "linf": r["linf"],

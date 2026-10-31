@@ -11,7 +11,7 @@ Output: u on the prescribed grid x_j = 2 j / 1024, j = 0..1023, at the 500 snaps
 t = linspace(0, 0.5, 500); shape (1, 500, 1024).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference_snapshots](figures/reference_snapshots.png)

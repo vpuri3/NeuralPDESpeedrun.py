@@ -220,7 +220,7 @@ def write_readme(track: str) -> Path:
     meta_p = d / "reference" / "meta.json"
     meta = json.loads(meta_p.read_text()) if meta_p.exists() else {}
     recs = load_records(track)
-    bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, RelL∞ ≤ {p.rel_linf_tol:g} (per field)"
+    bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, RelL∞ ≤ {p.rel_linf_tol:g}"
     if p.linf_margin > 0:
         bar += f" (RelL∞ only at points ≥ {p.linf_margin:g} from the walls)"
     bar += f". **Budget:** {p.budget_s:g} s of wall-clock solve time"

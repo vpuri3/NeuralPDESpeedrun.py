@@ -5,7 +5,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 ## 1. Status (2026-10-30)
 
-- Harness: default bar RelL2 ≤ 0.5%, RelL∞ ≤ 1%, per field (overridable per track; until 2026-10-30:
+- Harness: default bar RelL2 ≤ 0.5%, RelL∞ ≤ 1% over all fields flattened (overridable per track; until 2026-10-30:
   RelL2 ≤ 1e-4, absolute L∞ ≤ 1e-3, which TF32 training cannot reach); API `setup(problem) -> state`
   (untimed), `solve(problem, state, checkpoint)` (timed; loops as long as it likes and calls `checkpoint(state)`
   every few iterations; the harness interrupts it once the track's wall-clock budget, `Problem.budget_s`,

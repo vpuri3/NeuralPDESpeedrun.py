@@ -12,7 +12,7 @@ period is ~ (3 - 2 ln 2) mu ~ 1614, so [0, 3000] covers almost two periods.
 Output: y at the 3001 times t = linspace(0, 3000, 3001); shape (1, 3001).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 

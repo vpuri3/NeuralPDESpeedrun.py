@@ -35,11 +35,11 @@ can be named in full (`track03_1DT_Burgers`) or by key (`03`).
 ## Scoring
 
 Score = wall-clock time of `solve` + `query`, provided the output meets the track's
-accuracy bar against the reference. Both errors are relative and taken per field, over all evaluation points;
-the worst field counts:
+accuracy bar against the reference. All fields and evaluation points are flattened into one vector u
+(`(n_fields, ...)` → `(n_fields · N,)`), and both errors are relative to the reference vector:
 
-- **RelL2** `max_k ‖u_k − u_ref,k‖₂ / ‖u_ref,k‖₂ ≤ 0.5%`
-- **RelL∞** `max_k max |u_k − u_ref,k| / max |u_ref,k| ≤ 1%`
+- **RelL2** `‖u − u_ref‖₂ / ‖u_ref‖₂ ≤ 0.5%`
+- **RelL∞** `max |u − u_ref| / max |u_ref| ≤ 1%`
 
 Tracks may loosen the bar (chaotic and turbulent tracks do) or exclude a wall margin from RelL∞. Pressure is never scored. Each track has a
 wall-clock budget for the solve (`problem.budget_s`, 1000 s unless the track says otherwise), enforced by the

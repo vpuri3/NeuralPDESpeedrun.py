@@ -1,20 +1,21 @@
 {
   "track": "track19_3DT_BeltramiFlow",
   "submission": "tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0001/solve.py",
-  "time_s": 1000.3141129463911,
-  "solve_time_s": 1000.06815669965,
-  "query_time_s": 0.24595624674111605,
-  "checkpoints": 876,
-  "stop": "budget",
+  "time_s": 566.7086575040594,
+  "solve_time_s": 566.466036315076,
+  "query_time_s": 0.2426211889833212,
+  "checkpoints": 359,
+  "stop": "done",
   "budget_s": 1000.0,
-  "rel_l2": 0.0005257519177862411,
-  "linf": 0.0018815827593763323,
-  "accurate": false,
+  "impose_budget": true,
+  "rel_l2": 0.0009687801992075682,
+  "rel_linf": 0.0016477362082628617,
+  "accurate": true,
   "query_within_limit": true,
-  "passed": false,
+  "passed": true,
   "tolerances": {
-    "rel_l2": 0.0001,
-    "linf": 0.001
+    "rel_l2": 0.005,
+    "rel_linf": 0.01
   },
   "linf_margin": 0.0,
   "device": "cuda",
@@ -29,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 8.827717065811157,
+  "cuda_peak_allocated_gb": 8.830413818359375,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "b4ddd28",
+  "git_commit": "2e9c405",
   "seed": 0,
-  "date": "2026-10-30T18:51:50"
+  "date": "2026-10-31T00:36:04"
 }

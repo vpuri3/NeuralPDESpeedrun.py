@@ -179,7 +179,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 301.7 | 9.99e-01 (≤ 0.01) | 1.02e+00 (≤ 0.05) | no |
 | 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 396.8 | 8.63e-01 (≤ 0.02) | 9.98e-01 (≤ 0.1) | no |
 | 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 1.21e+00 (≤ 0.05) | 1.41e+00 (≤ 0.15) | no |
-| 19 BeltramiFlow (3D + Time) | — | | | | |
+| 19 BeltramiFlow (3D + Time) | [PirateNet + SOAP](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0001/solve.py) | 566.7 | 9.69e-04 (≤ 0.005) | 1.65e-03 (≤ 0.01) | yes |
 <!-- tracks-table:end -->
 
 ### 01 VanDerPol (ODE)

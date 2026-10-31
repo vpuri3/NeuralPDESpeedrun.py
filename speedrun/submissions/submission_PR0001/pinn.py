@@ -5,6 +5,7 @@ authors' reference implementation (github.com/PredictiveIntelligenceLab/jaxpi, b
 - PirateNet as in `jaxpi.archs`: per-point network on raw coordinates; period embeddings (cos, sin)(w x) of
   periodic inputs, w = 2 pi / L; trainable random Fourier features; weight-factorized dense layers
   (W = g * V, log g ~ N(1, 0.1)); gated residual blocks whose skip weights alpha start at 0 (identity at init).
+- Full float32 matmuls (jaxpi's setting; JAX defaults to TF32 on H100).
 - SOAP from `soap_jax` (github.com/haydn-jones/SOAP_JAX, the implementation jaxpi uses) with jaxpi's settings:
   b1 = 0.9, b2 = 0.999, precondition_frequency = 2, no weight decay, eps = 1e-8. Learning rate: linear warmup
   then exponential decay (optax), as `jaxpi.models._create_optimizer`.
@@ -42,6 +43,10 @@ import optax  # noqa: E402
 from flax import linen as nn  # noqa: E402
 from jax.nn.initializers import constant, glorot_normal, normal, zeros  # noqa: E402
 from soap_jax import soap  # noqa: E402
+
+# Full float32 matmuls, as every jaxpi example sets: JAX's default on H100 is TF32 (~5e-4 relative rounding),
+# which caps the accuracy of the residual's derivatives (KdV: RelL2 ~1e-3 vs ~1e-4 in float32).
+jax.config.update("jax_default_matmul_precision", "highest")
 
 CHUNK = 50           # training iterations per jitted call; checkpoint after each
 
@@ -129,6 +134,7 @@ class Config:
     hidden_dim: int = 256
     embed_scale: float = 1.0
     lr: float = 1e-3
+    b1: float = 0.9               # SOAP's beta1 (jaxpi configs: 0.9; the SOAP paper's Table 6: 0.99)
     warmup_steps: int = 5000
     decay_steps: int = 2000
     decay_rate: float = 0.9
@@ -141,7 +147,9 @@ class Config:
     pi_init: bool = False
     pi_init_times: int = 20       # IC tiled over this many times for the least-squares fit
     pi_init_points: int = 40_000  # at most this many rows in it
-    plateau_s: float = 150.0      # stop when the loss has not improved by 2% for max(plateau_s, elapsed / 4)
+    plateau_s: float | None = 150.0   # stop when the loss has not improved by 2% for max(plateau_s, elapsed / 4)
+    max_steps: int | None = None  # stop after this many iterations (None: train until stopped)
+    tx: Callable | None = None    # optimizer factory tx(lr schedule, cfg) replacing soap_jax's SOAP
 
 
 def schedule(cfg: Config):
@@ -202,7 +210,8 @@ class PINN:
                              pi_init=cfg.pi_init and ic_data is not None)
         self.ic_data = ic_data
         self.loss_fn = lambda params, key: losses(self, params, key)
-        self.tx = soap(learning_rate=schedule(cfg), b1=0.9, b2=0.999, weight_decay=0.0, precondition_frequency=2)
+        self.tx = (cfg.tx(schedule(cfg), cfg) if cfg.tx is not None else
+                   soap(learning_rate=schedule(cfg), b1=cfg.b1, b2=0.999, weight_decay=0.0, precondition_frequency=2))
         self.M = jnp.triu(jnp.ones((cfg.num_chunks, cfg.num_chunks)), k=1).T
         self.axes = [to_jax(problem.axes[k]) for k in problem.axes]
         self.history: list[tuple[float, int, float]] = []
@@ -342,6 +351,12 @@ class PINN:
             self.params, self.opt_state, self.key, raw = self.chunk_c(self.params, self.opt_state, self.weights,
                                                                        self.key)
             self.iters += CHUNK
+            if self.cfg.max_steps is not None and self.iters >= self.cfg.max_steps:
+                if math.isfinite(float(raw)):
+                    last = self.params
+                    checkpoint((self, last))
+                self.stop_reason = f"max_steps ({self.iters} iterations)"
+                return last
             if pending is not None:
                 params, loss = pending[0], float(pending[1])
                 el = time.perf_counter() - t0
@@ -356,7 +371,8 @@ class PINN:
                 if loss < 1e-10:
                     self.stop_reason = "loss < 1e-10"
                     return params
-                if el - best_t > max(self.cfg.plateau_s, 0.25 * el) and el > 2 * self.cfg.plateau_s:
+                if (self.cfg.plateau_s is not None and el - best_t > max(self.cfg.plateau_s, 0.25 * el)
+                        and el > 2 * self.cfg.plateau_s):
                     self.stop_reason = f"plateau (no 2% improvement in {el - best_t:.0f} s)"
                     return params
             pending = (self.params, raw)

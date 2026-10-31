@@ -208,6 +208,8 @@ def plot_activity(track: str) -> Path | None:
         status = f"record {best:.4g} s"
     else:
         status = "no submission meets the bar yet"
+    pad = dt.timedelta(days=15)
+    ax.set_xlim(min(dates) - pad, max(max(dates), dt.date.today()) + pad)
     ax.set_yscale("log")
     ax.set_ylabel("wall-clock time [s] (solve + query)")
     ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)}): {status}  (hollow = misses the bar)", fontsize=9)

@@ -159,7 +159,7 @@ Each track below shows its reference solution (animation where time-dependent) a
 its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 
 <!-- tracks-table:begin -->
-| track | best submission | time [s] | RelL2 | RelL∞ | bar met |
+| track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
 | 01 VanDerPol (ODE) | — | | | | |
 | 02 DampedWave (1D + Time) | — | | | | |

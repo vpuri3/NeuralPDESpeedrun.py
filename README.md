@@ -41,7 +41,7 @@ accuracy bar against the reference. All fields and evaluation points are flatten
 - **RelL2** `‖u − u_ref‖₂ / ‖u_ref‖₂ ≤ 0.5%`
 - **RelL∞** `max |u − u_ref| / max |u_ref| ≤ 1%`
 
-Tracks may loosen the bar (chaotic and turbulent tracks do) or exclude a wall margin from RelL∞. Pressure is never scored. Each track has a
+The bar is the same on every track; a track may exclude a wall margin from RelL∞. Pressure is never scored. Each track has a
 wall-clock budget for the solve (`problem.budget_s`, 1000 s unless the track says otherwise), enforced by the
 harness: once it is used up, the harness interrupts `solve` and scores what `query` returns for the last
 checkpointed state.
@@ -214,7 +214,7 @@ t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 
 ### 04 KuramotoSivashinsky (1D + Time)
 `u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
-the initial state is given as samples. Output: 250 t × 512 x. **Bar: RelL2 ≤ 5%, RelL∞ ≤ 15%.** Reference: published data.
+the initial state is given as samples. Output: 250 t × 512 x. Reference: published data.
 
 <img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.png" width="100%" alt="04 reference">
 
@@ -267,7 +267,7 @@ whole boundary. Output: (u, v) on 251 × 201. Reference: closed form.
 
 ### 11 LidDrivenCavity (2D)
 Steady NS, Re = 5000, in [0, 1]², lid `u = 1 − cosh(50(x − 0.5))/cosh(25)` on y = 1, no-slip elsewhere. Output: (u, v)
-on 256². **Bar: RelL2 ≤ 5%, RelL∞ ≤ 10% at points ≥ 0.05 from the walls.** Reference: published data.
+on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: published data.
 
 <img src="tracks/track11_2D_LidDrivenCavity/figures/reference.png" width="100%" alt="11 reference">
 
@@ -304,7 +304,7 @@ state given as samples. Output: (u, v) at 100 t × 200². Reference: published d
 
 ### 16 GinzburgLandau (2D + Time)
 Complex Ginzburg–Landau for A = u + iv, ε = 0.004, k = 10, on [−1, 1]² periodic, t ∈ [0, 1], initial state given as
-samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1%, RelL∞ ≤ 5%.** Reference: published data.
+samples. Output: (u, v) at 100 t × 200². Reference: published data.
 
 <img src="tracks/track16_2DT_GinzburgLandau/figures/reference.png" width="100%" alt="16 reference">
 
@@ -312,7 +312,7 @@ samples. Output: (u, v) at 100 t × 200². **Bar: RelL2 ≤ 1%, RelL∞ ≤ 5%.*
 
 ### 17 RayleighTaylor (2D + Time)
 Boussinesq Rayleigh–Taylor instability, Ra = 1e6, Pr = 0.71, on [0, 1] × [0, 2], t ∈ [0, 8.5], initial state given as
-samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. **Bar: RelL2 ≤ 2%, RelL∞ ≤ 10%.** Reference: published data.
+samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. Reference: published data.
 
 <img src="tracks/track17_2DT_RayleighTaylor/figures/reference.png" width="100%" alt="17 reference">
 
@@ -320,7 +320,7 @@ samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. **Bar: RelL2 ≤ 2%, Re
 
 ### 18 KolmogorovFlow (2D + Time)
 Forced 2D NS, Re = 1e4, forcing `2 sin(4πy)` in x, on [0, 1)² periodic, t ∈ [0, 1.96], initial state given as
-samples; turbulent. Output: (u, v) at 49 t × 256². **Bar: RelL2 ≤ 5%, RelL∞ ≤ 15%.** Reference: published data.
+samples; turbulent. Output: (u, v) at 49 t × 256². Reference: published data.
 
 <img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.png" width="100%" alt="18 reference">
 

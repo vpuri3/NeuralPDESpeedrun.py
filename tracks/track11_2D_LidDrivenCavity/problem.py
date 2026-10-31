@@ -44,8 +44,6 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         periodic={"x": False, "y": False},
         params={"Re": RE, "nu": 1.0 / RE},
         fns={"u_bc": u_bc, "v_bc": v_bc},
-        rel_l2_tol=5e-2,
-        rel_linf_tol=1e-1,
         linf_margin=0.05,
         device=device,
         dtype=dtype,

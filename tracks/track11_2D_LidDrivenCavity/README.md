@@ -13,7 +13,7 @@ Pressure is not scored. RelL-inf is scored only at points >= 0.05 from the walls
 Output: (u, v) on the 256 x 256 grid x, y = linspace(0, 1, 256); shape (2, 256, 256).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.05, RelL∞ ≤ 0.1 (RelL∞ only at points ≥ 0.05 from the walls). **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (RelL∞ only at points ≥ 0.05 from the walls). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 

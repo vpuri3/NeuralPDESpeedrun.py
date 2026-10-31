@@ -13,7 +13,7 @@ Output: (u, v) at t_k = 0.04 k, k = 1..49, on the 256 x 256 grid of cell centers
 shape (2, 49, 256, 256). Pressure is not scored.
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.05, RelL∞ ≤ 0.15. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)

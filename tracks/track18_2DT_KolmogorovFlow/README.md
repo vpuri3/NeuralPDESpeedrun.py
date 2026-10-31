@@ -32,3 +32,5 @@ Current record: **1001 s** (PirateNet + SOAP, maintainers, 2026-10-31, NVIDIA H1
 | 2026-10-31 | maintainers | PirateNet + SOAP | neural | 1001 | 1.21e+00 | 1.41e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

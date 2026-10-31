@@ -25,13 +25,10 @@ Radau IIA (scipy), rtol 1e-12, atol 1e-14, analytic Jacobian
 
 ## Records
 
-Current record: **0.02411 s** (record #0: classical baseline, maintainers, 2026-10-30, CPU (Intel(R) Xeon(R) Platinum 8481C CPU @ 2.70GHz)).
+Current record: **300.4 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
 
 | date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-30 | maintainers | PirateNet + SOAP | neural | 300.4 | 1.14e+00 | 1.75e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.02411 | 8.65e-07 | 2.68e-05 | yes | CPU (Intel(R) Xeon(R) Platinum 8481C CPU @ 2.70GHz) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
-
-![activity](figures/activity.png)

@@ -62,7 +62,8 @@ checkpointed state.
    where it computes: torch ops are counted by device, JAX by the device of its arrays. Other work (Julia,
    custom kernels) is checked by the maintainers.
 6. **Official times** are maintainer re-timings on one H100 80GB. Record #0 on each track is an honest but
-   deliberately unoptimized classical baseline.
+   deliberately unoptimized classical baseline; it is kept in `records.json` but, for now, left out of the
+   plots and record tables (`SHOW_CLASSICAL` in `speedrun/records.py`).
 
 ## Submission API
 
@@ -147,8 +148,7 @@ Results that miss the bar stay as points on the track's accuracy-vs-time plot, b
 
 The table lists the best submission on each track. Until some submission meets the track's accuracy bar, the
 best is the most accurate one (lowest RelL2); once the bar is met, it is the fastest one that meets it. Classical
-baselines (record #0, where a track has one) are reference points listed in each `tracks/<track>/README.md`, not
-in this table. Times are pending H100 re-timing. Tracks 04, 05, 06, 11 and 15–18 are the benchmarks of the
+baselines (record #0) are not shown, here or in the per-track plots and tables. Tracks 04, 05, 06, 11 and 15–18 are the benchmarks of the
 PirateNet / SOAP-for-PINNs study (Wang et al.); their references are the published solutions
 (`speedrun/external.py`).
 

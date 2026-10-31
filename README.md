@@ -189,7 +189,8 @@ IIA, rtol 1e-12.
 
 <img src="tracks/track01_0DT_VanDerPol/figures/reference.png" width="100%" alt="01 reference">
 
-<img src="tracks/track01_0DT_VanDerPol/figures/accuracy_vs_time.png" width="100%" alt="01 accuracy_vs_time">
+<!-- figures:01:begin -->
+<!-- figures:01:end -->
 
 ### 02 DampedWave (1D + Time)
 `u_tt = u_xx − 0.5 u_t` on (t, x) ∈ [0, 4] × [0, 1], `u = 0` at x = 0, 1, a narrow Gaussian pulse
@@ -200,7 +201,8 @@ off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-for
 
 <img src="tracks/track02_1DT_DampedWave/figures/reference.gif" width="100%" alt="02 reference">
 
-<img src="tracks/track02_1DT_DampedWave/figures/accuracy_vs_time.png" width="100%" alt="02 accuracy_vs_time">
+<!-- figures:02:begin -->
+<!-- figures:02:end -->
 
 ### 03 Burgers (1D + Time)
 `u_t + u u_x = ν u_xx`, ν = 1e-4, periodic x ∈ [0, 2), t ∈ [0, 0.5], smooth bump IC steepening toward a shock at
@@ -210,7 +212,8 @@ t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
 
 <img src="tracks/track03_1DT_Burgers/figures/reference.gif" width="100%" alt="03 reference">
 
-<img src="tracks/track03_1DT_Burgers/figures/accuracy_vs_time.png" width="100%" alt="03 accuracy_vs_time">
+<!-- figures:03:begin -->
+<!-- figures:03:end -->
 
 ### 04 KuramotoSivashinsky (1D + Time)
 `u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
@@ -220,6 +223,9 @@ the initial state is given as samples. Output: 250 t × 512 x. Reference: publis
 
 <img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="04 reference">
 
+<!-- figures:04:begin -->
+<!-- figures:04:end -->
+
 ### 05 AllenCahn (1D + Time)
 `u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.
 Reference: published data.
@@ -227,6 +233,9 @@ Reference: published data.
 <img src="tracks/track05_1DT_AllenCahn/figures/reference.png" width="100%" alt="05 reference">
 
 <img src="tracks/track05_1DT_AllenCahn/figures/reference.gif" width="100%" alt="05 reference">
+
+<!-- figures:05:begin -->
+<!-- figures:05:end -->
 
 ### 06 KdV (1D + Time)
 `u_t + u u_x + 0.022² u_xxx = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = cos(πx)`; the cosine breaks into
@@ -236,6 +245,9 @@ solitons. Output: 200 t × 512 x. Reference: published data.
 
 <img src="tracks/track06_1DT_KdV/figures/reference.gif" width="100%" alt="06 reference">
 
+<!-- figures:06:begin -->
+<!-- figures:06:end -->
+
 ### 07 HighContrastDiffusion (2D)
 `−∇·(a∇u) = 18` on [0, 1]², `u = 0` on the boundary, `a = 1e3` in a 3 × 3 array of square inclusions, 1
 elsewhere. The inclusion corners make u singular (~ρ^(2/3)). Output: 256² cell centers. Reference: FV on 3840²
@@ -243,11 +255,15 @@ and 5376², Richardson-extrapolated at the measured order 1.34.
 
 <img src="tracks/track07_2D_HighContrastDiffusion/figures/reference.png" width="100%" alt="07 reference">
 
-<img src="tracks/track07_2D_HighContrastDiffusion/figures/accuracy_vs_time.png" width="100%" alt="07 accuracy_vs_time">
+<!-- figures:07:begin -->
+<!-- figures:07:end -->
 
 ### 08 Helmholtz (2D): on hold
 The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
 PML, or impedance BC) first.
+
+<!-- figures:08:begin -->
+<!-- figures:08:end -->
 
 ### 09 AdvectionDiffusion (2D)
 `−ε Δu + u_x + u_y = f` on [0, 1]², ε = 1e-3, `u = 0` on the boundary, with boundary layers of width ε at x = 1
@@ -255,7 +271,8 @@ and y = 1. Output: 257² Chebyshev–Lobatto grid. Reference: closed form (f was
 
 <img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="100%" alt="09 reference">
 
-<img src="tracks/track09_2D_AdvectionDiffusion/figures/accuracy_vs_time.png" width="100%" alt="09 accuracy_vs_time">
+<!-- figures:09:begin -->
+<!-- figures:09:end -->
 
 ### 10 Kovasznay (2D)
 Steady incompressible NS, Re = 40, on [−0.5, 2] × [−0.5, 1.5], with the Kovasznay velocity as Dirichlet data on the
@@ -263,13 +280,17 @@ whole boundary. Output: (u, v) on 251 × 201. Reference: closed form.
 
 <img src="tracks/track10_2D_Kovasznay/figures/reference.png" width="100%" alt="10 reference">
 
-<img src="tracks/track10_2D_Kovasznay/figures/accuracy_vs_time.png" width="100%" alt="10 accuracy_vs_time">
+<!-- figures:10:begin -->
+<!-- figures:10:end -->
 
 ### 11 LidDrivenCavity (2D)
 Steady NS, Re = 5000, in [0, 1]², lid `u = 1 − cosh(50(x − 0.5))/cosh(25)` on y = 1, no-slip elsewhere. Output: (u, v)
 on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: published data.
 
 <img src="tracks/track11_2D_LidDrivenCavity/figures/reference.png" width="100%" alt="11 reference">
+
+<!-- figures:11:begin -->
+<!-- figures:11:end -->
 
 ### 12 Burgers (2D + Time)
 `u_t + (u·∇)u = ν Δu`, ν = 1e-3, periodic [−0.25, 0.75)², t ∈ [0, 0.5], `u = v = sin(2πx) sin(2πy)` on [0, 0.5]²,
@@ -279,7 +300,8 @@ on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: publis
 
 <img src="tracks/track12_2DT_Burgers/figures/reference.gif" width="100%" alt="12 reference">
 
-<img src="tracks/track12_2DT_Burgers/figures/accuracy_vs_time.png" width="100%" alt="12 accuracy_vs_time">
+<!-- figures:12:begin -->
+<!-- figures:12:end -->
 
 ### 13 DecayingEddies (2D + Time)
 Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,
@@ -289,10 +311,14 @@ Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + co
 
 <img src="tracks/track13_2DT_DecayingEddies/figures/reference.gif" width="100%" alt="13 reference">
 
-<img src="tracks/track13_2DT_DecayingEddies/figures/accuracy_vs_time.png" width="100%" alt="13 accuracy_vs_time">
+<!-- figures:13:begin -->
+<!-- figures:13:end -->
 
 ### 14 CylinderFlow (2D + Time): TODO
 Flow past a cylinder; see `tracks/track14_2DT_CylinderFlow/TODO.md`.
+
+<!-- figures:14:begin -->
+<!-- figures:14:end -->
 
 ### 15 GreyScott (2D + Time)
 `u_t = 0.2 Δu + 40(1 − u) − 1000 u v²`, `v_t = 0.1 Δv − 100 v + 1000 u v²` on [−1, 1]² periodic, t ∈ [0, 2], initial
@@ -302,6 +328,9 @@ state given as samples. Output: (u, v) at 100 t × 200². Reference: published d
 
 <img src="tracks/track15_2DT_GreyScott/figures/reference.gif" width="100%" alt="15 reference">
 
+<!-- figures:15:begin -->
+<!-- figures:15:end -->
+
 ### 16 GinzburgLandau (2D + Time)
 Complex Ginzburg–Landau for A = u + iv, ε = 0.004, k = 10, on [−1, 1]² periodic, t ∈ [0, 1], initial state given as
 samples. Output: (u, v) at 100 t × 200². Reference: published data.
@@ -309,6 +338,9 @@ samples. Output: (u, v) at 100 t × 200². Reference: published data.
 <img src="tracks/track16_2DT_GinzburgLandau/figures/reference.png" width="100%" alt="16 reference">
 
 <img src="tracks/track16_2DT_GinzburgLandau/figures/reference.gif" width="100%" alt="16 reference">
+
+<!-- figures:16:begin -->
+<!-- figures:16:end -->
 
 ### 17 RayleighTaylor (2D + Time)
 Boussinesq Rayleigh–Taylor instability, Ra = 1e6, Pr = 0.71, on [0, 1] × [0, 2], t ∈ [0, 8.5], initial state given as
@@ -318,6 +350,9 @@ samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. Reference: published da
 
 <img src="tracks/track17_2DT_RayleighTaylor/figures/reference.gif" width="100%" alt="17 reference">
 
+<!-- figures:17:begin -->
+<!-- figures:17:end -->
+
 ### 18 KolmogorovFlow (2D + Time)
 Forced 2D NS, Re = 1e4, forcing `2 sin(4πy)` in x, on [0, 1)² periodic, t ∈ [0, 1.96], initial state given as
 samples; turbulent. Output: (u, v) at 49 t × 256². Reference: published data.
@@ -326,12 +361,18 @@ samples; turbulent. Output: (u, v) at 49 t × 256². Reference: published data.
 
 <img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.gif" width="100%" alt="18 reference">
 
+<!-- figures:18:begin -->
+<!-- figures:18:end -->
+
 ### 19 BeltramiFlow (3D + Time)
 3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1]: the Ethier–Steinman Beltrami flow (a = d = 1). Initial and
 Dirichlet velocity on all six faces come from the exact solution. Output: (u, v, w) at t = 0.25, 0.5, 0.75, 1 on 33³.
 Reference: closed form.
 
 <img src="tracks/track19_3DT_BeltramiFlow/figures/reference.png" width="100%" alt="19 reference">
+
+<!-- figures:19:begin -->
+<!-- figures:19:end -->
 
 ## Layout
 

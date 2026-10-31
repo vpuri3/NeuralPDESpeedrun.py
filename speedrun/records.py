@@ -95,7 +95,9 @@ STATUS = {"track08_2D_Helmholtz": "*on hold*", "track14_2DT_CylinderFlow": "*TOD
 def tracks_table() -> str:
     """Main-README table: best submission per track (see best_submission), its time and accuracy."""
     from .tracks import load_problem
-    lines = ["| track | best submission | time [s] | RelL2 | RelL∞ | bar met |", "|---|---|---|---|---|---|"]
+    from .metrics import REL_L2_TOL, REL_LINF_TOL
+    lines = [f"| track | best submission | time [s] | RelL2 (≤ {100 * REL_L2_TOL:g}%) | RelL∞ (≤ {100 * REL_LINF_TOL:g}%) "
+             "| bar met |", "|---|---|---|---|---|---|"]
     for t in TRACKS:
         label = f"{key(t)} {name(t)} ({dim_label(t)})"
         if t in STATUS or not (track_dir(t) / "problem.py").exists():
@@ -106,9 +108,10 @@ def tracks_table() -> str:
             lines.append(f"| {label} | — | | | | |")
             continue
         p = load_problem(t)
+        assert (p.rel_l2_tol, p.rel_linf_tol) == (REL_L2_TOL, REL_LINF_TOL), f"{t}: the bar is the same on every track"
         link = f"[{b['name']}]({b['submission']})" if b.get("submission") else b["name"]
-        lines.append(f"| {label} | {link} | {b['time_s']:.4g} | {b['rel_l2']:.2e} (≤ {p.rel_l2_tol:g}) | "
-                     f"{b['rel_linf']:.2e} (≤ {p.rel_linf_tol:g}) | {'yes' if b.get('passed') else 'no'} |")
+        lines.append(f"| {label} | {link} | {b['time_s']:.4g} | {100 * b['rel_l2']:.3g}% | {100 * b['rel_linf']:.3g}% "
+                     f"| {'yes' if b.get('passed') else 'no'} |")
     return "\n".join(lines)
 
 

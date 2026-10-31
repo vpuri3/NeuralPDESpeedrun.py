@@ -159,7 +159,7 @@ Each track below shows its reference solution (animation where time-dependent) a
 its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 
 <!-- tracks-table:begin -->
-| track | best submission | time [s] | RelL2 | RelL∞ | bar met |
+| track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
 | 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 1.14e+00 (≤ 0.005) | 1.75e+00 (≤ 0.01) | no |
 | 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43e-02 (≤ 0.005) | 8.14e-03 (≤ 0.01) | no |

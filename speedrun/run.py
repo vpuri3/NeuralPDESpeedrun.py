@@ -38,6 +38,7 @@ import argparse
 import datetime as dt
 import importlib.util
 import json
+import math
 import os
 import platform
 import inspect
@@ -73,8 +74,8 @@ class Checkpoint:
     """The `checkpoint` callable handed to `solve`: checkpoint(state) makes `state` the current answer and raises
     BudgetExceeded once the budget is used up."""
 
-    def __init__(self, budget_s: float):
-        self.deadline = time.perf_counter() + budget_s
+    def __init__(self, budget_s: float | None):
+        self.deadline = math.inf if budget_s is None else time.perf_counter() + budget_s
         self.state, self.count = None, 0
 
     def __call__(self, state):
@@ -174,13 +175,14 @@ def _alarm(signum, frame):
     raise BudgetExceeded
 
 
-def timed_solve(mod, problem, state, budget_s: float, device: str) -> tuple:
-    """The timed part of a run: `solve` until it returns or the budget is used up. Returns (state, number of
-    checkpoints, stop reason)."""
+def timed_solve(mod, problem, state, budget_s: float | None, device: str) -> tuple:
+    """The timed part of a run: `solve` until it returns or the budget is used up (budget_s = None: no budget,
+    `solve` must return by itself). Returns (state, number of checkpoints, stop reason)."""
     ck = Checkpoint(budget_s)
     args = (problem, state, ck) if _takes_checkpoint(mod.solve) else (problem, state)
     previous = signal.signal(signal.SIGALRM, _alarm)
-    signal.setitimer(signal.ITIMER_REAL, budget_s + ALARM_GRACE_S)
+    if budget_s is not None:
+        signal.setitimer(signal.ITIMER_REAL, budget_s + ALARM_GRACE_S)
     try:
         state, stop = mod.solve(*args), "done"
     except BudgetExceeded:
@@ -217,8 +219,9 @@ def submission_file(path: Path) -> Path:
 
 def run(track: str, submission: str | None = None, device: str | None = None, seed: int = 0,
         out: str | None = None, quiet: bool = False, device_check: bool = True,
-        budget_s: float | None = None) -> dict:
-    """budget_s overrides the track's budget (development runs only; official runs use problem.budget_s)."""
+        budget_s: float | None = None, impose_budget: bool = True) -> dict:
+    """budget_s overrides the track's budget; impose_budget=False runs `solve` until it returns by itself (both for
+    development and studies only: records use problem.budget_s)."""
     track = resolve(track)
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     sub_path = submission_file(Path(submission)) if submission else track_dir(track) / "baseline.py"
@@ -235,7 +238,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
     if device.startswith("cuda") and torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
-    budget_s = problem.budget_s if budget_s is None else budget_s
+    budget_s = (problem.budget_s if budget_s is None else budget_s) if impose_budget else None
     _sync(device)
     t0 = time.perf_counter()
     state, checkpoints, stop = timed_solve(mod, problem, state, budget_s, device)
@@ -280,6 +283,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         "checkpoints": checkpoints,
         "stop": stop,
         "budget_s": budget_s,
+        "impose_budget": impose_budget,
         "rel_l2": s["rel_l2"],
         "linf": s["linf"],
         "accurate": s["passed"],
@@ -320,9 +324,12 @@ def main():
     ap.add_argument("--no-device-check", action="store_true", help="skip the untimed op-device check")
     ap.add_argument("--budget-s", type=float, default=None,
                     help="override the track's wall-clock budget (development only, not for records)")
+    ap.add_argument("--impose-budget", action=argparse.BooleanOptionalAction, default=True,
+                    help="enforce the wall-clock budget (default); --no-impose-budget lets solve run until it "
+                         "returns by itself (studies only, not for records)")
     args = ap.parse_args()
     r = run(args.track, args.submission, args.device, args.seed, args.out, device_check=not args.no_device_check,
-            budget_s=args.budget_s)
+            budget_s=args.budget_s, impose_budget=args.impose_budget)
     sys.exit(0 if r["passed"] else 1)
 
 

@@ -21,6 +21,8 @@ from pathlib import Path
 from .tracks import TRACKS, dim_label, key, name, resolve, track_dir
 
 KIND_STYLE = {"classical": ("tab:gray", "s"), "neural": ("tab:blue", "o"), "hybrid": ("tab:purple", "D")}
+# Classical baselines (record #0) stay in records.json but are left out of the plots and the per-track tables.
+SHOW_CLASSICAL = False
 
 
 def records_path(track: str) -> Path:
@@ -62,6 +64,14 @@ def seed_baseline(track: str, result_json: str, date: str | None = None, author:
     r = json.loads(Path(result_json).read_text())
     assert r["passed"], f"{result_json}: the baseline does not pass"
     return add_entry(track, result_json, "record #0: classical baseline", "classical", author, date=date)
+
+
+def shown(recs: list[dict]) -> list[dict]:
+    return recs if SHOW_CLASSICAL else [r for r in recs if r.get("kind") != "classical"]
+
+
+def _drop(out: Path) -> None:
+    out.unlink(missing_ok=True)
 
 
 def passing(recs: list[dict]) -> list[dict]:
@@ -115,9 +125,10 @@ def plot_accuracy(track: str) -> Path | None:
     """RelL2 vs wall-clock time, one point per submission, the track's bar as a dashed line."""
     from .tracks import load_problem
     track = resolve(track)
-    recs = load_records(track)
+    recs = shown(load_records(track))
+    out = track_dir(track) / "figures" / "accuracy_vs_time.png"
     if not recs:
-        return None
+        return _drop(out)
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -141,7 +152,6 @@ def plot_accuracy(track: str) -> Path | None:
     ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)})  (hollow = misses the bar)", fontsize=9)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8, loc="best")
-    out = track_dir(track) / "figures" / "accuracy_vs_time.png"
     out.parent.mkdir(exist_ok=True)
     fig.savefig(out, dpi=120)
     plt.close(fig)
@@ -150,9 +160,10 @@ def plot_accuracy(track: str) -> Path | None:
 
 def plot_activity(track: str) -> Path | None:
     track = resolve(track)
-    recs = passing(load_records(track))
+    recs = passing(shown(load_records(track)))
+    out = track_dir(track) / "figures" / "activity.png"
     if not recs:
-        return None
+        return _drop(out)
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -179,7 +190,6 @@ def plot_activity(track: str) -> Path | None:
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="upper right", fontsize=8)
     fig.autofmt_xdate()
-    out = track_dir(track) / "figures" / "activity.png"
     out.parent.mkdir(exist_ok=True)
     fig.savefig(out, dpi=120)
     plt.close(fig)
@@ -219,7 +229,7 @@ def write_readme(track: str) -> Path:
     d = track_dir(track)
     meta_p = d / "reference" / "meta.json"
     meta = json.loads(meta_p.read_text()) if meta_p.exists() else {}
-    recs = load_records(track)
+    recs = shown(load_records(track))
     bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, RelL∞ ≤ {p.rel_linf_tol:g}"
     if p.linf_margin > 0:
         bar += f" (RelL∞ only at points ≥ {p.linf_margin:g} from the walls)"

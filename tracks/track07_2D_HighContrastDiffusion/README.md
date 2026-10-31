@@ -30,12 +30,4 @@ cell-centered FV + MG-PCG on 3840^2 and 5376^2 (213, 236 PCG its), Richardson-ex
 
 ## Records
 
-Current record: **1.92 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
-
-| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
-|---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 1.92 | 3.83e-05 | 1.58e-04 | yes | NVIDIA H100 80GB HBM3 |
-
-![accuracy_vs_time](figures/accuracy_vs_time.png)
-
-![activity](figures/activity.png)
+No records yet.

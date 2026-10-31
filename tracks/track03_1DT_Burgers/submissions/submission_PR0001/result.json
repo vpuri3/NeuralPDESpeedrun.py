@@ -1,20 +1,21 @@
 {
   "track": "track03_1DT_Burgers",
   "submission": "tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py",
-  "time_s": 1000.7948882561177,
-  "solve_time_s": 1000.5939897950739,
-  "query_time_s": 0.2008984610438347,
-  "checkpoints": 1157,
-  "stop": "budget",
+  "time_s": 655.5591517463326,
+  "solve_time_s": 655.3811710393056,
+  "query_time_s": 0.17798070702701807,
+  "checkpoints": 589,
+  "stop": "done",
   "budget_s": 1000.0,
-  "rel_l2": 0.00010416770863188071,
-  "linf": 0.005395943340667175,
-  "accurate": false,
+  "impose_budget": true,
+  "rel_l2": 1.4614128640513234e-05,
+  "rel_linf": 7.557180756040394e-05,
+  "accurate": true,
   "query_within_limit": true,
-  "passed": false,
+  "passed": true,
   "tolerances": {
-    "rel_l2": 0.0001,
-    "linf": 0.001
+    "rel_l2": 0.005,
+    "rel_linf": 0.01
   },
   "linf_margin": 0.0,
   "device": "cuda",
@@ -29,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 3.0895586013793945,
+  "cuda_peak_allocated_gb": 3.295417547225952,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "b4ddd28",
+  "git_commit": "e9acd57",
   "seed": 0,
-  "date": "2026-10-30T17:35:47"
+  "date": "2026-10-30T23:09:51"
 }

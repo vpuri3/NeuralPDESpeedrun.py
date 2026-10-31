@@ -170,10 +170,10 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 1.36e-01 (≤ 0.005) | 2.03e-01 (≤ 0.01) | no |
 | 08 Helmholtz (2D) | *on hold* | | | | |
 | 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 9.44e-01 (≤ 0.005) | 7.24e-01 (≤ 0.01) | no |
-| 10 Kovasznay (2D) | — | | | | |
-| 11 LidDrivenCavity (2D) | — | | | | |
-| 12 Burgers (2D + Time) | — | | | | |
-| 13 DecayingEddies (2D + Time) | — | | | | |
+| 10 Kovasznay (2D) | [PirateNet + SOAP](tracks/track10_2D_Kovasznay/submissions/submission_PR0001/solve.py) | 616.9 | 1.47e-04 (≤ 0.005) | 1.65e-04 (≤ 0.01) | yes |
+| 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 1.00e+00 (≤ 0.05) | 1.00e+00 (≤ 0.1) | no |
+| 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 7.35e-04 (≤ 0.005) | 7.92e-03 (≤ 0.01) | yes |
+| 13 DecayingEddies (2D + Time) | [PirateNet + SOAP](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py) | 1000 | 2.58e-03 (≤ 0.005) | 2.55e-03 (≤ 0.01) | yes |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
 | 15 GreyScott (2D + Time) | — | | | | |
 | 16 GinzburgLandau (2D + Time) | — | | | | |

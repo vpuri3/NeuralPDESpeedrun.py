@@ -15,5 +15,22 @@
     "pr": null,
     "stop": "done",
     "budget_s": 1000.0
+  },
+  {
+    "date": "2026-10-31",
+    "author": "maintainers",
+    "name": "PirateNet + SOAP",
+    "submission": "tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py",
+    "time_s": 1000.4396212762222,
+    "solve_time_s": 1000.200311454013,
+    "query_time_s": 0.2393098222091794,
+    "rel_l2": 0.002577752972151091,
+    "rel_linf": 0.0025499070929929646,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 1,
+    "stop": "budget",
+    "budget_s": 1000.0
   }
 ]

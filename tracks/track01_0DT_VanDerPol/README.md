@@ -12,7 +12,7 @@ period is ~ (3 - 2 ln 2) mu ~ 1614, so [0, 3000] covers almost two periods.
 Output: y at the 3001 times t = linspace(0, 3000, 3001); shape (1, 3001).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 
@@ -25,11 +25,11 @@ Radau IIA (scipy), rtol 1e-12, atol 1e-14, analytic Jacobian
 
 ## Records
 
-Current record: **0.03922 s** (record #0: classical baseline, maintainers, 2026-10-30, CPU (Intel(R) Core(TM) i9-7920X CPU @ 2.90GHz)).
+Current record: **0.02411 s** (record #0: classical baseline, maintainers, 2026-10-30, CPU (Intel(R) Xeon(R) Platinum 8481C CPU @ 2.70GHz)).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.03922 | 8.65e-07 | 5.37e-05 | yes | CPU (Intel(R) Core(TM) i9-7920X CPU @ 2.90GHz) |
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 0.02411 | 8.65e-07 | 2.68e-05 | yes | CPU (Intel(R) Xeon(R) Platinum 8481C CPU @ 2.70GHz) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

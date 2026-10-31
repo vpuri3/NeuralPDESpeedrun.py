@@ -4,14 +4,16 @@
     "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track01_0DT_VanDerPol/baseline.py",
-    "time_s": 0.03921722690574825,
-    "solve_time_s": 0.03921722690574825,
+    "time_s": 0.02410906832665205,
+    "solve_time_s": 0.02410906832665205,
     "query_time_s": 0.0,
     "rel_l2": 8.650492342093091e-07,
-    "linf": 5.366444772814116e-05,
+    "rel_linf": 2.683222386407058e-05,
     "passed": true,
-    "hardware": "CPU (Intel(R) Core(TM) i9-7920X CPU @ 2.90GHz)",
+    "hardware": "CPU (Intel(R) Xeon(R) Platinum 8481C CPU @ 2.70GHz)",
     "kind": "classical",
-    "pr": null
+    "pr": null,
+    "stop": "done",
+    "budget_s": 1000.0
   }
 ]

@@ -7,7 +7,7 @@ tracks/<t>/README.md, and seed record #0.
 A record entry is
     {"date": "YYYY-MM-DD", "author": ..., "name": ...,
      "submission": "tracks/<t>/baseline.py" | "tracks/<t>/submissions/submission_PR<NNNN>",
-     "time_s": ..., "rel_l2": ..., "linf": ..., "hardware": ..., "kind": "classical" | "neural" | "hybrid",
+     "time_s": ..., "rel_l2": ..., "rel_linf": ..., "hardware": ..., "kind": "classical" | "neural" | "hybrid",
      "pr": <PR number or null>}
 `time_s` is the official (maintainer, H100 80GB) time. Entries timed elsewhere say so in `hardware`.
 """
@@ -48,7 +48,7 @@ def add_entry(track: str, result_json: str, name: str, kind: str, author: str = 
         raise ValueError(f"{result_json} ran without the budget (--no-impose-budget): not a record")
     entry = {"date": date or r["date"][:10], "author": author, "name": name, "submission": r["submission"],
              "time_s": r["time_s"], "solve_time_s": r.get("solve_time_s", r["time_s"]),
-             "query_time_s": r.get("query_time_s", 0.0), "rel_l2": r["rel_l2"], "linf": r["linf"],
+             "query_time_s": r.get("query_time_s", 0.0), "rel_l2": r["rel_l2"], "rel_linf": r["rel_linf"],
              "passed": r["passed"], "hardware": r["hardware"], "kind": kind, "pr": pr}
     if "stop" in r:
         entry.update(stop=r["stop"], budget_s=r["budget_s"])
@@ -85,7 +85,7 @@ STATUS = {"track08_2D_Helmholtz": "*on hold*", "track14_2DT_CylinderFlow": "*TOD
 def tracks_table() -> str:
     """Main-README table: best submission per track (see best_submission), its time and accuracy."""
     from .tracks import load_problem
-    lines = ["| track | best submission | time [s] | RelL2 | L∞ | bar met |", "|---|---|---|---|---|---|"]
+    lines = ["| track | best submission | time [s] | RelL2 | RelL∞ | bar met |", "|---|---|---|---|---|---|"]
     for t in TRACKS:
         label = f"{key(t)} {name(t)} ({dim_label(t)})"
         if t in STATUS or not (track_dir(t) / "problem.py").exists():
@@ -98,7 +98,7 @@ def tracks_table() -> str:
         p = load_problem(t)
         link = f"[{b['name']}]({b['submission']})" if b.get("submission") else b["name"]
         lines.append(f"| {label} | {link} | {b['time_s']:.4g} | {b['rel_l2']:.2e} (≤ {p.rel_l2_tol:g}) | "
-                     f"{b['linf']:.2e} (≤ {p.linf_tol:g}) | {'yes' if b.get('passed') else 'no'} |")
+                     f"{b['rel_linf']:.2e} (≤ {p.rel_linf_tol:g}) | {'yes' if b.get('passed') else 'no'} |")
     return "\n".join(lines)
 
 
@@ -220,9 +220,9 @@ def write_readme(track: str) -> Path:
     meta_p = d / "reference" / "meta.json"
     meta = json.loads(meta_p.read_text()) if meta_p.exists() else {}
     recs = load_records(track)
-    bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, L∞ ≤ {p.linf_tol:g}"
+    bar = f"**Accuracy bar:** RelL2 ≤ {p.rel_l2_tol:g}, RelL∞ ≤ {p.rel_linf_tol:g} (per field)"
     if p.linf_margin > 0:
-        bar += f" (L∞ only at points ≥ {p.linf_margin:g} from the walls)"
+        bar += f" (RelL∞ only at points ≥ {p.linf_margin:g} from the walls)"
     bar += f". **Budget:** {p.budget_s:g} s of wall-clock solve time"
     lines = [f"# {key(track)} {name(track)} ({dim_label(track)}): {p.title}", "", "```text", p.statement.strip(), "```", "", bar + ".", ""]
     figs = sorted((d / "figures").glob("reference*.png")) + sorted((d / "figures").glob("reference*.gif"))
@@ -236,10 +236,10 @@ def write_readme(track: str) -> Path:
         best = min(passing(recs) or recs, key=lambda r: r["time_s"])
         lines += [f"Current record: **{best['time_s']:.4g} s** ({best['name']}, {best['author']}, {best['date']}, "
                   f"{best['hardware']}).", "",
-                  "| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |",
+                  "| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |",
                   "|---|---|---|---|---|---|---|---|---|"]
         lines += [f"| {r['date']} | {r['author']} | {r['name']} | {r['kind']} | {r['time_s']:.4g} | {r['rel_l2']:.2e} "
-                  f"| {r['linf']:.2e} | {'yes' if r.get('passed', True) else 'no'} | {r['hardware']} |" for r in recs]
+                  f"| {r['rel_linf']:.2e} | {'yes' if r.get('passed', True) else 'no'} | {r['hardware']} |" for r in recs]
         for fig in ("accuracy_vs_time", "activity"):
             if (d / "figures" / f"{fig}.png").exists():
                 lines += ["", f"![{fig}](figures/{fig}.png)"]

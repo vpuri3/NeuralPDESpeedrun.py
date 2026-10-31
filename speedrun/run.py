@@ -255,7 +255,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
 
     u = to_torch(u)
     ref = load_reference(track)  # loaded only after the timed solve
-    s = score(u, ref, problem.linf_mask(), problem.rel_l2_tol, problem.linf_tol)
+    s = score(u, ref, problem.linf_mask(), problem.rel_l2_tol, problem.rel_linf_tol)
     query_ok = query_s <= QUERY_LIMIT_S
 
     if device.startswith("cuda") and torch.cuda.is_available():
@@ -285,11 +285,11 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         "budget_s": budget_s,
         "impose_budget": impose_budget,
         "rel_l2": s["rel_l2"],
-        "linf": s["linf"],
+        "rel_linf": s["rel_linf"],
         "accurate": s["passed"],
         "query_within_limit": query_ok,
         "passed": s["passed"] and query_ok,
-        "tolerances": {"rel_l2": problem.rel_l2_tol, "linf": problem.linf_tol},
+        "tolerances": {"rel_l2": problem.rel_l2_tol, "rel_linf": problem.rel_linf_tol},
         "linf_margin": problem.linf_margin,
         "device": device,
         "hardware": hardware,
@@ -306,7 +306,7 @@ def run(track: str, submission: str | None = None, device: str | None = None, se
         q = f" (solve {solve_s:.4f} + query {query_s:.4f}{'' if query_ok else ' > limit'})" if query_s else ""
         q += f" [{checkpoints} checkpoints, stopped: {stop}]" if checkpoints or stop != "done" else ""
         print(f"[{track}] {status}  time={elapsed:.4f}s{q}  relL2={s['rel_l2']:.3e} (<= {problem.rel_l2_tol:g})  "
-              f"Linf={s['linf']:.3e} (<= {problem.linf_tol:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
+              f"relLinf={s['rel_linf']:.3e} (<= {problem.rel_linf_tol:g})  {mem_kind}={mem_gb:.3f}  on {result['hardware']}")
     if out:
         Path(out).parent.mkdir(parents=True, exist_ok=True)
         Path(out).write_text(json.dumps(result, indent=2) + "\n")

@@ -45,7 +45,7 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
              "v0": periodic_interp(d["v0"], lo, (1.0, 1.0), endpoint=False),
              "ic": {"x": d["x"], "y": d["y"], "u": d["u0"], "v": d["v0"]}},
         rel_l2_tol=5e-2,
-        linf_tol=5e-1,
+        rel_linf_tol=0.15,
         device=device,
         dtype=dtype,
     )

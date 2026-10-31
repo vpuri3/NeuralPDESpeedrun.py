@@ -4,14 +4,16 @@
     "author": "maintainers",
     "name": "record #0: classical baseline",
     "submission": "tracks/track02_1DT_DampedWave/baseline.py",
-    "time_s": 0.0028691240586340427,
-    "solve_time_s": 0.0028691240586340427,
+    "time_s": 0.05691768601536751,
+    "solve_time_s": 0.05691768601536751,
     "query_time_s": 0.0,
     "rel_l2": 8.027695672146336e-16,
-    "linf": 7.771561172376096e-16,
+    "rel_linf": 7.771561172376093e-16,
     "passed": true,
-    "hardware": "NVIDIA GeForce RTX 2080 Ti",
+    "hardware": "NVIDIA H100 80GB HBM3",
     "kind": "classical",
-    "pr": null
+    "pr": null,
+    "stop": "done",
+    "budget_s": 1000.0
   }
 ]

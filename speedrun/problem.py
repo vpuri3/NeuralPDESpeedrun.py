@@ -16,7 +16,7 @@ from typing import Callable
 
 import torch
 
-from .metrics import LINF_TOL, REL_L2_TOL
+from .metrics import REL_L2_TOL, REL_LINF_TOL
 
 BUDGET_S = 1000.0   # default wall-clock budget of the timed solve, enforced by the harness
 
@@ -46,8 +46,8 @@ class Problem:
     device: str = "cpu"
     dtype: torch.dtype = torch.float64
     rel_l2_tol: float = REL_L2_TOL  # accuracy bar of this track (default: the speedrun-wide one)
-    linf_tol: float = LINF_TOL
-    linf_margin: float = 0.0        # L-inf is not scored within this distance of the (x, y) domain boundary
+    rel_linf_tol: float = REL_LINF_TOL
+    linf_margin: float = 0.0        # RelL∞ is not scored within this distance of the (x, y) domain boundary
     budget_s: float = BUDGET_S      # the harness stops the timed solve once this much wall-clock time is used
 
     @property
@@ -68,7 +68,7 @@ class Problem:
         return bool(self.periodic.get(axis, False))
 
     def linf_mask(self) -> torch.Tensor | None:
-        """Boolean mask (broadcastable to out_shape) of the points where L-inf is scored, or None (all)."""
+        """Boolean mask (broadcastable to out_shape) of the points where RelL∞ is scored, or None (all)."""
         if self.linf_margin <= 0:
             return None
         names = self.axis_names

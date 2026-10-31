@@ -14,7 +14,7 @@ Output: (u, v, w) at t = 0.25, 0.5, 0.75, 1 on the 33^3 grid x, y, z = linspace(
 shape (3, 4, 33, 33, 33).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 

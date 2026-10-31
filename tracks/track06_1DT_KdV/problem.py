@@ -33,8 +33,6 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         periodic={"x": True},
         params={"delta": DELTA},
         fns={"u0": lambda x: xp_of(x).cos(math.pi * x)},
-        rel_l2_tol=1e-3,
-        linf_tol=1e-2,
         device=device,
         dtype=dtype,
     )

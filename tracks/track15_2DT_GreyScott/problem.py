@@ -35,8 +35,6 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         params={"b1": B1, "b2": B2, "c1": C1, "c2": C2, "eps1": EPS1, "eps2": EPS2},
         fns={"u0": periodic_interp(d["u0"], lo, L), "v0": periodic_interp(d["v0"], lo, L),
              "ic": {"x": d["x"], "y": d["y"], "u": d["u0"], "v": d["v0"]}},
-        rel_l2_tol=1e-3,
-        linf_tol=1e-2,
         device=device,
         dtype=dtype,
     )

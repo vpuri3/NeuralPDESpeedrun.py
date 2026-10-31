@@ -13,7 +13,7 @@ Steady diffusion with a discontinuous, high-contrast coefficient on the unit squ
 Output: u at the 256 x 256 cell centers x_i = y_i = (i + 1/2) / 256; shape (1, 256, 256).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.0001, L∞ ≤ 0.001. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 
@@ -30,11 +30,11 @@ cell-centered FV + MG-PCG on 3840^2 and 5376^2 (213, 236 PCG its), Richardson-ex
 
 ## Records
 
-Current record: **8.359 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA GeForce RTX 2080 Ti).
+Current record: **1.92 s** (record #0: classical baseline, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3).
 
-| date | author | name | kind | time [s] | RelL2 | L∞ | passes | hardware |
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | maintainers | record #0: classical baseline | classical | 8.359 | 3.83e-05 | 1.58e-04 | yes | NVIDIA GeForce RTX 2080 Ti |
+| 2026-10-30 | maintainers | record #0: classical baseline | classical | 1.92 | 3.83e-05 | 1.58e-04 | yes | NVIDIA H100 80GB HBM3 |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

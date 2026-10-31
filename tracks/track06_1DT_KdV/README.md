@@ -12,7 +12,7 @@ Output: u at t_k = k / 200, k = 1..200, and x_j = -1 + 2 j / 511, j = 0..511;
 shape (1, 200, 512).
 ```
 
-**Accuracy bar:** RelL2 ≤ 0.001, L∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01 (per field). **Budget:** 1000 s of wall-clock solve time.
 
 ![reference](figures/reference.png)
 ![reference](figures/reference.gif)

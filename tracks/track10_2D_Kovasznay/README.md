@@ -28,11 +28,12 @@ closed form (Kovasznay 1948)
 
 ## Records
 
-Current record: **616.9 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
+Current record: **17.76 s** (PINN + Gauss-Newton (D-NGD), maintainers, 2026-10-31, NVIDIA H100 80GB HBM3 (JAX)).
 
 | date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-30 | maintainers | PirateNet + SOAP | neural | 616.9 | 1.47e-04 | 1.65e-04 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-10-31 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 17.76 | 2.62e-05 | 3.71e-05 | yes | NVIDIA H100 80GB HBM3 (JAX) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

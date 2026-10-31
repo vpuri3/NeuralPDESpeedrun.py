@@ -27,11 +27,12 @@ exact modal sine series, closed-form coefficients, K=512
 
 ## Records
 
-Current record: **1001 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
+Current record: **456.7 s** (PINN + Gauss-Newton (D-NGD), maintainers, 2026-10-31, NVIDIA H100 80GB HBM3 (JAX)).
 
 | date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-30 | maintainers | PirateNet + SOAP | neural | 1001 | 1.43e-02 | 8.14e-03 | no | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-10-31 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 456.7 | 4.32e-01 | 5.02e-01 | no | NVIDIA H100 80GB HBM3 (JAX) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

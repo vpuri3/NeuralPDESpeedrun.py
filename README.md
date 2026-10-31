@@ -163,23 +163,23 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 |---|---|---|---|---|---|
 | 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
 | 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
-| 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 655.6 | 0.00146% | 0.00756% | yes |
-| 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1000 | 93.1% | 113% | no |
-| 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 383 | 0.195% | 2.98% | no |
-| 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1001 | 0.0552% | 0.115% | yes |
-| 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 13.6% | 20.3% | no |
-| 08 Helmholtz (2D) | *TODO* | | | | |
+| 03 Burgers (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track03_1DT_Burgers/submissions/submission_PR0002/solve.py) | 28.38 | 0.00123% | 0.0152% | yes |
+| 04 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
+| 05 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
+| 06 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
+| 07 HighContrastDiffusion (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0002/solve.py) | 215.3 | 13.3% | 20.5% | no |
+| 08 Helmholtz (2D) | *on hold* | | | | |
 | 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 94.4% | 72.4% | no |
-| 10 Kovasznay (2D) | [PirateNet + SOAP](tracks/track10_2D_Kovasznay/submissions/submission_PR0001/solve.py) | 616.9 | 0.0147% | 0.0165% | yes |
+| 10 Kovasznay (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track10_2D_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
 | 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 0.0735% | 0.792% | yes |
-| 13 DecayingEddies (2D + Time) | [PirateNet + SOAP](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py) | 1000 | 0.258% | 0.255% | yes |
+| 13 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
-| 15 GreyScott (2D + Time) | [PirateNet + SOAP](tracks/track15_2DT_GreyScott/submissions/submission_PR0001/solve.py) | 1002 | 60.4% | 73.5% | no |
-| 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 301.7 | 99.9% | 102% | no |
-| 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 396.8 | 86.3% | 99.8% | no |
-| 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 121% | 141% | no |
-| 19 BeltramiFlow (3D + Time) | [PirateNet + SOAP](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0001/solve.py) | 566.7 | 0.0969% | 0.165% | yes |
+| 15 GreyScott (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track15_2DT_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
+| 16 GinzburgLandau (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |
+| 17 RayleighTaylor (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0002/solve.py) | 367.7 | 3.99% | 11.1% | no |
+| 18 KolmogorovFlow (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0002/solve.py) | 461.9 | 71.8% | 113% | no |
+| 19 BeltramiFlow (3D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0002/solve.py) | 23.41 | 0.00157% | 0.0134% | yes |
 <!-- tracks-table:end -->
 
 ### 01 VanDerPol (ODE)

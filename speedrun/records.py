@@ -18,7 +18,7 @@ import datetime as dt
 import json
 from pathlib import Path
 
-from .tracks import TRACKS, dim_label, key, name, resolve, track_dir
+from .tracks import ROOT as ROOT_DIR, TRACKS, dim_label, key, name, resolve, track_dir
 
 KIND_STYLE = {"classical": ("tab:gray", "s"), "neural": ("tab:blue", "o"), "hybrid": ("tab:purple", "D")}
 # Classical baselines (record #0) stay in records.json but are left out of the plots and the per-track tables.
@@ -117,8 +117,22 @@ def update_main_readme(path: Path | None = None) -> Path:
     path = path or ROOT / "README.md"
     s = path.read_text()
     a, b = s.index(TABLE_BEGIN) + len(TABLE_BEGIN), s.index(TABLE_END)
-    path.write_text(s[:a] + "\n" + tracks_table() + "\n" + s[b:])
+    s = s[:a] + "\n" + tracks_table() + "\n" + s[b:]
+    for t in TRACKS:
+        begin, end = f"<!-- figures:{key(t)}:begin -->", f"<!-- figures:{key(t)}:end -->"
+        if begin in s:
+            a, b = s.index(begin) + len(begin), s.index(end)
+            s = s[:a] + "\n" + track_figures(t) + s[b:]
+    path.write_text(s)
     return path
+
+
+def track_figures(track: str) -> str:
+    """Main-README block of a track: RelL2 vs. time and the activity plot, side by side (empty without records)."""
+    d = track_dir(track) / "figures"
+    imgs = [f'<img src="{(d / f"{f}.png").relative_to(ROOT_DIR)}" width="49%" alt="{key(track)} {f}">'
+            for f in ("accuracy_vs_time", "activity") if (d / f"{f}.png").exists()]
+    return " ".join(imgs) + "\n" if imgs else ""
 
 
 def plot_accuracy(track: str) -> Path | None:
@@ -159,8 +173,9 @@ def plot_accuracy(track: str) -> Path | None:
 
 
 def plot_activity(track: str) -> Path | None:
+    """Time vs. date, one point per submission (hollow = misses the bar), the running record as a step line."""
     track = resolve(track)
-    recs = passing(shown(load_records(track)))
+    recs = shown(load_records(track))
     out = track_dir(track) / "figures" / "activity.png"
     if not recs:
         return _drop(out)
@@ -169,26 +184,35 @@ def plot_activity(track: str) -> Path | None:
     import matplotlib.pyplot as plt
 
     dates = [dt.date.fromisoformat(r["date"]) for r in recs]
-    fig, ax = plt.subplots(figsize=(7, 3.6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(6.4, 4.2), constrained_layout=True)
     for kind, (c, m) in KIND_STYLE.items():
-        pts = [(d, r["time_s"]) for d, r in zip(dates, recs) if r.get("kind", "classical") == kind]
+        pts = [(d, r) for d, r in zip(dates, recs) if r.get("kind", "classical") == kind]
+        for d, r in pts:
+            ax.scatter(d, r["time_s"], color=c, marker=m, s=46, zorder=3,
+                       facecolors=c if r.get("passed", True) else "none")
+            ax.annotate(r["name"].replace("record #0: ", ""), (d, r["time_s"]), textcoords="offset points",
+                        xytext=(6, 4), fontsize=7)
         if pts:
-            ax.scatter(*zip(*pts), color=c, marker=m, label=kind, zorder=3)
-    # step line through the running record (best time so far)
-    order = sorted(range(len(recs)), key=lambda i: dates[i])
-    best, xs, ys = float("inf"), [], []
-    for i in order:
-        best = min(best, recs[i]["time_s"])
-        xs.append(dates[i])
+            ax.scatter([], [], color=c, marker=m, label=kind)
+    # step line through the running record (best passing time so far)
+    ok = sorted((d, r["time_s"]) for d, r in zip(dates, recs) if r.get("passed", True))
+    if ok:
+        best, xs, ys = float("inf"), [], []
+        for d, t in ok:
+            best = min(best, t)
+            xs.append(d)
+            ys.append(best)
+        xs.append(max(ok[-1][0], dt.date.today()))
         ys.append(best)
-    xs.append(max(dates[-1], dt.date.today()))
-    ys.append(best)
-    ax.step(xs, ys, where="post", color="k", lw=1.2, label="record")
+        ax.step(xs, ys, where="post", color="k", lw=1.2, label="record")
+        status = f"record {best:.4g} s"
+    else:
+        status = "no submission meets the bar yet"
     ax.set_yscale("log")
-    ax.set_ylabel("time to tolerance [s]")
-    ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)}): record {best:.4g} s")
+    ax.set_ylabel("wall-clock time [s] (solve + query)")
+    ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)}): {status}  (hollow = misses the bar)", fontsize=9)
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend(loc="upper right", fontsize=8)
+    ax.legend(loc="best", fontsize=8)
     fig.autofmt_xdate()
     out.parent.mkdir(exist_ok=True)
     fig.savefig(out, dpi=120)

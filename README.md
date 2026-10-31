@@ -175,10 +175,10 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 7.35e-04 (≤ 0.005) | 7.92e-03 (≤ 0.01) | yes |
 | 13 DecayingEddies (2D + Time) | [PirateNet + SOAP](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0001/solve.py) | 1000 | 2.58e-03 (≤ 0.005) | 2.55e-03 (≤ 0.01) | yes |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
-| 15 GreyScott (2D + Time) | — | | | | |
-| 16 GinzburgLandau (2D + Time) | — | | | | |
-| 17 RayleighTaylor (2D + Time) | — | | | | |
-| 18 KolmogorovFlow (2D + Time) | — | | | | |
+| 15 GreyScott (2D + Time) | [PirateNet + SOAP](tracks/track15_2DT_GreyScott/submissions/submission_PR0001/solve.py) | 1002 | 6.04e-01 (≤ 0.005) | 7.35e-01 (≤ 0.01) | no |
+| 16 GinzburgLandau (2D + Time) | [PirateNet + SOAP](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0001/solve.py) | 301.7 | 9.99e-01 (≤ 0.01) | 1.02e+00 (≤ 0.05) | no |
+| 17 RayleighTaylor (2D + Time) | [PirateNet + SOAP](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0001/solve.py) | 396.8 | 8.63e-01 (≤ 0.02) | 9.98e-01 (≤ 0.1) | no |
+| 18 KolmogorovFlow (2D + Time) | [PirateNet + SOAP](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py) | 1001 | 1.21e+00 (≤ 0.05) | 1.41e+00 (≤ 0.15) | no |
 | 19 BeltramiFlow (3D + Time) | — | | | | |
 <!-- tracks-table:end -->
 

@@ -1,20 +1,21 @@
 {
   "track": "track15_2DT_GreyScott",
   "submission": "tracks/track15_2DT_GreyScott/submissions/submission_PR0001/solve.py",
-  "time_s": 1001.0943268090487,
-  "solve_time_s": 1000.6566176461056,
-  "query_time_s": 0.43770916294306517,
-  "checkpoints": 1184,
+  "time_s": 1001.5255927853286,
+  "solve_time_s": 1001.0415186649188,
+  "query_time_s": 0.4840741204097867,
+  "checkpoints": 933,
   "stop": "budget",
   "budget_s": 1000.0,
-  "rel_l2": 0.61717177058971,
-  "linf": 0.7318485740946314,
+  "impose_budget": true,
+  "rel_l2": 0.6042622693787666,
+  "rel_linf": 0.7347990515815651,
   "accurate": false,
   "query_within_limit": true,
   "passed": false,
   "tolerances": {
-    "rel_l2": 0.001,
-    "linf": 0.01
+    "rel_l2": 0.005,
+    "rel_linf": 0.01
   },
   "linf_margin": 0.0,
   "device": "cuda",
@@ -29,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 4.084853887557983,
+  "cuda_peak_allocated_gb": 4.087551593780518,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "b4ddd28",
+  "git_commit": "27d4173",
   "seed": 0,
-  "date": "2026-10-30T18:33:03"
+  "date": "2026-10-31T00:22:52"
 }

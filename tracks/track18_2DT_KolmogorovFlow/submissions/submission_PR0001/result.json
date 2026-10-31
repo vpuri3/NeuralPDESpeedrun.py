@@ -1,20 +1,21 @@
 {
   "track": "track18_2DT_KolmogorovFlow",
   "submission": "tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0001/solve.py",
-  "time_s": 1001.0466166045517,
-  "solve_time_s": 1000.6955387741327,
-  "query_time_s": 0.35107783041894436,
-  "checkpoints": 451,
+  "time_s": 1000.7991954134777,
+  "solve_time_s": 1000.2860111389309,
+  "query_time_s": 0.513184274546802,
+  "checkpoints": 287,
   "stop": "budget",
   "budget_s": 1000.0,
-  "rel_l2": 1.225742089350212,
-  "linf": 4.175937652587891,
+  "impose_budget": true,
+  "rel_l2": 1.214677374036038,
+  "rel_linf": 1.4085611670692246,
   "accurate": false,
   "query_within_limit": true,
   "passed": false,
   "tolerances": {
     "rel_l2": 0.05,
-    "linf": 0.5
+    "rel_linf": 0.15
   },
   "linf_margin": 0.0,
   "device": "cuda",
@@ -29,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 18.460710287094116,
+  "cuda_peak_allocated_gb": 18.460673332214355,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "b4ddd28",
+  "git_commit": "27d4173",
   "seed": 0,
-  "date": "2026-10-30T18:32:49"
+  "date": "2026-10-31T00:21:14"
 }

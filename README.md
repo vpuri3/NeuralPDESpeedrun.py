@@ -165,11 +165,11 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43e-02 (≤ 0.005) | 8.14e-03 (≤ 0.01) | no |
 | 03 Burgers (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_Burgers/submissions/submission_PR0001/solve.py) | 655.6 | 1.46e-05 (≤ 0.005) | 7.56e-05 (≤ 0.01) | yes |
 | 04 KuramotoSivashinsky (1D + Time) | [PirateNet + SOAP](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0001/solve.py) | 1000 | 9.31e-01 (≤ 0.05) | 1.13e+00 (≤ 0.15) | no |
-| 05 AllenCahn (1D + Time) | — | | | | |
-| 06 KdV (1D + Time) | — | | | | |
-| 07 HighContrastDiffusion (2D) | — | | | | |
+| 05 AllenCahn (1D + Time) | [PirateNet + SOAP](tracks/track05_1DT_AllenCahn/submissions/submission_PR0001/solve.py) | 383 | 1.95e-03 (≤ 0.005) | 2.98e-02 (≤ 0.01) | no |
+| 06 KdV (1D + Time) | [PirateNet + SOAP](tracks/track06_1DT_KdV/submissions/submission_PR0001/solve.py) | 1001 | 5.52e-04 (≤ 0.005) | 1.15e-03 (≤ 0.01) | yes |
+| 07 HighContrastDiffusion (2D) | [PirateNet + SOAP](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0001/solve.py) | 1001 | 1.36e-01 (≤ 0.005) | 2.03e-01 (≤ 0.01) | no |
 | 08 Helmholtz (2D) | *on hold* | | | | |
-| 09 AdvectionDiffusion (2D) | — | | | | |
+| 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 9.44e-01 (≤ 0.005) | 7.24e-01 (≤ 0.01) | no |
 | 10 Kovasznay (2D) | — | | | | |
 | 11 LidDrivenCavity (2D) | — | | | | |
 | 12 Burgers (2D + Time) | — | | | | |

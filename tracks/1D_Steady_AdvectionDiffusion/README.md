@@ -24,4 +24,13 @@ exact solution
 
 ## Records
 
-No records yet.
+Current record: **317.9 s** (PirateNet + SOAP, maintainers, 2026-11-05, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-11-05 | maintainers | PirateNet + SOAP | neural | 317.9 | 9.45e-04 | 1.36e-03 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-11-05 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 38 | 8.70e-01 | 5.34e-01 | no | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

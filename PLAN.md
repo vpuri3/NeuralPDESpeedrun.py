@@ -30,14 +30,14 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 | track | reference (self-check) | record #0 | time | RelL2 | L∞ |
 |---|---|---|---|---|---|
-| 1D_Steady_AdvectionDiffusion | exact solution (Chebyshev N=128: 1e-14) | Chebyshev N=32 | | 9.0e-06 | 9.0e-06 |
+| 1D_Steady_AdvectionDiffusion | exact solution (Chebyshev N=128: 1e-14) | Chebyshev N=32 | 0.03 s | 9.0e-06 | 9.0e-06 |
 | 0D_VanDerPol | Radau IIA rtol 1e-12 (rtol 1e-10: 7e-12) | LSODA rtol 1e-8 (CPU) | 37 ms | 8.7e-07 | 5.4e-05 |
 | 1D_DampedWave | exact sine series, K=512 (K=256: 0) | sine modes N=256 | 2.9 ms | 8.0e-16 | 7.8e-16 |
 | 1D_Burgers | Fourier N=8192 (4096: 2e-8) | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 |
 | 1D_KuramotoSivashinsky | published data | — | | | |
 | 1D_AllenCahn, 1D_KdV | published data | — | | | |
 | 2D_Steady_Helmholtz | *TODO* | | | | |
-| 2D_Steady_AdvectionDiffusion | Chebyshev N=64, one cell (N=48: 6e-12) | Chebyshev N=24 | | 5.9e-07 | 1.2e-06 |
+| 2D_Steady_AdvectionDiffusion | Chebyshev N=64, one cell (N=48: 6e-12) | Chebyshev N=24 | 0.02 s | 6.2e-07 | 1.2e-06 |
 | 2D_Steady_Kovasznay | closed form | PN–PN-2 N=16, Newton | 0.19 s | 1.4e-07 | 4.7e-07 |
 | 2D_Steady_LidDrivenCavity | published data (Re = 5000) | — | | | |
 | 12 | closed form | Fourier vorticity N=32 | 0.13 s | 1.9e-15 | 7.7e-15 |
@@ -67,8 +67,8 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   A sine-mode method is exact here too (2.9 ms); the track is hard for mesh-free / neural methods (narrow
   features, long time, reflections), not for spectral ones.
 - **2D_Steady_AdvectionDiffusion.** Cellular-flow heat transport, the Wolfram Demonstration of Binous et al. (2015), whose Mathematica code
-  (NDSolve FEM, natural BCs on the y walls) solves exactly this problem; its sliders span Re 5–100, Pr 0.5–5.
-  Re = 40, Pr = 1.6 (Pe = 64). The problem is symmetric about y = 1, so the reference solves one cell; a direct
+  (NDSolve FEM, natural BCs on the y walls) solves exactly this problem (diffusivity 1/(Re Pr); its sliders span Pe = Re Pr from 2.5 to 500).
+  Pe = 64. The problem is symmetric about y = 1, so the reference solves one cell; a direct
   two-cell solve agrees to 2e-10. Baseline N = 16 / 20 / 24 / 32: RelL2 9.1e-5 / 7.2e-6 / 5.9e-7 / 3.9e-9.
   Replaces (2026-11-05) the manufactured u = g(x) g(y) at ε = 1e-3, whose layers were too thin to see or, on a
   uniform grid, to score.

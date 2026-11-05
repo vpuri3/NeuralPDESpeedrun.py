@@ -164,14 +164,14 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
 | 0D_VanDerPol | [PirateNet + SOAP](tracks/0D_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
-| 1D_Steady_AdvectionDiffusion | — | | | | |
+| 1D_Steady_AdvectionDiffusion | [PirateNet + SOAP](tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 317.9 | 0.0945% | 0.136% | yes |
 | 1D_DampedWave | [PirateNet + SOAP](tracks/1D_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
 | 1D_Burgers | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
 | 1D_KuramotoSivashinsky | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
 | 1D_AllenCahn | [PINN + Gauss-Newton (D-NGD)](tracks/1D_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
 | 1D_KdV | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
 | 2D_Steady_Helmholtz | *TODO* | | | | |
-| 2D_Steady_AdvectionDiffusion | — | | | | |
+| 2D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 251.1 | 5.03e-05% | 0.000161% | yes |
 | 2D_Steady_Kovasznay | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 2D_Steady_LidDrivenCavity | [PirateNet + SOAP](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
 | 2D_CylinderFlow | *TODO* | | | | |
@@ -202,6 +202,7 @@ exact solution.
 <img src="tracks/1D_Steady_AdvectionDiffusion/figures/reference.png" width="100%" alt="1D_Steady_AdvectionDiffusion reference">
 
 <!-- figures:1D_Steady_AdvectionDiffusion:begin -->
+<img src="tracks/1D_Steady_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="1D_Steady_AdvectionDiffusion accuracy_vs_time"> <img src="tracks/1D_Steady_AdvectionDiffusion/figures/activity.png" width="49%" alt="1D_Steady_AdvectionDiffusion activity">
 <!-- figures:1D_Steady_AdvectionDiffusion:end -->
 
 ### 1D_DampedWave
@@ -280,8 +281,8 @@ iterative solver. Status and next steps: [TODO.md](tracks/2D_Steady_Helmholtz/TO
 ### 2D_Steady_AdvectionDiffusion
 Steady heat transport by a prescribed cellular flow, exactly the [Wolfram Demonstration of Binous, Bellagi &
 Higgins (2015)](https://demonstrations.wolfram.com/SteadyStateTwoDimensionalConvectionDiffusionEquation/):
-`(1/(Re Pr)) ΔT − u T_x − v T_y = 0` on [0, 1] × [0, 2], `u = −sin πx cos πy`, `v = cos πx sin πy`, Re = 40,
-Pr = 1.6 (Pe = 64), cold wall `T(0, y) = 0`, hot wall `T(1, y) = 1`, insulated walls at y = 0, 2. Hot fluid is
+`(1/Pe) ΔT − u T_x − v T_y = 0` on [0, 1] × [0, 2], `u = −sin πx cos πy`, `v = cos πx sin πy`, Pe = 64,
+cold wall `T(0, y) = 0`, hot wall `T(1, y) = 1`, insulated walls at y = 0, 2. Hot fluid is
 swept along the insulated walls toward the cold wall and cold fluid back along y = 1. The solution is smooth.
 Output: uniform 257 × 513 grid. Reference: Chebyshev collocation, N = 64 on one cell, mirrored about y = 1
 (N = 48 agrees to 6e-12).
@@ -289,6 +290,7 @@ Output: uniform 257 × 513 grid. Reference: Chebyshev collocation, N = 64 on one
 <img src="tracks/2D_Steady_AdvectionDiffusion/figures/reference.png" width="40%" alt="2D_Steady_AdvectionDiffusion reference"> <img src="tracks/2D_Steady_AdvectionDiffusion/figures/reference_slices.png" width="58%" alt="2D_Steady_AdvectionDiffusion slices">
 
 <!-- figures:2D_Steady_AdvectionDiffusion:begin -->
+<img src="tracks/2D_Steady_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="2D_Steady_AdvectionDiffusion accuracy_vs_time"> <img src="tracks/2D_Steady_AdvectionDiffusion/figures/activity.png" width="49%" alt="2D_Steady_AdvectionDiffusion activity">
 <!-- figures:2D_Steady_AdvectionDiffusion:end -->
 
 ### 2D_Steady_Kovasznay

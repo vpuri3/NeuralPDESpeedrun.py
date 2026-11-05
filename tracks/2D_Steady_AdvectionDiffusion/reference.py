@@ -69,7 +69,7 @@ def contour_figure(x, y, T, title, path):
 
 def plot(problem, u, extras, figdir):
     x, y = problem.axes["x"], problem.axes["y"]
-    contour_figure(x, y, u[0], f"T,  Re = {problem.params['Re']:g},  Pr = {problem.params['Pr']:g}",
+    contour_figure(x, y, u[0], f"T,  Pe = {problem.params['Pe']:g}",
                    figdir / "reference.png")
     iy = lambda v: int((y - v).abs().argmin())  # noqa: E731
     plotting.line(x, {"T(x, y=0)": u[0, :, iy(0.0)], "T(x, y=0.5)": u[0, :, iy(0.5)], "T(x, y=1)": u[0, :, iy(1.0)]},

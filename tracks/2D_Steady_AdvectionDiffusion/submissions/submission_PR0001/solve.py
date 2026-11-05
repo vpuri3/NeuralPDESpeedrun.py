@@ -1,5 +1,5 @@
 """Submission 1: PirateNet + SOAP in JAX (speedrun/submissions/submission_PR0001). Steady advection-diffusion by a
-cellular flow (Pe = Re Pr): residual + wall temperatures at x = 0, 1 + insulated walls y = 0, 2."""
+cellular flow (Pe = 64): residual + wall temperatures at x = 0, 1 + insulated walls y = 0, 2."""
 import jax
 import jax.numpy as jnp
 

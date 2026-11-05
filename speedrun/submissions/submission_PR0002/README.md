@@ -24,8 +24,7 @@ material (`DNGD/main_DNGDgeo.py`).
     initial state plus the jumps of all earlier windows, so the initial condition and the continuity across
     windows are exact; second order in time (DampedWave): u and u_t are both continued exactly. Initial states given
     only as samples (the 2D benchmarks) are fitted by a separate network (100 GN steps at the start of `solve`, timed).
-  - *Steady tracks*: one network; walls either exact through a factor (2D AdvectionDiffusion: T = x + x(1-x) phi) or soft
-    (Kovasznay, LidDrivenCavity: weighted residual terms on the walls).
+  - *Steady tracks*: one network; the boundary conditions are weighted residual terms on the walls.
   - Loss: PDE residual at uniformly resampled collocation points (2D AdvectionDiffusion, LidDrivenCavity: denser at the walls), plus boundary
     terms (2D AdvectionDiffusion, Kovasznay, LidDrivenCavity, RayleighTaylor: weight 10). Zero Dirichlet walls in DampedWave are exact through an odd periodic extension.
 - **Execution**: everything is compiled ahead of time in `setup` (`jit(...).lower(...).compile()`; problem data

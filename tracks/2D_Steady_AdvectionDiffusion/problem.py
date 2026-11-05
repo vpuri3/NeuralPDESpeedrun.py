@@ -9,15 +9,13 @@ import torch
 
 from speedrun.problem import Problem, xp_of
 
-RE = 40.0           # Reynolds number   (the Demonstration's sliders: Re in [5, 100], Pr in [0.5, 5])
-PR = 1.6            # Prandtl number
-PE = RE * PR        # Peclet number = 64: only the product enters
+PE = 64.0           # Peclet number (the Demonstration writes the diffusivity as 1 / (Re Pr))
 N_OUT = 256         # output: uniform grid, h = 1 / N_OUT
 
 STATEMENT = rf"""
 Steady advection-diffusion of temperature T(x, y) on [0, 1] x [0, 2] by a prescribed cellular flow:
 
-    (1 / (Re Pr)) (T_xx + T_yy) - u T_x - v T_y = 0,      Re = {RE:g}, Pr = {PR:g}  (Pe = Re Pr = {PE:g})
+    (1 / Pe) (T_xx + T_yy) - u T_x - v T_y = 0,      Pe = {PE:g}
     u = -sin(pi x) cos(pi y),   v = cos(pi x) sin(pi y)      (two counter-rotating cells, divergence-free)
     T(0, y) = 0 (cold wall),   T(1, y) = 1 (hot wall),   T_y(x, 0) = T_y(x, 2) = 0 (insulated walls)
 
@@ -49,7 +47,7 @@ def make_problem(device="cpu", dtype=torch.float64) -> Problem:
         axes={"x": x, "y": y},
         domain={"x": (0.0, 1.0), "y": (0.0, 2.0)},
         periodic={"x": False, "y": False},
-        params={"Re": RE, "Pr": PR, "Pe": PE},
+        params={"Pe": PE},
         fns={"velocity": velocity,
              "bc": lambda x, y: xp_of(x).where(x > 0.5, xp_of(x).ones_like(x), xp_of(x).zeros_like(x))},
         device=device,

@@ -3,7 +3,7 @@
 ```text
 Steady advection-diffusion of temperature T(x, y) on [0, 1] x [0, 2] by a prescribed cellular flow:
 
-    (1 / (Re Pr)) (T_xx + T_yy) - u T_x - v T_y = 0,      Re = 40, Pr = 1.6  (Pe = Re Pr = 64)
+    (1 / Pe) (T_xx + T_yy) - u T_x - v T_y = 0,      Pe = 64
     u = -sin(pi x) cos(pi y),   v = cos(pi x) sin(pi y)      (two counter-rotating cells, divergence-free)
     T(0, y) = 0 (cold wall),   T(1, y) = 1 (hot wall),   T_y(x, 0) = T_y(x, 2) = 0 (insulated walls)
 
@@ -29,4 +29,13 @@ Chebyshev collocation on one cell, N = 64, mirrored about y = 1
 
 ## Records
 
-No records yet.
+Current record: **251.1 s** (PINN + Gauss-Newton (D-NGD), maintainers, 2026-11-05, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-11-05 | maintainers | PirateNet + SOAP | neural | 352.6 | 2.46e-03 | 4.52e-03 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-11-05 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 251.1 | 5.03e-07 | 1.61e-06 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

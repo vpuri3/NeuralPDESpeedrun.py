@@ -1,48 +1,47 @@
-"""Track 03: 1D viscous Burgers."""
+"""Track 03: 1D viscous Burgers, the Raissi et al. (2019) PINN benchmark with a shock at x = 0."""
 import math
 
 import torch
 
 from speedrun.problem import Problem, xp_of
 
-MU = 0.6          # IC amplitude
-NU = 1e-4         # viscosity
-T_END = 0.5
-NX = 1024         # prescribed collocation grid
-NT = 500          # snapshots
+NU = 0.01 / math.pi   # viscosity
+T_END = 1.0
+NT, NX = 1001, 1001   # output grid: dt = 1e-3, dx = 2e-3
 
 STATEMENT = rf"""
-1D viscous Burgers on the periodic domain x in [0, 2), t in [0, {T_END}]:
+1D viscous Burgers on (t, x) in [0, {T_END:g}] x [-1, 1] (Raissi et al. 2019; Shahab et al. 2026, sec. 3.1):
 
-    u_t + u u_x = nu u_xx,          nu = {NU:g}
-    u(0, x) = 1 + (mu / 2) (1 + sin(2 pi x - pi / 2))   for x in [0, 1]
-            = 1                                         otherwise,          mu = {MU}
+    u_t + u u_x = nu u_xx,          nu = 0.01 / pi
+    u(0, x) = -sin(pi x)
+    u(t, -1) = u(t, 1) = 0
 
-Output: u on the prescribed grid x_j = 2 j / {NX}, j = 0..{NX - 1}, at the {NT} snapshot times
-t = linspace(0, {T_END}, {NT}); shape (1, {NT}, {NX}).
+The two halves of the sine steepen into a stationary shock at x = 0 (width ~ nu) from t ~ 1 / pi on.
+
+Output: u on the tensor grid t = linspace(0, {T_END:g}, {NT}) x x = linspace(-1, 1, {NX}); shape (1, {NT}, {NX}).
 """
 
 
-def u0(x, mu=MU):
-    xp = xp_of(x)
-    x = xp.remainder(x, 2.0)
-    inside = (x >= 0.0) & (x <= 1.0)
-    bump = 1.0 + 0.5 * mu * (1.0 + xp.sin(2.0 * math.pi * x - 0.5 * math.pi))
-    return xp.where(inside, bump, xp.ones_like(x))
+def u0(x):
+    return -xp_of(x).sin(math.pi * x)
 
 
 def make_problem(device="cpu", dtype=torch.float64) -> Problem:
     return Problem(
         track="track03_1DT_Burgers",
-        title="1D viscous Burgers, nu = 1e-4",
+        title="1D viscous Burgers, nu = 0.01/pi (Raissi)",
         statement=STATEMENT,
         fields=("u",),
         axes={"t": torch.linspace(0.0, T_END, NT, dtype=dtype, device=device),
-              "x": 2.0 * torch.arange(NX, dtype=dtype, device=device) / NX},
-        domain={"x": (0.0, 2.0), "t": (0.0, T_END)},
-        periodic={"x": True},
-        params={"nu": NU, "mu": MU},
-        fns={"u0": u0},
+              "x": torch.linspace(-1.0, 1.0, NX, dtype=dtype, device=device)},
+        domain={"t": (0.0, T_END), "x": (-1.0, 1.0)},
+        periodic={"x": False},
+        params={"nu": NU},
+        fns={
+            "u0": u0,
+            "bc_left": lambda t: xp_of(t).zeros_like(t),
+            "bc_right": lambda t: xp_of(t).zeros_like(t),
+        },
         device=device,
         dtype=dtype,
     )

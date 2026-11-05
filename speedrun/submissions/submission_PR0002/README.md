@@ -39,7 +39,7 @@ Per-track settings (`tracks/<track>/submissions/submission_PR0002/solve.py`):
 | track | windows | MLP | Fourier modes | points / step | GN steps | damping |
 |---|---|---|---|---|---|---|
 | 02 DampedWave | 16 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
-| 03 Burgers | 5 | 40 x 4 | 10 | 20k | 100 / window | 1e-8 |
+| 03 Burgers | 10 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
 | 04 KuramotoSivashinsky | 20 (JAX-NG) | 50 x 4 (JAX-NG) | 10 | 20k | 200 / window | 1e-8 |
 | 05 AllenCahn | 10 | 50 x 4 | 10 | 20k | 100 / window | 1e-8 |
 | 06 KdV | 5 (JAX-NG) | 30 x 4 (JAX-NG) | 10 | 20k | 100 / window | 1e-8 |
@@ -47,7 +47,6 @@ Per-track settings (`tracks/<track>/submissions/submission_PR0002/solve.py`):
 | 09 AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) | 6000 | LM |
 | 10 Kovasznay | steady | 50 x 4 | - | 4k + 4 x 500 wall | 300 | LM |
 | 11 LidDrivenCavity | steady | 50 x 4 | - | 6k (clustered) + 4 x 750 wall | 6000 | LM |
-| 12 Burgers 2D | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |
 | 13 DecayingEddies | 5 | 50 x 4 | 8 | 8k | 100 / window | LM |
 | 15 GreyScott | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |
 | 16 GinzburgLandau | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |

@@ -1,16 +1,16 @@
 {
-  "method": "Fourier pseudo-spectral + ETDRK4, N=8192, dt=T/(Nt-1)/16",
-  "check_N4096_vs_N8192_linf": 2.1233464764236487e-08,
-  "check_N4096_vs_N8192_rel_l2": 9.921012983763474e-11,
-  "wall_time_s": 16.422873442061245,
+  "method": "exact Cole-Hopf solution, trapezoidal rule in z = s / sqrt(4 nu t), 4001 nodes on [-14, 14]",
+  "check_nodes2001_vs_4001_linf": 1.9984014443252818e-15,
+  "check_z12_vs_z14_linf": 1.887379141862766e-15,
+  "wall_time_s": 3.3832156910793856,
   "torch": "2.15.0+cu132",
   "shape": [
     1,
-    500,
-    1024
+    1001,
+    1001
   ],
-  "sha256_float32": "b498ccaf678bfe126e4f08873c8495f10a4ac054b567e284a2c62060e8c7b266",
-  "norm_l2": 836.7397375937076,
-  "max_abs": 1.6,
-  "sha256_npz": "690c186924350d4d61f699c8aa425a0415d9af8624f1ed1661cd76618de8387f"
+  "sha256_float32": "fd07fdc3c1d2f6ef3c498aeeb9e687159baad6bce88ac714068c64c6f902e1f1",
+  "sha256_npz": "01adf541b86fd2fd858f4ed2b0d1c5a8ea02b3408cb89ce5b186000fc7bd3316",
+  "norm_l2": 614.503861411945,
+  "max_abs": 1.0
 }

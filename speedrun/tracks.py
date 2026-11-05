@@ -28,7 +28,6 @@ TRACKS = [
     "track09_2D_AdvectionDiffusion",     # advection-diffusion, high Peclet
     "track10_2D_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)
     "track11_2D_LidDrivenCavity",        # lid-driven cavity, Re = 5000, steady (published data)
-    "track12_2DT_Burgers",               # viscous Burgers, periodic
     "track13_2DT_DecayingEddies",        # decaying eddies (Walsh 1992), periodic
     "track14_2DT_CylinderFlow",          # flow past a cylinder (TODO)
     "track15_2DT_GreyScott",             # Grey-Scott reaction-diffusion, periodic (published data)

@@ -163,7 +163,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 |---|---|---|---|---|---|
 | 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
 | 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
-| 03 Burgers (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track03_1DT_Burgers/submissions/submission_PR0002/solve.py) | 28.38 | 0.00123% | 0.0152% | yes |
+| 03 Burgers (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track03_1DT_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
 | 04 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
 | 05 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
 | 06 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
@@ -172,7 +172,6 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 94.4% | 72.4% | no |
 | 10 Kovasznay (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track10_2D_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
-| 12 Burgers (2D + Time) | [PirateNet + SOAP](tracks/track12_2DT_Burgers/submissions/submission_PR0001/solve.py) | 1001 | 0.0735% | 0.792% | yes |
 | 13 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
 | 14 CylinderFlow (2D + Time) | *TODO* | | | | |
 | 15 GreyScott (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track15_2DT_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
@@ -207,8 +206,9 @@ off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-for
 <!-- figures:02:end -->
 
 ### 03 Burgers (1D + Time)
-`u_t + u u_x = ν u_xx`, ν = 1e-4, periodic x ∈ [0, 2), t ∈ [0, 0.5], smooth bump IC steepening toward a shock at
-t ≈ 0.53. Output: 500 t × 1024 x. Reference: Fourier + ETDRK4, N = 8192.
+`u_t + u u_x = (0.01/π) u_xx` on (t, x) ∈ [0, 1] × [−1, 1], `u(0, x) = −sin(πx)`, `u = 0` at x = ±1 (Raissi et al.
+2019; [Shahab et al. 2026](https://arxiv.org/abs/2602.08515), sec. 3.1); a stationary shock forms at x = 0 from
+t ≈ 1/π. Output: 1001 t × 1001 x. Reference: exact Cole–Hopf solution by quadrature.
 
 <img src="tracks/track03_1DT_Burgers/figures/reference.png" width="100%" alt="03 reference">
 
@@ -301,18 +301,6 @@ on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: publis
 <!-- figures:11:begin -->
 <img src="tracks/track11_2D_LidDrivenCavity/figures/accuracy_vs_time.png" width="49%" alt="11 accuracy_vs_time"> <img src="tracks/track11_2D_LidDrivenCavity/figures/activity.png" width="49%" alt="11 activity">
 <!-- figures:11:end -->
-
-### 12 Burgers (2D + Time)
-`u_t + (u·∇)u = ν Δu`, ν = 1e-3, periodic [−0.25, 0.75)², t ∈ [0, 0.5], `u = v = sin(2πx) sin(2πy)` on [0, 0.5]²,
-0 elsewhere; shocks of width ~ν form. Output: (u, v) at 11 t × 512². Reference: Fourier + ETDRK4, 2048².
-
-<img src="tracks/track12_2DT_Burgers/figures/reference.png" width="100%" alt="12 reference">
-
-<img src="tracks/track12_2DT_Burgers/figures/reference.gif" width="100%" alt="12 reference">
-
-<!-- figures:12:begin -->
-<img src="tracks/track12_2DT_Burgers/figures/accuracy_vs_time.png" width="49%" alt="12 accuracy_vs_time"> <img src="tracks/track12_2DT_Burgers/figures/activity.png" width="49%" alt="12 activity">
-<!-- figures:12:end -->
 
 ### 13 DecayingEddies (2D + Time)
 Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,

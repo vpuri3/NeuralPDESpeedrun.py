@@ -15,7 +15,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 - Track set, ordered by dimension (ODE, 1D + time, 2D, 2D + time, 3D + time; the folder names carry the tag
   0DT / 1DT / 2D / 2DT / 3DT): 01 VanDerPol, 02 DampedWave, 03 Burgers, 04 KuramotoSivashinsky, 05 AllenCahn,
   06 KdV, 07 HighContrastDiffusion, 08 Helmholtz (on hold), 09 AdvectionDiffusion, 10 Kovasznay,
-  11 LidDrivenCavity, 12 Burgers, 13 DecayingEddies, 14 CylinderFlow (TODO), 15 GreyScott, 16 GinzburgLandau,
+  11 LidDrivenCavity, 12 (removed), 13 DecayingEddies, 14 CylinderFlow (TODO), 15 GreyScott, 16 GinzburgLandau,
   17 RayleighTaylor, 18 KolmogorovFlow, 19 BeltramiFlow.
 - References are assets of the GitHub release `refs-v1` (not in git), downloaded on first use and checked
   against `sha256_npz` in each track's `reference/meta.json`.

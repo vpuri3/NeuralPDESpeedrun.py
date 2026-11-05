@@ -164,7 +164,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
 | 0D_VanDerPol | [PirateNet + SOAP](tracks/0D_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
-| 1D_Steady_AdvectionDiffusion | [PirateNet + SOAP](tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 317.9 | 0.0945% | 0.136% | yes |
+| 1D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 37.54 | 6e-05% | 8.33e-05% | yes |
 | 1D_DampedWave | [PirateNet + SOAP](tracks/1D_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
 | 1D_Burgers | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
 | 1D_KuramotoSivashinsky | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |

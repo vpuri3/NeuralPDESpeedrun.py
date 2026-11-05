@@ -37,12 +37,13 @@ Per-track settings (`tracks/<track>/submissions/submission_PR0002/solve.py`):
 
 | track | windows | MLP | Fourier modes | points / step | GN steps | damping |
 |---|---|---|---|---|---|---|
+| 1D_Steady_AdvectionDiffusion | steady | 50 x 4 | - | 4k (clustered) + 2 wall | 4000 | 1e-8 |
 | 1D_DampedWave | 16 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
 | 1D_Burgers | 10 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
 | 1D_KuramotoSivashinsky | 20 (JAX-NG) | 50 x 4 (JAX-NG) | 10 | 20k | 200 / window | 1e-8 |
 | 1D_AllenCahn | 10 | 50 x 4 | 10 | 20k | 100 / window | 1e-8 |
 | 1D_KdV | 5 (JAX-NG) | 30 x 4 (JAX-NG) | 10 | 20k | 100 / window | 1e-8 |
-| 2D_Steady_AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) + 1k insulated wall | 6000 | LM |
+| 2D_Steady_AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) + 2 x 1k wall | 6000 | LM |
 | 2D_Steady_Kovasznay | steady | 50 x 4 | - | 4k + 4 x 500 wall | 300 | LM |
 | 2D_Steady_LidDrivenCavity | steady | 50 x 4 | - | 6k (clustered) + 4 x 750 wall | 6000 | LM |
 | 2D_GreyScott | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |

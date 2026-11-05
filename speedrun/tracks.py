@@ -23,7 +23,6 @@ TRACKS = [
     "track04_1DT_KuramotoSivashinsky",   # Kuramoto-Sivashinsky, chaotic, periodic (published data)
     "track05_1DT_AllenCahn",             # Allen-Cahn, periodic (published data)
     "track06_1DT_KdV",                   # Korteweg-de Vries, periodic (published data)
-    "track07_2D_HighContrastDiffusion",  # variable-coefficient diffusion, contrast 1e3
     "track08_2D_Helmholtz",              # Helmholtz, heterogeneous medium (on hold)
     "track09_2D_AdvectionDiffusion",     # advection-diffusion, high Peclet
     "track10_2D_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)

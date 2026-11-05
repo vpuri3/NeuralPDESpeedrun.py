@@ -43,8 +43,7 @@ Per-track settings (`tracks/<track>/submissions/submission_PR0002/solve.py`):
 | 04 KuramotoSivashinsky | 20 (JAX-NG) | 50 x 4 (JAX-NG) | 10 | 20k | 200 / window | 1e-8 |
 | 05 AllenCahn | 10 | 50 x 4 | 10 | 20k | 100 / window | 1e-8 |
 | 06 KdV | 5 (JAX-NG) | 30 x 4 (JAX-NG) | 10 | 20k | 100 / window | 1e-8 |
-| 07 HighContrastDiffusion | steady | 50 x 4 | - | 8k | 6000 | LM |
-| 09 AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) | 6000 | LM |
+| 09 AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) + 1k insulated wall | 6000 | LM |
 | 10 Kovasznay | steady | 50 x 4 | - | 4k + 4 x 500 wall | 300 | LM |
 | 11 LidDrivenCavity | steady | 50 x 4 | - | 6k (clustered) + 4 x 750 wall | 6000 | LM |
 | 13 DecayingEddies | 5 | 50 x 4 | 8 | 8k | 100 / window | LM |

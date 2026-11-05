@@ -14,7 +14,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   callables are array-API (torch or JAX in and out). Per-axis `Problem.periodic` flags.
 - Track set, ordered by dimension (ODE, 1D + time, 2D, 2D + time, 3D + time; the folder names carry the tag
   0DT / 1DT / 2D / 2DT / 3DT): 01 VanDerPol, 02 DampedWave, 03 Burgers, 04 KuramotoSivashinsky, 05 AllenCahn,
-  06 KdV, 07 HighContrastDiffusion, 08 Helmholtz (on hold), 09 AdvectionDiffusion, 10 Kovasznay,
+  06 KdV, 07 (removed), 08 Helmholtz (on hold), 09 AdvectionDiffusion, 10 Kovasznay,
   11 LidDrivenCavity, 12 (removed), 13 DecayingEddies, 14 CylinderFlow (TODO), 15 GreyScott, 16 GinzburgLandau,
   17 RayleighTaylor, 18 KolmogorovFlow, 19 BeltramiFlow.
 - References are assets of the GitHub release `refs-v1` (not in git), downloaded on first use and checked
@@ -35,12 +35,12 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 | 03 | Fourier N=8192 (4096: 2e-8) | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 |
 | 04 | published data | — | | | |
 | 05, 06 | published data | — | | | |
-| 07 | FV 3840²/5376², Richardson p=1.34 (1e-7) | FV 3328² + MG-PCG | 8.36 s | 3.8e-05 | 1.6e-04 |
+| 07 | *removed* | | | | |
 | 08 | *on hold* | | | | |
-| 09 | closed form | Chebyshev N=96 | 1.16 s | 2.9e-05 | 3.3e-05 |
+| 09 | Chebyshev N=128, one cell (N=96: 4e-11) | Chebyshev N=48 | 0.08 s | 7.5e-07 | 1.4e-06 |
 | 10 | closed form | PN–PN-2 N=16, Newton | 0.19 s | 1.4e-07 | 4.7e-07 |
 | 11 | published data (Re = 5000) | — | | | |
-| 12 | Fourier 2048², dt=2.5e-4 (1024²: 6.9e-6) | Fourier 1024², dt=1e-3 | 7.83 s | 9.7e-06 | 2.6e-04 |
+| 12 | *removed* | | | | |
 | 13 | closed form | Fourier vorticity N=32 | 0.13 s | 1.9e-15 | 7.7e-15 |
 | 14 | *TODO* | | | | |
 | 15–18 | published data | — | | | |
@@ -65,10 +65,13 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   the walls to ~1e-49, so the sine coefficients are closed-form Gaussian integrals and the reference is exact.
   A sine-mode method is exact here too (2.9 ms); the track is hard for mesh-free / neural methods (narrow
   features, long time, reflections), not for spectral ones.
-- **07.** FV on r × 256 grids (r odd, so output centers are fine-cell centers). The observed order is 1.34
-  (inclusion corners). Reference = Richardson extrapolation of 3840² and 5376² at that order; the 2304²/3840²
-  extrapolation agrees to 1e-7. Baseline 3328² (r = 13): 3.8e-5.
-- **09.** Chebyshev N = 80 / 88 / 96 / 104: RelL2 5.8e-4 / 1.4e-4 / 2.9e-5 / 5.4e-6. Baseline N = 96.
+- **09.** Cellular-flow heat transport (Wolfram Demonstration of Binous et al. 2015). Only Pe = Re Pr enters;
+  Pe = 700 (Re = 100, Pr = 7, water) sits between the diffusive regime (Pe ≲ 100: S-shaped isotherms) and the
+  well-mixed one (Pe ≳ 4000: a flat core at T = 1/2): spiral isotherms, wall layers ~Pe^(−1/2), Nu ≈ 15.9.
+  The problem is symmetric about y = 1, so the solution is computed on one cell; a direct two-cell solve agrees
+  to 1e-6 (its uniform y grid under-resolves the y = 1 tongue). Baseline N = 40 / 48 / 56 / 64: RelL2 1.4e-5 /
+  7.5e-7 / 2.8e-8 / 4.1e-9. Replaces (2026-11-05) the manufactured u = g(x) g(y) at ε = 1e-3, whose layers
+  were too thin to see or, on a uniform grid, to score.
 - **03.** ν = 1e-4, T = 0.5, domain [0, 2), N = 1024 output grid, continuous IC. The shock forms at
   t* = 1/(πμ) ≈ 0.53, just after T.
 - **12.** The 512² output grid is too coarse for the ν = 1e-3 shocks at the bar (512²: L∞ 1.6e-3). Reference
@@ -80,7 +83,6 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   FDM removes only the constant null mode (a relative threshold dropped physical modes at N = 384).
 - **11** is now the benchmark's steady Re = 5000 cavity (regularized lid; published data). Its data use an
   unregularized lid row, so L∞ excludes points within 0.05 of the walls.
-- **07, 09.** Forcing scaled so max|u| ≈ 1, which makes the absolute L∞ bar meaningful.
 
 ## 4. Next steps (in order)
 
@@ -91,8 +93,8 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 3. **Next neural submissions** (each with its own PR / submission number):
    - [ ] PINN + Gauss–Newton natural gradient (matrix-free CG);
    - [ ] multilevel explicit ansatz (dense multiresolution B-spline/Hermite grid, no hashing) + sparse
-         Gauss–Newton with level-preconditioned CG, exact analytic derivatives (targets 07, 09);
-   - [ ] hybrid: classical smoother + learned coarse correction trained in-run from residuals only (07);
+         Gauss–Newton with level-preconditioned CG, exact analytic derivatives (targets 09);
+   - [ ] hybrid: classical smoother + learned coarse correction trained in-run from residuals only (was aimed at the removed track 07);
    - [ ] stiff time integration (01) and long-time wave propagation (02) for neural/hybrid time-steppers.
    See IDEAS.md for the reasoning.
 

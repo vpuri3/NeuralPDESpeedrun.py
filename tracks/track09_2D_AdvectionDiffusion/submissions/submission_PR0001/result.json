@@ -1,15 +1,15 @@
 {
   "track": "track09_2D_AdvectionDiffusion",
   "submission": "tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py",
-  "time_s": 300.73196788690984,
-  "solve_time_s": 300.52014575339854,
-  "query_time_s": 0.21182213351130486,
-  "checkpoints": 221,
+  "time_s": 300.7183122159913,
+  "solve_time_s": 300.5705733130453,
+  "query_time_s": 0.14773890294600278,
+  "checkpoints": 213,
   "stop": "done",
   "budget_s": 1000.0,
   "impose_budget": true,
-  "rel_l2": 0.9439205964568855,
-  "rel_linf": 0.7237947718991123,
+  "rel_l2": 0.021487957376530656,
+  "rel_linf": 0.043287686061820124,
   "accurate": false,
   "query_within_limit": true,
   "passed": false,
@@ -30,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 5.014383316040039,
+  "cuda_peak_allocated_gb": 4.0956196784973145,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "2f10d1b",
+  "git_commit": "bc45ad9",
   "seed": 0,
-  "date": "2026-10-30T23:27:15"
+  "date": "2026-11-05T14:08:01"
 }

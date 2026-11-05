@@ -2,7 +2,7 @@
 tracks/<t>/README.md, and seed record #0.
 
     uv run python -m speedrun.records --track all                 # redraw every activity plot
-    uv run python -m speedrun.records --track 07 --seed-baseline tracks/track07_2D_HighContrastDiffusion/logs/baseline.json
+    uv run python -m speedrun.records --track 10 --seed-baseline tracks/track10_2D_Kovasznay/logs/baseline.json
 
 A record entry is
     {"date": "YYYY-MM-DD", "author": ..., "name": ...,

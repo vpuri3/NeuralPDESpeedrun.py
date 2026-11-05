@@ -49,7 +49,7 @@ checkpointed state.
 ## Rules
 
 1. **Data-free.** Use only what `Problem` provides. No reference or solver outputs, precomputed solutions,
-   downloaded data, or pretraining of any kind. A closed form used to manufacture forcing (09) is off limits.
+   downloaded data, or pretraining of any kind. A closed form used to manufacture forcing is off limits.
 2. **Anything else goes.** Any model, ansatz, loss, optimizer, discretization, precision, or mix of neural and
    classical parts. PyTorch, JAX, and Julia are all fine (the entry point is Python; `Problem` callables accept
    torch or JAX arrays), and so are hand-written GPU kernels (Triton, CUDA, ...).
@@ -137,8 +137,8 @@ toolbox `speedrun/numerics/` is available to everyone.
    ```bash
    uv run python -m speedrun.run_submission --submission submission_PR0042 --gpus 0 \
        --name "my method" --kind hybrid --pr 42       # all tracks the submission covers
-   d=tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0042      # or one track at a time:
-   uv run python -m speedrun.run --track 07 --submission $d --out $d/result.json
+   d=tracks/track10_2D_Kovasznay/submissions/submission_PR0042                  # or one track at a time:
+   uv run python -m speedrun.run --track 10 --submission $d --out $d/result.json
    ```
 3. **Mark the PR ready for review** when you want the maintainers to re-time it.
 
@@ -153,7 +153,8 @@ PirateNet / SOAP-for-PINNs study (Wang et al.); their references are the publish
 (`speedrun/external.py`).
 
 Tracks are ordered by dimension: the ODE, then 1D + time, 2D steady, 2D + time, and 3D + time. The folder name
-carries the tag (`track03_1DT_Burgers`: 1D + time; `track07_2D_HighContrastDiffusion`: 2D, steady).
+carries the tag (`track03_1DT_Burgers`: 1D + time; `track10_2D_Kovasznay`: 2D, steady). Numbers 07 and 12 belong
+to retired tracks and are not reused.
 
 Each track below shows its reference solution (animation where time-dependent) and, once it has submissions,
 its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
@@ -167,9 +168,8 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 04 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
 | 05 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
 | 06 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
-| 07 HighContrastDiffusion (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0002/solve.py) | 215.3 | 13.3% | 20.5% | no |
 | 08 Helmholtz (2D) | *on hold* | | | | |
-| 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 94.4% | 72.4% | no |
+| 09 AdvectionDiffusion (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 230.8 | 0.000895% | 0.00247% | yes |
 | 10 Kovasznay (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track10_2D_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
 | 13 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
@@ -254,17 +254,6 @@ solitons. Output: 200 t × 512 x. Reference: published data.
 <img src="tracks/track06_1DT_KdV/figures/accuracy_vs_time.png" width="49%" alt="06 accuracy_vs_time"> <img src="tracks/track06_1DT_KdV/figures/activity.png" width="49%" alt="06 activity">
 <!-- figures:06:end -->
 
-### 07 HighContrastDiffusion (2D)
-`−∇·(a∇u) = 18` on [0, 1]², `u = 0` on the boundary, `a = 1e3` in a 3 × 3 array of square inclusions, 1
-elsewhere. The inclusion corners make u singular (~ρ^(2/3)). Output: 256² cell centers. Reference: FV on 3840²
-and 5376², Richardson-extrapolated at the measured order 1.34.
-
-<img src="tracks/track07_2D_HighContrastDiffusion/figures/reference.png" width="100%" alt="07 reference">
-
-<!-- figures:07:begin -->
-<img src="tracks/track07_2D_HighContrastDiffusion/figures/accuracy_vs_time.png" width="49%" alt="07 accuracy_vs_time"> <img src="tracks/track07_2D_HighContrastDiffusion/figures/activity.png" width="49%" alt="07 activity">
-<!-- figures:07:end -->
-
 ### 08 Helmholtz (2D): TODO
 The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
 PML, or impedance BC) first.
@@ -273,10 +262,16 @@ PML, or impedance BC) first.
 <!-- figures:08:end -->
 
 ### 09 AdvectionDiffusion (2D)
-`−ε Δu + u_x + u_y = f` on [0, 1]², ε = 1e-3, `u = 0` on the boundary, with boundary layers of width ε at x = 1
-and y = 1. Output: 257² Chebyshev–Lobatto grid. Reference: closed form (f was manufactured from it; rule 1).
+Steady heat transport by a prescribed cellular flow, `(1/(Re Pr)) ΔT − u T_x − v T_y = 0` on [0, 1] × [0, 2],
+`u = −sin πx cos πy`, `v = cos πx sin πy`, Re = 100, Pr = 7 (Pe = 700), cold wall `T(0, y) = 0`, hot wall
+`T(1, y) = 1`, insulated walls at y = 0, 2 ([Binous et al., Wolfram Demonstrations
+2015](https://demonstrations.wolfram.com/SteadyStateTwoDimensionalConvectionDiffusionEquation/)). The isotherms wind
+into spirals; thermal boundary layers of width ~Pe^(−1/2) line the walls and a cold tongue runs along y = 1. The
+solution is smooth (no corner singularities: the problem extends evenly across the insulated walls). Output:
+257 × 513 Chebyshev–Lobatto grid (clustered at the walls and at y = 1). Reference: Chebyshev collocation, N = 128
+on one cell (N = 96 agrees to 4e-11).
 
-<img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="100%" alt="09 reference">
+<img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="49%" alt="09 reference"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/reference_slices.png" width="49%" alt="09 slices">
 
 <!-- figures:09:begin -->
 <img src="tracks/track09_2D_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="09 accuracy_vs_time"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/activity.png" width="49%" alt="09 activity">

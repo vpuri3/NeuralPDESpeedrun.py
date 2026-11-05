@@ -129,7 +129,7 @@ r_k = f − A(u_k).
 ## 5. Research program (ordered)
 
 1. **Speedrun harness** (this repo) with honest classical baselines.
-2. **First neural records.** PINN + Adam/L-BFGS, then SOAP/NG on easy tracks (01, 02, 10, 11), to quantify
+2. **First neural records.** PINN + Adam/L-BFGS, then SOAP/NG on easy tracks (01, 03, 10, 11), to quantify
    the gap.
 3. **Proposal A** (multilevel explicit ansatz + sparse GN + level-preconditioned CG) on tracks 08, 09.
 4. **Hybrid in-run learning.** Classical smoother + learned coarse correction trained during the solve

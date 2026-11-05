@@ -1,0 +1,36 @@
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "PirateNet + SOAP",
+    "submission": "tracks/track07_1DT_KdV/submissions/submission_PR0001/solve.py",
+    "time_s": 1000.7116392478347,
+    "solve_time_s": 1000.5495823947713,
+    "query_time_s": 0.16205685306340456,
+    "rel_l2": 0.0005521257205323955,
+    "rel_linf": 0.0011544303399420512,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 1,
+    "stop": "budget",
+    "budget_s": 1000.0
+  },
+  {
+    "date": "2026-10-31",
+    "author": "maintainers",
+    "name": "PINN + Gauss-Newton (D-NGD)",
+    "submission": "tracks/track07_1DT_KdV/submissions/submission_PR0002/solve.py",
+    "time_s": 15.206264109350741,
+    "solve_time_s": 15.202824539504945,
+    "query_time_s": 0.0034395698457956314,
+    "rel_l2": 1.2189628061505249e-05,
+    "rel_linf": 3.104287038274849e-05,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 2,
+    "stop": "done",
+    "budget_s": 1000.0
+  }
+]

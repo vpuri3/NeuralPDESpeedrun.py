@@ -7,10 +7,10 @@ code (github.com/PredictiveIntelligenceLab/jaxpi, branch `pirate`) and its `pira
 - **Network** (`pinn.py`, port of `jaxpi.archs.PirateNet`): per-point network on raw coordinates; period
   embeddings (cos, sin)(2π x / L) of periodic coordinates; trainable random Fourier features (width 256);
   weight-factorized dense layers (W = g · V, log g ~ N(1, 0.1)); 3 gated residual blocks (4 for 11) of width 256
-  (384 for 18) whose skip weights α start at 0.
+  (384 for 17) whose skip weights α start at 0.
 - **Optimizer**: SOAP from [`soap_jax`](https://github.com/haydn-jones/SOAP_JAX) (pinned commit `a7c92f1`), the
   implementation jaxpi uses, with jaxpi's arguments: b1 = 0.9, b2 = 0.999, precondition_frequency = 2,
-  weight_decay = 0. Learning rate 1e-3, linear warmup over 5000 iterations (2000 for 17, 18), then decay 0.9
+  weight_decay = 0. Learning rate 1e-3, linear warmup over 5000 iterations (2000 for 16, 17), then decay 0.9
   every `decay_steps` (optax, as `jaxpi.models._create_optimizer`).
 - **Loss weighting**: grad-norm weights (mean grad norm / grad norm of each loss term) with momentum 0.9, every
   1000 iterations from iteration 0, as `jaxpi.models.PINN.compute_weights`. Evolution problems use causal
@@ -32,9 +32,9 @@ code (github.com/PredictiveIntelligenceLab/jaxpi, branch `pirate`) and its `pira
   checkpoint. No reference is used.
 - **Query**: one batched, compiled forward pass of the network on the output grid.
 
-Differences from the jaxpi runs, forced by the budget: one time window (jaxpi time-marches 04, 15–18 over 4–25
+Differences from the jaxpi runs, forced by the budget: one time window (jaxpi time-marches 05, 14–17 over 4–25
 windows of 2·10⁴–2·10⁵ iterations each), no Reynolds-number curriculum for 11, grad-norm weighting everywhere
-(jaxpi uses NTK weights for Allen-Cahn), and SOAP for 06 (jaxpi's KdV config uses Adam).
+(jaxpi uses NTK weights for Allen-Cahn), and SOAP for 07 (jaxpi's KdV config uses Adam).
 
-Speed vs. the earlier PyTorch port (05 Allen-Cahn, 60 s, one H100): PyTorch 27.9 it/s at batch 4096,
+Speed vs. the earlier PyTorch port (06 Allen-Cahn, 60 s, one H100): PyTorch 27.9 it/s at batch 4096,
 JAX ≈ 63 it/s at batch 8192 (≈ 4.5× the collocation points per second).

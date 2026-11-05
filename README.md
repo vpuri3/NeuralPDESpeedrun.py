@@ -30,7 +30,7 @@ Reference solutions are not in git. They are assets of the GitHub release
 the figures) from scratch; it downloads the published benchmark data (~300 MB, cached in
 `~/.cache/neuralpdespeedrun`). `run_submission` runs one job per GPU at a time, writes each track's
 `result.json`, and with `--name` adds the results to the records and regenerates the plots and tables. Tracks
-can be named in full (`track03_1DT_Burgers`) or by key (`03`).
+can be named in full (`track04_1DT_Burgers`) or by key (`04`).
 
 ## Scoring
 
@@ -148,12 +148,12 @@ Results that miss the bar stay as points on the track's accuracy-vs-time plot, b
 
 The table lists the best submission on each track. Until some submission meets the track's accuracy bar, the
 best is the most accurate one (lowest RelL2); once the bar is met, it is the fastest one that meets it. Classical
-baselines (record #0) are not shown, here or in the per-track plots and tables. Tracks 04, 05, 06, 11 and 15–18 are the benchmarks of the
+baselines (record #0) are not shown, here or in the per-track plots and tables. Tracks 05, 06, 07, 11 and 14–17 are the benchmarks of the
 PirateNet / SOAP-for-PINNs study (Wang et al.); their references are the published solutions
 (`speedrun/external.py`).
 
 Tracks are ordered by dimension: the ODE, then 1D steady, 1D + time, 2D steady, 2D + time, and 3D + time. The folder name
-carries the tag (`track03_1DT_Burgers`: 1D + time; `track10_2D_Kovasznay`: 2D, steady).
+carries the tag (`track04_1DT_Burgers`: 1D + time; `track10_2D_Kovasznay`: 2D, steady).
 
 Each track below shows its reference solution (animation where time-dependent) and, once it has submissions,
 its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
@@ -162,23 +162,23 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
 | 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
-| 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
-| 03 Burgers (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track03_1DT_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
-| 04 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
-| 05 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
-| 06 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
-| 07 AdvectionDiffusion (1D) | — | | | | |
+| 02 AdvectionDiffusion (1D) | — | | | | |
+| 03 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track03_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
+| 04 Burgers (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
+| 05 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
+| 06 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
+| 07 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track07_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
 | 08 Helmholtz (2D) | *on hold* | | | | |
 | 09 AdvectionDiffusion (2D) | — | | | | |
 | 10 Kovasznay (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track10_2D_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
-| 13 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
-| 14 CylinderFlow (2D + Time) | *TODO* | | | | |
-| 15 GreyScott (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track15_2DT_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
-| 16 GinzburgLandau (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |
-| 17 RayleighTaylor (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0002/solve.py) | 367.7 | 3.99% | 11.1% | no |
-| 18 KolmogorovFlow (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0002/solve.py) | 461.9 | 71.8% | 113% | no |
-| 19 BeltramiFlow (3D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0002/solve.py) | 23.41 | 0.00157% | 0.0134% | yes |
+| 12 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track12_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
+| 13 CylinderFlow (2D + Time) | *TODO* | | | | |
+| 14 GreyScott (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track14_2DT_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
+| 15 GinzburgLandau (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track15_2DT_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |
+| 16 RayleighTaylor (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track16_2DT_RayleighTaylor/submissions/submission_PR0002/solve.py) | 367.7 | 3.99% | 11.1% | no |
+| 17 KolmogorovFlow (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track17_2DT_KolmogorovFlow/submissions/submission_PR0002/solve.py) | 461.9 | 71.8% | 113% | no |
+| 18 BeltramiFlow (3D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track18_3DT_BeltramiFlow/submissions/submission_PR0002/solve.py) | 23.41 | 0.00157% | 0.0134% | yes |
 <!-- tracks-table:end -->
 
 ### 01 VanDerPol (ODE)
@@ -192,78 +192,78 @@ IIA, rtol 1e-12.
 <img src="tracks/track01_0DT_VanDerPol/figures/accuracy_vs_time.png" width="49%" alt="01 accuracy_vs_time"> <img src="tracks/track01_0DT_VanDerPol/figures/activity.png" width="49%" alt="01 activity">
 <!-- figures:01:end -->
 
-### 02 DampedWave (1D + Time)
-`u_tt = u_xx − 0.5 u_t` on (t, x) ∈ [0, 4] × [0, 1], `u = 0` at x = 0, 1, a narrow Gaussian pulse
-`u(0, x) = exp(−(x − 0.3)²/(2·0.02²))`, `u_t(0, x) = 0`. The two halves cross the domain four times, reflecting
-off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-form coefficients).
-
-<img src="tracks/track02_1DT_DampedWave/figures/reference.png" width="100%" alt="02 reference">
-
-<img src="tracks/track02_1DT_DampedWave/figures/reference.gif" width="100%" alt="02 reference">
-
-<!-- figures:02:begin -->
-<img src="tracks/track02_1DT_DampedWave/figures/accuracy_vs_time.png" width="49%" alt="02 accuracy_vs_time"> <img src="tracks/track02_1DT_DampedWave/figures/activity.png" width="49%" alt="02 activity">
-<!-- figures:02:end -->
-
-### 03 Burgers (1D + Time)
-`u_t + u u_x = (0.01/π) u_xx` on (t, x) ∈ [0, 1] × [−1, 1], `u(0, x) = −sin(πx)`, `u = 0` at x = ±1 (Raissi et al.
-2019; [Shahab et al. 2026](https://arxiv.org/abs/2602.08515), sec. 3.1); a stationary shock forms at x = 0 from
-t ≈ 1/π. Output: 1001 t × 1001 x. Reference: exact Cole–Hopf solution by quadrature.
-
-<img src="tracks/track03_1DT_Burgers/figures/reference.png" width="100%" alt="03 reference">
-
-<img src="tracks/track03_1DT_Burgers/figures/reference.gif" width="100%" alt="03 reference">
-
-<!-- figures:03:begin -->
-<img src="tracks/track03_1DT_Burgers/figures/accuracy_vs_time.png" width="49%" alt="03 accuracy_vs_time"> <img src="tracks/track03_1DT_Burgers/figures/activity.png" width="49%" alt="03 activity">
-<!-- figures:03:end -->
-
-### 04 KuramotoSivashinsky (1D + Time)
-`u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
-the initial state is given as samples. Output: 250 t × 512 x. Reference: published data.
-
-<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.png" width="100%" alt="04 reference">
-
-<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="04 reference">
-
-<!-- figures:04:begin -->
-<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="49%" alt="04 accuracy_vs_time"> <img src="tracks/track04_1DT_KuramotoSivashinsky/figures/activity.png" width="49%" alt="04 activity">
-<!-- figures:04:end -->
-
-### 05 AllenCahn (1D + Time)
-`u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.
-Reference: published data.
-
-<img src="tracks/track05_1DT_AllenCahn/figures/reference.png" width="100%" alt="05 reference">
-
-<img src="tracks/track05_1DT_AllenCahn/figures/reference.gif" width="100%" alt="05 reference">
-
-<!-- figures:05:begin -->
-<img src="tracks/track05_1DT_AllenCahn/figures/accuracy_vs_time.png" width="49%" alt="05 accuracy_vs_time"> <img src="tracks/track05_1DT_AllenCahn/figures/activity.png" width="49%" alt="05 activity">
-<!-- figures:05:end -->
-
-### 06 KdV (1D + Time)
-`u_t + u u_x + 0.022² u_xxx = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = cos(πx)`; the cosine breaks into
-solitons. Output: 200 t × 512 x. Reference: published data.
-
-<img src="tracks/track06_1DT_KdV/figures/reference.png" width="100%" alt="06 reference">
-
-<img src="tracks/track06_1DT_KdV/figures/reference.gif" width="100%" alt="06 reference">
-
-<!-- figures:06:begin -->
-<img src="tracks/track06_1DT_KdV/figures/accuracy_vs_time.png" width="49%" alt="06 accuracy_vs_time"> <img src="tracks/track06_1DT_KdV/figures/activity.png" width="49%" alt="06 activity">
-<!-- figures:06:end -->
-
-### 07 AdvectionDiffusion (1D)
+### 02 AdvectionDiffusion (1D)
 Steady advection-diffusion `−ε u″ − u′ = 1` on [0, 1], ε = 0.01, `u(0) = u(1) = 0` ([Chebfun "Boundary layer for
 advection-diffusion equation"](https://www.chebfun.org/examples/ode-linear/BoundaryLayer.html), Trefethen 2010).
 The flow runs toward x = 0, where u drops from its outer solution 1 − x to 0 across a boundary layer of width ~ε
 (u = ½ at x = ε ln 2, slope u′(0) ≈ 1/ε = 100). Output: 1001 uniform points (≈ 46 inside the layer). Reference:
 exact solution.
 
-<img src="tracks/track07_1D_AdvectionDiffusion/figures/reference.png" width="100%" alt="07 reference">
+<img src="tracks/track02_1D_AdvectionDiffusion/figures/reference.png" width="100%" alt="02 reference">
+
+<!-- figures:02:begin -->
+<!-- figures:02:end -->
+
+### 03 DampedWave (1D + Time)
+`u_tt = u_xx − 0.5 u_t` on (t, x) ∈ [0, 4] × [0, 1], `u = 0` at x = 0, 1, a narrow Gaussian pulse
+`u(0, x) = exp(−(x − 0.3)²/(2·0.02²))`, `u_t(0, x) = 0`. The two halves cross the domain four times, reflecting
+off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-form coefficients).
+
+<img src="tracks/track03_1DT_DampedWave/figures/reference.png" width="100%" alt="03 reference">
+
+<img src="tracks/track03_1DT_DampedWave/figures/reference.gif" width="100%" alt="03 reference">
+
+<!-- figures:03:begin -->
+<img src="tracks/track03_1DT_DampedWave/figures/accuracy_vs_time.png" width="49%" alt="03 accuracy_vs_time"> <img src="tracks/track03_1DT_DampedWave/figures/activity.png" width="49%" alt="03 activity">
+<!-- figures:03:end -->
+
+### 04 Burgers (1D + Time)
+`u_t + u u_x = (0.01/π) u_xx` on (t, x) ∈ [0, 1] × [−1, 1], `u(0, x) = −sin(πx)`, `u = 0` at x = ±1 (Raissi et al.
+2019; [Shahab et al. 2026](https://arxiv.org/abs/2602.08515), sec. 3.1); a stationary shock forms at x = 0 from
+t ≈ 1/π. Output: 1001 t × 1001 x. Reference: exact Cole–Hopf solution by quadrature.
+
+<img src="tracks/track04_1DT_Burgers/figures/reference.png" width="100%" alt="04 reference">
+
+<img src="tracks/track04_1DT_Burgers/figures/reference.gif" width="100%" alt="04 reference">
+
+<!-- figures:04:begin -->
+<img src="tracks/track04_1DT_Burgers/figures/accuracy_vs_time.png" width="49%" alt="04 accuracy_vs_time"> <img src="tracks/track04_1DT_Burgers/figures/activity.png" width="49%" alt="04 activity">
+<!-- figures:04:end -->
+
+### 05 KuramotoSivashinsky (1D + Time)
+`u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
+the initial state is given as samples. Output: 250 t × 512 x. Reference: published data.
+
+<img src="tracks/track05_1DT_KuramotoSivashinsky/figures/reference.png" width="100%" alt="05 reference">
+
+<img src="tracks/track05_1DT_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="05 reference">
+
+<!-- figures:05:begin -->
+<img src="tracks/track05_1DT_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="49%" alt="05 accuracy_vs_time"> <img src="tracks/track05_1DT_KuramotoSivashinsky/figures/activity.png" width="49%" alt="05 activity">
+<!-- figures:05:end -->
+
+### 06 AllenCahn (1D + Time)
+`u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.
+Reference: published data.
+
+<img src="tracks/track06_1DT_AllenCahn/figures/reference.png" width="100%" alt="06 reference">
+
+<img src="tracks/track06_1DT_AllenCahn/figures/reference.gif" width="100%" alt="06 reference">
+
+<!-- figures:06:begin -->
+<img src="tracks/track06_1DT_AllenCahn/figures/accuracy_vs_time.png" width="49%" alt="06 accuracy_vs_time"> <img src="tracks/track06_1DT_AllenCahn/figures/activity.png" width="49%" alt="06 activity">
+<!-- figures:06:end -->
+
+### 07 KdV (1D + Time)
+`u_t + u u_x + 0.022² u_xxx = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = cos(πx)`; the cosine breaks into
+solitons. Output: 200 t × 512 x. Reference: published data.
+
+<img src="tracks/track07_1DT_KdV/figures/reference.png" width="100%" alt="07 reference">
+
+<img src="tracks/track07_1DT_KdV/figures/reference.gif" width="100%" alt="07 reference">
 
 <!-- figures:07:begin -->
+<img src="tracks/track07_1DT_KdV/figures/accuracy_vs_time.png" width="49%" alt="07 accuracy_vs_time"> <img src="tracks/track07_1DT_KdV/figures/activity.png" width="49%" alt="07 activity">
 <!-- figures:07:end -->
 
 ### 08 Helmholtz (2D): TODO
@@ -312,82 +312,82 @@ on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: publis
 <img src="tracks/track11_2D_LidDrivenCavity/figures/accuracy_vs_time.png" width="49%" alt="11 accuracy_vs_time"> <img src="tracks/track11_2D_LidDrivenCavity/figures/activity.png" width="49%" alt="11 activity">
 <!-- figures:11:end -->
 
-### 13 DecayingEddies (2D + Time)
+### 12 DecayingEddies (2D + Time)
 Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,
 `v = cos 5x + 0.75 sin 3x sin 4y` (Walsh 1992). Output: (u, v) at 11 t × 128². Reference: closed form.
 
-<img src="tracks/track13_2DT_DecayingEddies/figures/reference.png" width="100%" alt="13 reference">
+<img src="tracks/track12_2DT_DecayingEddies/figures/reference.png" width="100%" alt="12 reference">
 
-<img src="tracks/track13_2DT_DecayingEddies/figures/reference.gif" width="100%" alt="13 reference">
+<img src="tracks/track12_2DT_DecayingEddies/figures/reference.gif" width="100%" alt="12 reference">
+
+<!-- figures:12:begin -->
+<img src="tracks/track12_2DT_DecayingEddies/figures/accuracy_vs_time.png" width="49%" alt="12 accuracy_vs_time"> <img src="tracks/track12_2DT_DecayingEddies/figures/activity.png" width="49%" alt="12 activity">
+<!-- figures:12:end -->
+
+### 13 CylinderFlow (2D + Time): TODO
+Flow past a cylinder; see `tracks/track13_2DT_CylinderFlow/TODO.md`.
 
 <!-- figures:13:begin -->
-<img src="tracks/track13_2DT_DecayingEddies/figures/accuracy_vs_time.png" width="49%" alt="13 accuracy_vs_time"> <img src="tracks/track13_2DT_DecayingEddies/figures/activity.png" width="49%" alt="13 activity">
 <!-- figures:13:end -->
 
-### 14 CylinderFlow (2D + Time): TODO
-Flow past a cylinder; see `tracks/track14_2DT_CylinderFlow/TODO.md`.
-
-<!-- figures:14:begin -->
-<!-- figures:14:end -->
-
-### 15 GreyScott (2D + Time)
+### 14 GreyScott (2D + Time)
 `u_t = 0.2 Δu + 40(1 − u) − 1000 u v²`, `v_t = 0.1 Δv − 100 v + 1000 u v²` on [−1, 1]² periodic, t ∈ [0, 2], initial
 state given as samples. Output: (u, v) at 100 t × 200². Reference: published data.
 
-<img src="tracks/track15_2DT_GreyScott/figures/reference.png" width="100%" alt="15 reference">
+<img src="tracks/track14_2DT_GreyScott/figures/reference.png" width="100%" alt="14 reference">
 
-<img src="tracks/track15_2DT_GreyScott/figures/reference.gif" width="100%" alt="15 reference">
+<img src="tracks/track14_2DT_GreyScott/figures/reference.gif" width="100%" alt="14 reference">
 
-<!-- figures:15:begin -->
-<img src="tracks/track15_2DT_GreyScott/figures/accuracy_vs_time.png" width="49%" alt="15 accuracy_vs_time"> <img src="tracks/track15_2DT_GreyScott/figures/activity.png" width="49%" alt="15 activity">
-<!-- figures:15:end -->
+<!-- figures:14:begin -->
+<img src="tracks/track14_2DT_GreyScott/figures/accuracy_vs_time.png" width="49%" alt="14 accuracy_vs_time"> <img src="tracks/track14_2DT_GreyScott/figures/activity.png" width="49%" alt="14 activity">
+<!-- figures:14:end -->
 
-### 16 GinzburgLandau (2D + Time)
+### 15 GinzburgLandau (2D + Time)
 Complex Ginzburg–Landau for A = u + iv, ε = 0.004, k = 10, on [−1, 1]² periodic, t ∈ [0, 1], initial state given as
 samples. Output: (u, v) at 100 t × 200². Reference: published data.
 
-<img src="tracks/track16_2DT_GinzburgLandau/figures/reference.png" width="100%" alt="16 reference">
+<img src="tracks/track15_2DT_GinzburgLandau/figures/reference.png" width="100%" alt="15 reference">
 
-<img src="tracks/track16_2DT_GinzburgLandau/figures/reference.gif" width="100%" alt="16 reference">
+<img src="tracks/track15_2DT_GinzburgLandau/figures/reference.gif" width="100%" alt="15 reference">
 
-<!-- figures:16:begin -->
-<img src="tracks/track16_2DT_GinzburgLandau/figures/accuracy_vs_time.png" width="49%" alt="16 accuracy_vs_time"> <img src="tracks/track16_2DT_GinzburgLandau/figures/activity.png" width="49%" alt="16 activity">
-<!-- figures:16:end -->
+<!-- figures:15:begin -->
+<img src="tracks/track15_2DT_GinzburgLandau/figures/accuracy_vs_time.png" width="49%" alt="15 accuracy_vs_time"> <img src="tracks/track15_2DT_GinzburgLandau/figures/activity.png" width="49%" alt="15 activity">
+<!-- figures:15:end -->
 
-### 17 RayleighTaylor (2D + Time)
+### 16 RayleighTaylor (2D + Time)
 Boussinesq Rayleigh–Taylor instability, Ra = 1e6, Pr = 0.71, on [0, 1] × [0, 2], t ∈ [0, 8.5], initial state given as
 samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. Reference: published data.
 
-<img src="tracks/track17_2DT_RayleighTaylor/figures/reference.png" width="100%" alt="17 reference">
+<img src="tracks/track16_2DT_RayleighTaylor/figures/reference.png" width="100%" alt="16 reference">
 
-<img src="tracks/track17_2DT_RayleighTaylor/figures/reference.gif" width="100%" alt="17 reference">
+<img src="tracks/track16_2DT_RayleighTaylor/figures/reference.gif" width="100%" alt="16 reference">
 
-<!-- figures:17:begin -->
-<img src="tracks/track17_2DT_RayleighTaylor/figures/accuracy_vs_time.png" width="49%" alt="17 accuracy_vs_time"> <img src="tracks/track17_2DT_RayleighTaylor/figures/activity.png" width="49%" alt="17 activity">
-<!-- figures:17:end -->
+<!-- figures:16:begin -->
+<img src="tracks/track16_2DT_RayleighTaylor/figures/accuracy_vs_time.png" width="49%" alt="16 accuracy_vs_time"> <img src="tracks/track16_2DT_RayleighTaylor/figures/activity.png" width="49%" alt="16 activity">
+<!-- figures:16:end -->
 
-### 18 KolmogorovFlow (2D + Time)
+### 17 KolmogorovFlow (2D + Time)
 Forced 2D NS, Re = 1e4, forcing `2 sin(4πy)` in x, on [0, 1)² periodic, t ∈ [0, 1.96], initial state given as
 samples; turbulent. Output: (u, v) at 49 t × 256². Reference: published data.
 
-<img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.png" width="100%" alt="18 reference">
+<img src="tracks/track17_2DT_KolmogorovFlow/figures/reference.png" width="100%" alt="17 reference">
 
-<img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.gif" width="100%" alt="18 reference">
+<img src="tracks/track17_2DT_KolmogorovFlow/figures/reference.gif" width="100%" alt="17 reference">
 
-<!-- figures:18:begin -->
-<img src="tracks/track18_2DT_KolmogorovFlow/figures/accuracy_vs_time.png" width="49%" alt="18 accuracy_vs_time"> <img src="tracks/track18_2DT_KolmogorovFlow/figures/activity.png" width="49%" alt="18 activity">
-<!-- figures:18:end -->
+<!-- figures:17:begin -->
+<img src="tracks/track17_2DT_KolmogorovFlow/figures/accuracy_vs_time.png" width="49%" alt="17 accuracy_vs_time"> <img src="tracks/track17_2DT_KolmogorovFlow/figures/activity.png" width="49%" alt="17 activity">
+<!-- figures:17:end -->
 
-### 19 BeltramiFlow (3D + Time)
+### 18 BeltramiFlow (3D + Time)
 3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1]: the Ethier–Steinman Beltrami flow (a = d = 1). Initial and
 Dirichlet velocity on all six faces come from the exact solution. Output: (u, v, w) at t = 0.25, 0.5, 0.75, 1 on 33³.
 Reference: closed form.
 
-<img src="tracks/track19_3DT_BeltramiFlow/figures/reference.png" width="100%" alt="19 reference">
+<img src="tracks/track18_3DT_BeltramiFlow/figures/reference.png" width="100%" alt="18 reference">
 
-<!-- figures:19:begin -->
-<img src="tracks/track19_3DT_BeltramiFlow/figures/accuracy_vs_time.png" width="49%" alt="19 accuracy_vs_time"> <img src="tracks/track19_3DT_BeltramiFlow/figures/activity.png" width="49%" alt="19 activity">
-<!-- figures:19:end -->
+<!-- figures:18:begin -->
+<img src="tracks/track18_3DT_BeltramiFlow/figures/accuracy_vs_time.png" width="49%" alt="18 accuracy_vs_time"> <img src="tracks/track18_3DT_BeltramiFlow/figures/activity.png" width="49%" alt="18 activity">
+<!-- figures:18:end -->
 
 ## Layout
 

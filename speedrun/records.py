@@ -89,7 +89,7 @@ def best_submission(recs: list[dict]) -> dict | None:
 
 
 TABLE_BEGIN, TABLE_END = "<!-- tracks-table:begin -->", "<!-- tracks-table:end -->"
-STATUS = {"track08_2D_Helmholtz": "*on hold*", "track14_2DT_CylinderFlow": "*TODO*"}
+STATUS = {"track08_2D_Helmholtz": "*on hold*", "track13_2DT_CylinderFlow": "*TODO*"}
 
 
 def tracks_table() -> str:

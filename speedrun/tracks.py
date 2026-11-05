@@ -18,23 +18,23 @@ TRACKS_DIR = ROOT / "tracks"
 # (spatial dimension, T = time-dependent).
 TRACKS = [
     "track01_0DT_VanDerPol",             # stiff ODE: Van der Pol oscillator, mu = 1000
-    "track02_1DT_DampedWave",            # damped wave, narrow pulse, many reflections
-    "track03_1DT_Burgers",               # viscous Burgers, periodic
-    "track04_1DT_KuramotoSivashinsky",   # Kuramoto-Sivashinsky, chaotic, periodic (published data)
-    "track05_1DT_AllenCahn",             # Allen-Cahn, periodic (published data)
-    "track06_1DT_KdV",                   # Korteweg-de Vries, periodic (published data)
-    "track07_1D_AdvectionDiffusion",     # steady advection-diffusion, outflow boundary layer (Chebfun)
+    "track02_1D_AdvectionDiffusion",     # steady advection-diffusion, outflow boundary layer (Chebfun)
+    "track03_1DT_DampedWave",            # damped wave, narrow pulse, many reflections
+    "track04_1DT_Burgers",               # viscous Burgers, periodic
+    "track05_1DT_KuramotoSivashinsky",   # Kuramoto-Sivashinsky, chaotic, periodic (published data)
+    "track06_1DT_AllenCahn",             # Allen-Cahn, periodic (published data)
+    "track07_1DT_KdV",                   # Korteweg-de Vries, periodic (published data)
     "track08_2D_Helmholtz",              # Helmholtz, heterogeneous medium (on hold)
     "track09_2D_AdvectionDiffusion",     # steady advection-diffusion, cellular flow (Wolfram Demonstration)
     "track10_2D_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)
     "track11_2D_LidDrivenCavity",        # lid-driven cavity, Re = 5000, steady (published data)
-    "track13_2DT_DecayingEddies",        # decaying eddies (Walsh 1992), periodic
-    "track14_2DT_CylinderFlow",          # flow past a cylinder (TODO)
-    "track15_2DT_GreyScott",             # Grey-Scott reaction-diffusion, periodic (published data)
-    "track16_2DT_GinzburgLandau",        # complex Ginzburg-Landau, periodic (published data)
-    "track17_2DT_RayleighTaylor",        # Rayleigh-Taylor instability, Ra = 1e6 (published data)
-    "track18_2DT_KolmogorovFlow",        # Kolmogorov flow, Re = 1e4, periodic (published data)
-    "track19_3DT_BeltramiFlow",          # 3D unsteady Beltrami flow, Re = 1 (exact solution)
+    "track12_2DT_DecayingEddies",        # decaying eddies (Walsh 1992), periodic
+    "track13_2DT_CylinderFlow",          # flow past a cylinder (TODO)
+    "track14_2DT_GreyScott",             # Grey-Scott reaction-diffusion, periodic (published data)
+    "track15_2DT_GinzburgLandau",        # complex Ginzburg-Landau, periodic (published data)
+    "track16_2DT_RayleighTaylor",        # Rayleigh-Taylor instability, Ra = 1e6 (published data)
+    "track17_2DT_KolmogorovFlow",        # Kolmogorov flow, Re = 1e4, periodic (published data)
+    "track18_3DT_BeltramiFlow",          # 3D unsteady Beltrami flow, Re = 1 (exact solution)
 ]
 
 # Reference solutions are not in git: they are assets of this GitHub release, one <track id>.npz per track,
@@ -55,7 +55,7 @@ def resolve(track: str) -> str:
 
 
 def key(track: str) -> str:
-    """Two-digit key of a track: "track03_1DT_Burgers" -> "03"."""
+    """Two-digit key of a track: "track04_1DT_Burgers" -> "03"."""
     return resolve(track).split("_", 1)[0].removeprefix("track")
 
 
@@ -68,7 +68,7 @@ def dim_label(track: str) -> str:
 
 
 def name(track: str) -> str:
-    """Problem name of a track: "track03_1DT_Burgers" -> "Burgers"."""
+    """Problem name of a track: "track04_1DT_Burgers" -> "Burgers"."""
     return resolve(track).split("_", 2)[2]
 
 

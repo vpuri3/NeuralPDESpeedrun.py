@@ -48,6 +48,8 @@ class Problem:
     rel_l2_tol: float = REL_L2_TOL  # accuracy bar (the speedrun-wide one on every track)
     rel_linf_tol: float = REL_LINF_TOL
     linf_margin: float = 0.0        # RelL∞ is not scored within this distance of the (x, y) domain boundary
+    mesh: dict | None = None        # unstructured output: {"points": (n, d), cells, boundary node ids, ...};
+                                    # then axes = {"node": arange(n)} and the output is (n_fields, n)
     budget_s: float = BUDGET_S      # the harness stops the timed solve once this much wall-clock time is used
 
     @property

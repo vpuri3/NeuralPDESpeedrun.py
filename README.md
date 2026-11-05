@@ -170,7 +170,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 1D_KuramotoSivashinsky | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
 | 1D_AllenCahn | [PINN + Gauss-Newton (D-NGD)](tracks/1D_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
 | 1D_KdV | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
-| 2D_Steady_Helmholtz | *on hold* | | | | |
+| 2D_Steady_Helmholtz | *TODO* | | | | |
 | 2D_Steady_AdvectionDiffusion | — | | | | |
 | 2D_Steady_Kovasznay | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 2D_Steady_LidDrivenCavity | [PirateNet + SOAP](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
@@ -267,8 +267,12 @@ solitons. Output: 200 t × 512 x. Reference: published data.
 <!-- figures:1D_KdV:end -->
 
 ### 2D_Steady_Helmholtz: TODO
-The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
-PML, or impedance BC) first.
+Scattering of a plane wave by a square in a disk, the [MATLAB PDE Toolbox
+example](https://www.mathworks.com/help/pde/ug/helmholtzs-equation-on-disk-with-a-square-hole.html):
+`−Δr − k²r = 0`, k = 60, `r = −exp(−ikx)` on the square, `∂r/∂n − ikr = 0` on the circle. The problem and its
+mesh (9528 nodes, linear triangles) are defined; the reference is not yet. Linear FEM on that mesh is 16% from
+the converged solution, so the reference will come from refinements of it, solved with a multigrid-preconditioned
+iterative solver. Status and next steps: [TODO.md](tracks/2D_Steady_Helmholtz/TODO.md).
 
 <!-- figures:2D_Steady_Helmholtz:begin -->
 <!-- figures:2D_Steady_Helmholtz:end -->

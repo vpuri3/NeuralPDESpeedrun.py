@@ -14,7 +14,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   callables are array-API (torch or JAX in and out). Per-axis `Problem.periodic` flags.
 - Track set, ordered by dimension; ids are `<dim>D[_Steady]_<Name>` (no numbers, since 2026-11-05):
   0D_VanDerPol; 1D_Steady_AdvectionDiffusion; 1D_DampedWave, 1D_Burgers, 1D_KuramotoSivashinsky, 1D_AllenCahn,
-  1D_KdV; 2D_Steady_Helmholtz (on hold), 2D_Steady_AdvectionDiffusion, 2D_Steady_Kovasznay,
+  1D_KdV; 2D_Steady_Helmholtz (TODO), 2D_Steady_AdvectionDiffusion, 2D_Steady_Kovasznay,
   2D_Steady_LidDrivenCavity; 2D_CylinderFlow (TODO), 2D_GreyScott, 2D_GinzburgLandau, 2D_RayleighTaylor,
   2D_KolmogorovFlow. Removed 2026-11-05: high-contrast diffusion, 2D Burgers, decaying eddies, 3D Beltrami flow.
 - References are assets of the GitHub release `refs-v1` (not in git), downloaded on first use and checked
@@ -36,7 +36,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 | 1D_Burgers | Fourier N=8192 (4096: 2e-8) | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 |
 | 1D_KuramotoSivashinsky | published data | — | | | |
 | 1D_AllenCahn, 1D_KdV | published data | — | | | |
-| 2D_Steady_Helmholtz | *on hold* | | | | |
+| 2D_Steady_Helmholtz | *TODO* | | | | |
 | 2D_Steady_AdvectionDiffusion | Chebyshev N=64, one cell (N=48: 6e-12) | Chebyshev N=24 | | 5.9e-07 | 1.2e-06 |
 | 2D_Steady_Kovasznay | closed form | PN–PN-2 N=16, Newton | 0.19 s | 1.4e-07 | 4.7e-07 |
 | 2D_Steady_LidDrivenCavity | published data (Re = 5000) | — | | | |
@@ -98,7 +98,8 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 
 ### Deferred
 
-- [ ] **2D_Steady_Helmholtz: on hold** (resonant as specified; needs absorption).
+- [ ] **2D_Steady_Helmholtz**: the MATLAB scattering example; reference pending, see
+  `tracks/2D_Steady_Helmholtz/TODO.md`.
 - [ ] **2D_CylinderFlow**: set-up notes in `tracks/2D_CylinderFlow/TODO.md`.
 - [ ] Classical baselines for the benchmark tracks, if wanted.
 

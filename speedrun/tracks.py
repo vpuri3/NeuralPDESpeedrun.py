@@ -24,7 +24,7 @@ TRACKS = [
     "1D_KuramotoSivashinsky",         # Kuramoto-Sivashinsky, chaotic, periodic (published data)
     "1D_AllenCahn",                   # Allen-Cahn, periodic (published data)
     "1D_KdV",                         # Korteweg-de Vries, periodic (published data)
-    "2D_Steady_Helmholtz",            # Helmholtz, heterogeneous medium (on hold)
+    "2D_Steady_Helmholtz",            # Helmholtz scattering by a square in a disk (TODO)
     "2D_Steady_AdvectionDiffusion",   # steady advection-diffusion, cellular flow (Wolfram Demonstration)
     "2D_Steady_Kovasznay",            # Kovasznay flow, Re = 40 (steady Navier-Stokes)
     "2D_Steady_LidDrivenCavity",      # lid-driven cavity, Re = 5000, steady (published data)

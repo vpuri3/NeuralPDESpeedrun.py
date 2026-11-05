@@ -6,17 +6,19 @@ networks (PINNs) need to be deep? Shallow PINNs using the Levenberg-Marquardt al
   Glorot-normal weights, zero biases, seed 0. All parameters in one flat vector w (ravel_pytree).
 - Ansatz: the track may build the initial and boundary conditions into the output, u(z) = ansatz(u~, z), e.g.
   Burgers u = u~ (1 - x^2) t - sin(pi x) (the paper's eq. 42), or impose them as residual rows (bcs).
-- Residual: F(w) = PDE residual at n_colloc fixed uniform random points of the domain (drawn once, seed 0), plus
+- Residual: F(w) = PDE residual at n_colloc uniform random points of the domain (drawn once, seed 0, as the paper;
+  or, with resample, redrawn at every LM iteration: the current loss, J and all trial steps of one iteration
+  then use the same points, so accepting a step still means the loss went down on them), plus
   rows for any condition not built into the ansatz (scaled so each group counts like a mean).
   Derivatives in the inputs by Taylor-mode AD (jax.experimental.jet); the Jacobian J = dF/dw by reverse mode
   per point (vmap(jacrev)). Nothing hand-derived.
 - Optimizer: textbook Levenberg-Marquardt, as the paper (MATLAB fsolve 'levenberg-marquardt'):
       solve (J^T J + mu I) d = J^T F (Cholesky, no preconditioning / scaling),  trial w - d;
       if ||F(w - d)||^2 < ||F(w)||^2: accept, mu <- mu / 10;  else: reject, mu <- 10 mu, retry the same iterate.
-  mu0 = 0.01. Stops after max_iters iterations, or when ||d|| < step_tol (step_tol + ||w||) (fsolve's relative
+  mu0 = 0.01. Stops after max_iters iterations (if set), or when ||d|| < step_tol (step_tol + ||w||) (fsolve's relative
   step tolerance), or when no damping up to mu_max decreases the loss.
-- Execution: float64 throughout. The LM iteration (with its retries) runs on the device, check_every iterations
-  per compiled call; the host checks the stopping flags and checkpoints between calls. Everything is compiled
+- Execution: float64 throughout. The LM iteration (with its retries) runs on the device, up to check_every
+  iterations (and about check_s seconds) per compiled call; the host checks the stopping flags and checkpoints between calls. Everything is compiled
   ahead of time in setup.
 """
 from __future__ import annotations
@@ -28,7 +30,7 @@ os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")   # the harness 
 import math
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import jax
 import jax.numpy as jnp
@@ -46,13 +48,15 @@ VERBOSE = bool(os.environ.get("PR0004_VERBOSE"))
 class Config:
     width: int = 32
     layers: int = 2             # hidden layers (1 or 2)
-    n_colloc: int = 10000       # fixed collocation points
-    max_iters: int = 20000
+    n_colloc: int = 10000       # interior collocation points
+    resample: bool = False      # False: drawn once (the paper); True: redrawn every LM iteration
+    max_iters: int | None = 20000   # None: no cap (the harness's wall-clock budget stops it)
     mu0: float = 1e-2
     factor: float = 10.0
     mu_max: float = 1e16
     step_tol: float = 1e-12
-    check_every: int = 50       # LM iterations per compiled call (one host sync + checkpoint each)
+    check_every: int = 50       # at most this many LM iterations per compiled call (one host sync + checkpoint each)
+    check_s: float = 1.0        # ... and about this much wall-clock time (big networks checkpoint more often)
     seed: int = 0
 
 
@@ -113,6 +117,9 @@ class LMPINN:
     so the least-squares loss is mean(PDE^2) + sum_k weight_k^2 mean(cond_k^2), times n_colloc."""
 
     def __init__(self, problem, residual: Callable, cfg: Config, ansatz: Callable | None = None, bcs=()):
+        if "PR0004_MAX_ITERS" in os.environ:     # development sweeps: "none" or an integer
+            v = os.environ["PR0004_MAX_ITERS"]
+            cfg = replace(cfg, max_iters=None if v.lower() == "none" else int(v))
         self.cfg, self.problem = cfg, problem
         names = problem.axis_names
         self.lo = np.array([float(problem.domain[k][0]) for k in names])
@@ -144,22 +151,40 @@ class LMPINN:
         nn = lambda z: _mlp(params, self.features(z))
         return lambda z: self.ansatz(nn, z)
 
-    def F(self, w):
-        return jnp.concatenate([jax.vmap(lambda z: c * fn(self.u(w), z))(jnp.asarray(Z)) for Z, fn, c in self.groups])
+    def _groups(self, Z0):
+        return [(Z0, *self.groups[0][1:])] + self.groups[1:]
 
-    def J(self, w):
+    def F(self, w, Z0):
+        """Stacked residual; Z0: the interior collocation points."""
+        return jnp.concatenate([jax.vmap(lambda z: c * fn(self.u(w), z))(jnp.asarray(Z))
+                                for Z, fn, c in self._groups(Z0)])
+
+    def J(self, w, Z0):
         return jnp.concatenate([jax.vmap(jax.grad(lambda w, z: c * fn(self.u(w), z)), (None, 0))(w, jnp.asarray(Z))
-                                for Z, fn, c in self.groups])
+                                for Z, fn, c in self._groups(Z0)])
+
+    def sample(self, key):
+        u = jax.random.uniform(key, (self.cfg.n_colloc, len(self.lo)), F64)
+        return jnp.asarray(self.lo) + jnp.asarray(self.hi - self.lo) * u
 
     # LM ----------------------------------------------------------------------------------------------------
-    def _chunk(self, w, mu, sse):
+    def _chunk(self, w, mu, sse, key, n):
         cfg = self.cfg
-        F, Jf = self.F, self.J
         I = jnp.eye(w.size, dtype=F64)
+        Zfix = jnp.asarray(self.Z)
 
         def iteration(carry):
-            w, mu, sse, stop, k = carry
-            r, J = F(w), Jf(w)
+            w, mu, sse, key, stop, k = carry
+            if cfg.resample:                   # fresh points; the loss to beat is the current one on them
+                key, sub = jax.random.split(key)
+                Z0 = self.sample(sub)
+                r = self.F(w, Z0)
+                sse = jnp.sum(r ** 2)
+            else:
+                Z0 = Zfix
+                r = self.F(w, Z0)
+            F = lambda w: self.F(w, Z0)
+            J = self.J(w, Z0)
             A, g = J.T @ J, J.T @ r
 
             def trial(c):
@@ -177,17 +202,18 @@ class LMPINN:
             sse = jnp.where(ok, s2, sse)
             small = dn < cfg.step_tol * (cfg.step_tol + jnp.linalg.norm(w))
             stop = jnp.where(~ok, 2, jnp.where(small, 1, 0))     # 1: step tolerance, 2: mu > mu_max
-            return w, mu, sse, stop, k + 1
+            return w, mu, sse, key, stop, k + 1
 
-        w, mu, sse, stop, k = jax.lax.while_loop(lambda c: (c[3] == 0) & (c[4] < cfg.check_every), iteration,
-                                                 (w, mu, sse, jnp.array(0), jnp.array(0)))
-        return w, mu, sse, stop, k
+        w, mu, sse, key, stop, k = jax.lax.while_loop(lambda c: (c[4] == 0) & (c[5] < n), iteration,
+                                                      (w, mu, sse, key, jnp.array(0), jnp.array(0)))
+        return w, mu, sse, key, stop, k
 
     def compile(self):
         s = jax.ShapeDtypeStruct
         sw, sc = s((self.n_params,), F64), s((), F64)
-        self._chunk_c = jax.jit(self._chunk).lower(sw, sc, sc).compile()
-        self._sse_c = jax.jit(lambda w: jnp.sum(self.F(w) ** 2)).lower(sw).compile()
+        sk = s((2,), jnp.uint32)
+        self._chunk_c = jax.jit(self._chunk).lower(sw, sc, sc, sk, s((), jnp.int32)).compile()
+        self._sse_c = jax.jit(lambda w: jnp.sum(self.F(w, jnp.asarray(self.Z)) ** 2)).lower(sw).compile()
         grid = jnp.asarray(np.stack([g.ravel() for g in np.meshgrid(*self.axes, indexing="ij")], -1))
         shape = (1, *[len(a) for a in self.axes])
         self._pred_c = jax.jit(lambda w: jax.vmap(self.u(w))(grid).reshape(shape)).lower(sw).compile()
@@ -197,12 +223,20 @@ class LMPINN:
         cfg = self.cfg
         w, mu = self.w0, jnp.asarray(cfg.mu0, F64)
         sse = self._sse_c(w)
+        key = jax.random.PRNGKey(cfg.seed + 1)
         it, t0 = 0, time.perf_counter()
         state = State(self, w, float(mu), float(sse), 0)
         checkpoint(state)
-        while it < cfg.max_iters:
-            w, mu, sse, stop, k = self._chunk_c(w, mu, sse)
-            it += int(k)
+        n = 1                                  # iterations per call, grown toward check_s seconds
+        while cfg.max_iters is None or it < cfg.max_iters:
+            if cfg.max_iters is not None:
+                n = min(n, cfg.max_iters - it)
+            tc = time.perf_counter()
+            w, mu, sse, key, stop, k = self._chunk_c(w, mu, sse, key, jnp.int32(n))
+            k = int(k)
+            it += k
+            dt = time.perf_counter() - tc
+            n = max(1, min(cfg.check_every, int(n * cfg.check_s / max(dt, 1e-9)), 2 * n))
             state = State(self, w, float(mu), float(sse), it)
             checkpoint(state)
             if VERBOSE:

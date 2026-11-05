@@ -16,5 +16,5 @@ def setup(problem):
     bcs = [(face(problem, "t", 0.0, seed=1), lambda u, z: u(z) - fn["u0"](z[1]), 1.0),
            (face(problem, "x", -1.0, seed=2), lambda u, z: u(z) - fn["bc_left"](z[0]), 1.0),
            (face(problem, "x", 1.0, seed=3), lambda u, z: u(z) - fn["bc_right"](z[0]), 1.0)]
-    width, layers = arch(32, 2)
-    return LMPINN(problem, residual, Config(width=width, layers=layers), bcs=bcs).compile()
+    width, layers = arch(32, 4)
+    return LMPINN(problem, residual, Config(width=width, layers=layers, max_iters=None), bcs=bcs).compile()

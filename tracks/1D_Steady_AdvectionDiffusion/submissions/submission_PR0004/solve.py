@@ -13,6 +13,6 @@ def setup(problem):
         _, u_x, u_xx = derivs(u, z, 0, 2)
         return -eps * u_xx + b * u_x - f(z[0])
 
-    width, layers = arch(32, 2)
+    width, layers = arch(8, 1)
     walls = np.array([[0.0], [1.0]])
     return LMPINN(problem, residual, Config(width=width, layers=layers), bcs=[(walls, lambda u, z: u(z) - g(z[0]), 1.0)]).compile()

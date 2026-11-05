@@ -6,7 +6,7 @@ import torch
 
 from speedrun.numerics import bary_matrix, cheb
 
-N = 48
+N = 24
 
 
 def chebyshev_cell(problem, N, M=None):

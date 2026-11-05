@@ -1,6 +1,6 @@
-"""Reference: Chebyshev collocation on one cell (the baseline's solver) at N = 128, mirrored to [1, 2],
-cross-checked against N = 96 and N = 112, and against a direct solve on the full domain [0, 1] x [0, 2]
-(two cells, no symmetry assumed) at N = 96 x 192."""
+"""Reference: Chebyshev collocation on one cell (the baseline's solver) at N = 64, mirrored to [1, 2],
+cross-checked against N = 48 and N = 56, and against a direct solve on the full domain [0, 1] x [0, 2]
+(two cells, no symmetry assumed) at N = 64 x 128."""
 import torch
 
 from speedrun import plotting
@@ -8,7 +8,7 @@ from speedrun import plotting
 from .baseline import chebyshev_cell, to_output
 from .problem import make_problem
 
-N_REF = 128
+N_REF = 64
 
 
 def full_domain(p, N, M):
@@ -39,9 +39,9 @@ def compute(device="cpu"):
     p = make_problem(device=device)
     u = to_output(p, *chebyshev_cell(p, N_REF))
     meta = {"method": f"Chebyshev collocation on one cell, N = {N_REF}, mirrored about y = 1"}
-    for n in (96, 112):
+    for n in (48, 56):
         meta[f"check_N{n}_linf"] = float((to_output(p, *chebyshev_cell(p, n)) - u).abs().max())
-    meta["check_full_domain_N96x192_linf"] = float((full_domain(p, 96, 192) - u).abs().max())
+    meta["check_full_domain_N64x128_linf"] = float((full_domain(p, 64, 128) - u).abs().max())
     x, y, T = chebyshev_cell(p, N_REF)
     from speedrun.numerics import cheb
     Dx = cheb(N_REF, 0.0, 1.0, dtype=p.dtype, device=p.device)[1]
@@ -51,12 +51,31 @@ def compute(device="cpu"):
     return u, meta, {}
 
 
+def contour_figure(x, y, T, title, path):
+    """As the Wolfram Demonstration's ContourPlot: 20 filled levels, rainbow colors, aspect ratio 2, legend."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+    x, y, T = (np.asarray(a.cpu()) for a in (x, y, T))
+    levels = np.linspace(0.0, 1.0, 21)
+    fig, ax = plt.subplots(figsize=(4.6, 7.0), layout="constrained")
+    cs = ax.contourf(x, y, T.T, levels=levels, cmap="rainbow")
+    ax.contour(x, y, T.T, levels=levels[1:-1], colors="k", linewidths=0.4, alpha=0.6)
+    ax.set_aspect("equal")
+    ax.set(xlabel="x", ylabel="y", title=title)
+    fig.colorbar(cs, ax=ax, ticks=levels[::4])
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
 def plot(problem, u, extras, figdir):
     x, y = problem.axes["x"], problem.axes["y"]
-    pe = problem.params["Pe"]
-    plotting.fields2d(x, y, {"T": u[0]}, figdir / "reference.png", cmap="inferno",
-                      suptitle=f"Track 09: steady advection-diffusion, cellular flow, Pe = Re Pr = {pe:g}")
+    contour_figure(x, y, u[0], f"T,  Re = {problem.params['Re']:g},  Pr = {problem.params['Pr']:g}",
+                   figdir / "reference.png")
     iy = lambda v: int((y - v).abs().argmin())  # noqa: E731
-    plotting.line(x, {"T(x, y=0.5)": u[0, :, iy(0.5)], "T(x, y=1)": u[0, :, iy(1.0)],
-                      "T(x, y=0)": u[0, :, iy(0.0)]},
+    plotting.line(x, {"T(x, y=0)": u[0, :, iy(0.0)], "T(x, y=0.5)": u[0, :, iy(0.5)], "T(x, y=1)": u[0, :, iy(1.0)]},
                   figdir / "reference_slices.png", title="Track 09: slices across the cell", ylabel="T")
+    # Check against the Demonstration's own published frame (Re = 25, Pr = 0.8; its video thumbnail): same solver
+    q = make_problem()
+    q.params.update(Re=25.0, Pr=0.8, Pe=20.0)
+    contour_figure(x, y, to_output(q, *chebyshev_cell(q, 48))[0], "T,  Re = 25,  Pr = 0.8  (Wolfram's frame)",
+                   figdir / "check_wolfram_Re25_Pr0.8.png")

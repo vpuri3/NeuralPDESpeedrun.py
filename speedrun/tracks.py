@@ -13,7 +13,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 TRACKS_DIR = ROOT / "tracks"
 
-# Ordered list of tracks: ODEs, then 1D + time, 2D steady, 2D + time, 3D + time. Folder name == track id ==
+# Ordered list of tracks: ODEs, then 1D steady, 1D + time, 2D steady, 2D + time, 3D + time. Folder name == track id ==
 # "track<KK>_<dim>_<ProblemName>" with a two-digit number and dim one of 0DT, 1D, 1DT, 2D, 2DT, 3D, 3DT
 # (spatial dimension, T = time-dependent).
 TRACKS = [
@@ -23,8 +23,9 @@ TRACKS = [
     "track04_1DT_KuramotoSivashinsky",   # Kuramoto-Sivashinsky, chaotic, periodic (published data)
     "track05_1DT_AllenCahn",             # Allen-Cahn, periodic (published data)
     "track06_1DT_KdV",                   # Korteweg-de Vries, periodic (published data)
+    "track07_1D_AdvectionDiffusion",     # steady advection-diffusion, outflow boundary layer (Chebfun)
     "track08_2D_Helmholtz",              # Helmholtz, heterogeneous medium (on hold)
-    "track09_2D_AdvectionDiffusion",     # advection-diffusion, high Peclet
+    "track09_2D_AdvectionDiffusion",     # steady advection-diffusion, cellular flow (Wolfram Demonstration)
     "track10_2D_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)
     "track11_2D_LidDrivenCavity",        # lid-driven cavity, Re = 5000, steady (published data)
     "track13_2DT_DecayingEddies",        # decaying eddies (Walsh 1992), periodic

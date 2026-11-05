@@ -1,0 +1,14 @@
+{
+  "method": "exact solution",
+  "check_chebyshev_N128_linf": 1.3655743202889425e-14,
+  "wall_time_s": 0.13678306399378926,
+  "torch": "2.15.0+cu132",
+  "shape": [
+    1,
+    1001
+  ],
+  "sha256_float32": "a27c391671e52f6529802ff6eda8cea7c3c44533ae7d26b61e73a3712c3813e7",
+  "sha256_npz": "67f2126749a0579df0f4f43e20c28304ac46080d01bebe6c7088fa6ddda3c404",
+  "norm_l2": 17.847501928651262,
+  "max_abs": 0.9439481642553664
+}

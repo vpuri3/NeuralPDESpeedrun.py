@@ -1,19 +1,18 @@
 """Track 09: steady 2D advection-diffusion (heat transport by a cellular flow between a cold and a hot wall).
 
 Binous, Bellagi & Higgins, "Steady-State Two-Dimensional Convection-Diffusion Equation", Wolfram Demonstrations
-Project (2015), after Biringen & Chow, "An Introduction to Computational Fluid Mechanics by Example" (2011).
+Project (2015; its Mathematica code solves exactly this with NDSolve FEM, the y walls left natural), after Biringen & Chow, "An Introduction to Computational Fluid Mechanics by Example" (2011).
 """
 import math
 
 import torch
 
-from speedrun.numerics import cheb
 from speedrun.problem import Problem, xp_of
 
-RE = 100.0          # Reynolds number
-PR = 7.0            # Prandtl number (water)
-PE = RE * PR        # Peclet number: only the product enters; thermal layers of width ~ Pe^(-1/2) ~ 0.04
-N_CGL = 256         # output: CGL points per unit length in x and in each cell in y
+RE = 40.0           # Reynolds number   (the Demonstration's sliders: Re in [5, 100], Pr in [0.5, 5])
+PR = 1.6            # Prandtl number
+PE = RE * PR        # Peclet number = 64: only the product enters
+N_OUT = 256         # output: uniform grid, h = 1 / N_OUT
 
 STATEMENT = rf"""
 Steady advection-diffusion of temperature T(x, y) on [0, 1] x [0, 2] by a prescribed cellular flow:
@@ -22,12 +21,11 @@ Steady advection-diffusion of temperature T(x, y) on [0, 1] x [0, 2] by a prescr
     u = -sin(pi x) cos(pi y),   v = cos(pi x) sin(pi y)      (two counter-rotating cells, divergence-free)
     T(0, y) = 0 (cold wall),   T(1, y) = 1 (hot wall),   T_y(x, 0) = T_y(x, 2) = 0 (insulated walls)
 
-The flow carries heat around each cell; at this Pe the isotherms wind into spirals, the walls carry thermal
-boundary layers of width ~ Pe^(-1/2), and a thin cold tongue runs along the cell boundary y = 1.
+The flow sweeps hot fluid from the hot wall along the insulated walls toward the cold wall, and cold fluid
+back along the cell boundary y = 1, bending the isotherms into an S around each cell.
 
-Output: T on the tensor grid x_i = (1 - cos(pi i / {N_CGL})) / 2, i = 0..{N_CGL}, and y = the same Chebyshev-Gauss-
-Lobatto points on [0, 1] followed by their mirror images 2 - y on (1, 2] (clustered at the walls and at y = 1);
-shape (1, {N_CGL + 1}, {2 * N_CGL + 1}).
+Output: T on the uniform grid x_i = i / {N_OUT}, i = 0..{N_OUT}, y_j = j / {N_OUT}, j = 0..{2 * N_OUT};
+shape (1, {N_OUT + 1}, {2 * N_OUT + 1}).
 """
 
 
@@ -37,8 +35,8 @@ def velocity(x, y):
 
 
 def output_axes(dtype=torch.float64, device="cpu"):
-    xc = cheb(N_CGL, 0.0, 1.0, dtype=dtype, device=device)[0]          # ascending, 0 .. 1
-    return xc, torch.cat([xc, 2.0 - xc.flip(0)[1:]])
+    x = torch.arange(N_OUT + 1, dtype=dtype, device=device) / N_OUT
+    return x, torch.arange(2 * N_OUT + 1, dtype=dtype, device=device) / N_OUT
 
 
 def make_problem(device="cpu", dtype=torch.float64) -> Problem:

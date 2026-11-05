@@ -152,9 +152,8 @@ baselines (record #0) are not shown, here or in the per-track plots and tables. 
 PirateNet / SOAP-for-PINNs study (Wang et al.); their references are the published solutions
 (`speedrun/external.py`).
 
-Tracks are ordered by dimension: the ODE, then 1D + time, 2D steady, 2D + time, and 3D + time. The folder name
-carries the tag (`track03_1DT_Burgers`: 1D + time; `track10_2D_Kovasznay`: 2D, steady). Numbers 07 and 12 belong
-to retired tracks and are not reused.
+Tracks are ordered by dimension: the ODE, then 1D steady, 1D + time, 2D steady, 2D + time, and 3D + time. The folder name
+carries the tag (`track03_1DT_Burgers`: 1D + time; `track10_2D_Kovasznay`: 2D, steady).
 
 Each track below shows its reference solution (animation where time-dependent) and, once it has submissions,
 its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
@@ -168,8 +167,9 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 04 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
 | 05 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
 | 06 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
+| 07 AdvectionDiffusion (1D) | — | | | | |
 | 08 Helmholtz (2D) | *on hold* | | | | |
-| 09 AdvectionDiffusion (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 230.8 | 0.000895% | 0.00247% | yes |
+| 09 AdvectionDiffusion (2D) | — | | | | |
 | 10 Kovasznay (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track10_2D_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
 | 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
 | 13 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
@@ -254,6 +254,18 @@ solitons. Output: 200 t × 512 x. Reference: published data.
 <img src="tracks/track06_1DT_KdV/figures/accuracy_vs_time.png" width="49%" alt="06 accuracy_vs_time"> <img src="tracks/track06_1DT_KdV/figures/activity.png" width="49%" alt="06 activity">
 <!-- figures:06:end -->
 
+### 07 AdvectionDiffusion (1D)
+Steady advection-diffusion `−ε u″ − u′ = 1` on [0, 1], ε = 0.01, `u(0) = u(1) = 0` ([Chebfun "Boundary layer for
+advection-diffusion equation"](https://www.chebfun.org/examples/ode-linear/BoundaryLayer.html), Trefethen 2010).
+The flow runs toward x = 0, where u drops from its outer solution 1 − x to 0 across a boundary layer of width ~ε
+(u = ½ at x = ε ln 2, slope u′(0) ≈ 1/ε = 100). Output: 1001 uniform points (≈ 46 inside the layer). Reference:
+exact solution.
+
+<img src="tracks/track07_1D_AdvectionDiffusion/figures/reference.png" width="100%" alt="07 reference">
+
+<!-- figures:07:begin -->
+<!-- figures:07:end -->
+
 ### 08 Helmholtz (2D): TODO
 The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
 PML, or impedance BC) first.
@@ -262,19 +274,22 @@ PML, or impedance BC) first.
 <!-- figures:08:end -->
 
 ### 09 AdvectionDiffusion (2D)
-Steady heat transport by a prescribed cellular flow, `(1/(Re Pr)) ΔT − u T_x − v T_y = 0` on [0, 1] × [0, 2],
-`u = −sin πx cos πy`, `v = cos πx sin πy`, Re = 100, Pr = 7 (Pe = 700), cold wall `T(0, y) = 0`, hot wall
-`T(1, y) = 1`, insulated walls at y = 0, 2 ([Binous et al., Wolfram Demonstrations
-2015](https://demonstrations.wolfram.com/SteadyStateTwoDimensionalConvectionDiffusionEquation/)). The isotherms wind
-into spirals; thermal boundary layers of width ~Pe^(−1/2) line the walls and a cold tongue runs along y = 1. The
-solution is smooth (no corner singularities: the problem extends evenly across the insulated walls). Output:
-257 × 513 Chebyshev–Lobatto grid (clustered at the walls and at y = 1). Reference: Chebyshev collocation, N = 128
-on one cell (N = 96 agrees to 4e-11).
+Steady heat transport by a prescribed cellular flow, exactly the [Wolfram Demonstration of Binous, Bellagi &
+Higgins (2015)](https://demonstrations.wolfram.com/SteadyStateTwoDimensionalConvectionDiffusionEquation/):
+`(1/(Re Pr)) ΔT − u T_x − v T_y = 0` on [0, 1] × [0, 2], `u = −sin πx cos πy`, `v = cos πx sin πy`, Re = 40,
+Pr = 1.6 (Pe = 64), cold wall `T(0, y) = 0`, hot wall `T(1, y) = 1`, insulated walls at y = 0, 2. Hot fluid is
+swept along the insulated walls toward the cold wall and cold fluid back along y = 1. The solution is smooth.
+Output: uniform 257 × 513 grid. Reference: Chebyshev collocation, N = 64 on one cell, mirrored about y = 1
+(N = 48 agrees to 6e-12).
 
-<img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="49%" alt="09 reference"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/reference_slices.png" width="49%" alt="09 slices">
+<img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="40%" alt="09 reference"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/reference_slices.png" width="58%" alt="09 slices">
+
+Check against the Demonstration itself: its published frame at Re = 25, Pr = 0.8 (left, the thumbnail of
+[its video](https://www.youtube.com/watch?v=Uul4DAYLsk0)) and the same case from this track's solver (right).
+
+<img src="https://img.youtube.com/vi/Uul4DAYLsk0/hqdefault.jpg" width="49%" alt="Wolfram Demonstration, Re = 25, Pr = 0.8"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/check_wolfram_Re25_Pr0.8.png" width="35%" alt="09 at Re = 25, Pr = 0.8">
 
 <!-- figures:09:begin -->
-<img src="tracks/track09_2D_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="09 accuracy_vs_time"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/activity.png" width="49%" alt="09 activity">
 <!-- figures:09:end -->
 
 ### 10 Kovasznay (2D)

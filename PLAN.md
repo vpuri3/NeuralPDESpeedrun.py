@@ -14,7 +14,7 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   callables are array-API (torch or JAX in and out). Per-axis `Problem.periodic` flags.
 - Track set, ordered by dimension (ODE, 1D + time, 2D, 2D + time, 3D + time; the folder names carry the tag
   0DT / 1DT / 2D / 2DT / 3DT): 01 VanDerPol, 02 DampedWave, 03 Burgers, 04 KuramotoSivashinsky, 05 AllenCahn,
-  06 KdV, 07 (removed), 08 Helmholtz (on hold), 09 AdvectionDiffusion, 10 Kovasznay,
+  06 KdV, 07 AdvectionDiffusion (1D, steady), 08 Helmholtz (on hold), 09 AdvectionDiffusion, 10 Kovasznay,
   11 LidDrivenCavity, 12 (removed), 13 DecayingEddies, 14 CylinderFlow (TODO), 15 GreyScott, 16 GinzburgLandau,
   17 RayleighTaylor, 18 KolmogorovFlow, 19 BeltramiFlow.
 - References are assets of the GitHub release `refs-v1` (not in git), downloaded on first use and checked
@@ -35,9 +35,9 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
 | 03 | Fourier N=8192 (4096: 2e-8) | Fourier N=1024 | 0.23 s | 4.4e-07 | 1.1e-04 |
 | 04 | published data | — | | | |
 | 05, 06 | published data | — | | | |
-| 07 | *removed* | | | | |
+| 07 | exact solution (Chebyshev N=128: 1e-14) | Chebyshev N=32 | | 9.0e-06 | 9.0e-06 |
 | 08 | *on hold* | | | | |
-| 09 | Chebyshev N=128, one cell (N=96: 4e-11) | Chebyshev N=48 | 0.08 s | 7.5e-07 | 1.4e-06 |
+| 09 | Chebyshev N=64, one cell (N=48: 6e-12) | Chebyshev N=24 | | 5.9e-07 | 1.2e-06 |
 | 10 | closed form | PN–PN-2 N=16, Newton | 0.19 s | 1.4e-07 | 4.7e-07 |
 | 11 | published data (Re = 5000) | — | | | |
 | 12 | *removed* | | | | |
@@ -65,13 +65,15 @@ look the way they do, and what comes next. Research reasoning is in IDEAS.md.
   the walls to ~1e-49, so the sine coefficients are closed-form Gaussian integrals and the reference is exact.
   A sine-mode method is exact here too (2.9 ms); the track is hard for mesh-free / neural methods (narrow
   features, long time, reflections), not for spectral ones.
-- **09.** Cellular-flow heat transport (Wolfram Demonstration of Binous et al. 2015). Only Pe = Re Pr enters;
-  Pe = 700 (Re = 100, Pr = 7, water) sits between the diffusive regime (Pe ≲ 100: S-shaped isotherms) and the
-  well-mixed one (Pe ≳ 4000: a flat core at T = 1/2): spiral isotherms, wall layers ~Pe^(−1/2), Nu ≈ 15.9.
-  The problem is symmetric about y = 1, so the solution is computed on one cell; a direct two-cell solve agrees
-  to 1e-6 (its uniform y grid under-resolves the y = 1 tongue). Baseline N = 40 / 48 / 56 / 64: RelL2 1.4e-5 /
-  7.5e-7 / 2.8e-8 / 4.1e-9. Replaces (2026-11-05) the manufactured u = g(x) g(y) at ε = 1e-3, whose layers
-  were too thin to see or, on a uniform grid, to score.
+- **07.** Chebfun's boundary-layer example (Trefethen 2010), ε = 0.01: the layer is ~5% of the domain and plainly
+  visible; at ε = 1e-3 it looks like a jump and a uniform grid barely samples it (a solution with ε off by 10%
+  then passes the bar). Baseline Chebyshev N = 24 / 32 / 48: RelL2 9.3e-4 / 9.0e-6 / 4.4e-11.
+- **09.** Cellular-flow heat transport, the Wolfram Demonstration of Binous et al. (2015), whose Mathematica code
+  (NDSolve FEM, natural BCs on the y walls) solves exactly this problem; its sliders span Re 5–100, Pr 0.5–5.
+  Re = 40, Pr = 1.6 (Pe = 64). The problem is symmetric about y = 1, so the reference solves one cell; a direct
+  two-cell solve agrees to 2e-10. Baseline N = 16 / 20 / 24 / 32: RelL2 9.1e-5 / 7.2e-6 / 5.9e-7 / 3.9e-9.
+  Replaces (2026-11-05) the manufactured u = g(x) g(y) at ε = 1e-3, whose layers were too thin to see or, on a
+  uniform grid, to score.
 - **03.** ν = 1e-4, T = 0.5, domain [0, 2), N = 1024 output grid, continuous IC. The shock forms at
   t* = 1/(πμ) ≈ 0.53, just after T.
 - **12.** The 512² output grid is too coarse for the ν = 1e-3 shocks at the bar (512²: L∞ 1.6e-3). Reference

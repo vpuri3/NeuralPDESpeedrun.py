@@ -1,18 +1,18 @@
 {
-  "method": "Chebyshev collocation on one cell, N = 128, mirrored about y = 1",
-  "check_N96_linf": 4.2724936694674565e-11,
-  "check_N112_linf": 5.823825412906831e-11,
-  "check_full_domain_N96x192_linf": 1.1951227972817335e-06,
-  "nusselt": 15.936835010247272,
-  "wall_time_s": 21.86780316499062,
+  "method": "Chebyshev collocation on one cell, N = 64, mirrored about y = 1",
+  "check_N48_linf": 6.254776566902541e-12,
+  "check_N56_linf": 6.450492520758562e-12,
+  "check_full_domain_N64x128_linf": 2.1491976950410135e-10,
+  "nusselt": 4.854346800459826,
+  "wall_time_s": 1.847253151005134,
   "torch": "2.15.0+cu132",
   "shape": [
     1,
     257,
     513
   ],
-  "sha256_float32": "bcd9690a95023d9f2ad13679ad8ccf5c119c88ce35f4001999994d1748137be7",
-  "sha256_npz": "b5e9d2ad1babaa38feb18c0a30900a60580b2798b76234a7e9fcfc18d02ee9f9",
-  "norm_l2": 202.0802766285098,
-  "max_abs": 1.000000000000002
+  "sha256_float32": "52c35ea6806a6aaade72d6584c58473921d90e5f33e3b4cafbb5372fece55551",
+  "sha256_npz": "35582467e6b70b2e69268c5dfb437cc80ce3a50b155b3720a0c712aaa1618ac8",
+  "norm_l2": 196.76072128575618,
+  "max_abs": 1.000000000000001
 }

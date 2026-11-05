@@ -1,0 +1,36 @@
+[
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "PirateNet + SOAP",
+    "submission": "tracks/0D_VanDerPol/submissions/submission_PR0001/solve.py",
+    "time_s": 300.40611215215176,
+    "solve_time_s": 300.35506453271955,
+    "query_time_s": 0.05104761943221092,
+    "rel_l2": 1.1391002918192654,
+    "rel_linf": 1.7544436512130308,
+    "passed": false,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 1,
+    "stop": "done",
+    "budget_s": 1000.0
+  },
+  {
+    "date": "2026-10-30",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/0D_VanDerPol/baseline.py",
+    "time_s": 0.02410906832665205,
+    "solve_time_s": 0.02410906832665205,
+    "query_time_s": 0.0,
+    "rel_l2": 8.650492342093091e-07,
+    "rel_linf": 2.683222386407058e-05,
+    "passed": true,
+    "hardware": "CPU (Intel(R) Xeon(R) Platinum 8481C CPU @ 2.70GHz)",
+    "kind": "classical",
+    "pr": null,
+    "stop": "done",
+    "budget_s": 1000.0
+  }
+]

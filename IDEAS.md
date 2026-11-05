@@ -129,11 +129,11 @@ r_k = f − A(u_k).
 ## 5. Research program (ordered)
 
 1. **Speedrun harness** (this repo) with honest classical baselines.
-2. **First neural records.** PINN + Adam/L-BFGS, then SOAP/NG on easy tracks (01, 03, 10, 11), to quantify
+2. **First neural records.** PINN + Adam/L-BFGS, then SOAP/NG on easy tracks (0D_VanDerPol, 1D_DampedWave, 2D_Steady_Kovasznay, 2D_Steady_LidDrivenCavity), to quantify
    the gap.
-3. **Proposal A** (multilevel explicit ansatz + sparse GN + level-preconditioned CG) on tracks 08, 09.
+3. **Proposal A** (multilevel explicit ansatz + sparse GN + level-preconditioned CG) on 2D_Steady_Helmholtz and 2D_Steady_AdvectionDiffusion.
 4. **Hybrid in-run learning.** Classical smoother + learned coarse correction trained during the solve
-   from residuals only (track 08).
+   from residuals only (2D_Steady_Helmholtz).
 5. **Amortized FLARE/looped solver** trained data-free (residual + manufactured solutions), plugged in as
    the coarse correction. Measure mesh-independence and loop-count scaling at million-scale meshes.
 6. **Transport/moving features** (5A, 5B, 5C): adaptive Gaussian / neural-field Galerkin in time

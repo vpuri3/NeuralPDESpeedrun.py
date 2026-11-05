@@ -34,7 +34,7 @@ def array_device(x):
 
 @dataclass
 class Problem:
-    track: str                      # e.g. "track10_2D_Kovasznay"
+    track: str                      # e.g. "2D_Steady_Kovasznay"
     title: str                      # short human title
     statement: str                  # markdown statement of the PDE problem (equations, domain, BC/IC)
     fields: tuple[str, ...]         # names of the output fields, e.g. ("u",) or ("u", "v")

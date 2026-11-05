@@ -2,7 +2,7 @@
 
     uv run python -m speedrun.run_submission --submission submission_PR0001 --gpus 0,1,2,3 \
         --name "PirateNet + SOAP" --kind neural --pr 1
-    uv run python -m speedrun.run_submission --submission submission_PR0001 --tracks 03,05 --gpus 0
+    uv run python -m speedrun.run_submission --submission submission_PR0001 --tracks 1D_Burgers,1D_AllenCahn --gpus 0
 
 For each track with tracks/<track>/submissions/<submission>/solve.py this runs the official harness
 (`python -m speedrun.run`), writing <submission dir>/result.json and run.log. With --name, the results are added
@@ -42,7 +42,7 @@ def _run(track: str, submission: str, gpu: str, extra: list[str]) -> dict:
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--submission", required=True, help="directory name, e.g. submission_PR0001")
-    ap.add_argument("--tracks", default=None, help="comma-separated track keys (default: all it covers)")
+    ap.add_argument("--tracks", default=None, help="comma-separated track ids (default: all it covers)")
     ap.add_argument("--gpus", default="0", help="comma-separated GPU ids; one job per GPU at a time")
     ap.add_argument("--name", default=None, help="record name; if given, results are added to records.json")
     ap.add_argument("--kind", default="neural", choices=["classical", "neural", "hybrid"])

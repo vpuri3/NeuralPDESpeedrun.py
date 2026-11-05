@@ -2,7 +2,7 @@
 tensors, so a run on a CUDA problem whose work silently happens on the CPU is reported as such.
 
 Used by the harness (an extra, untimed run after scoring); standalone:
-    uv run python -m speedrun.devicecheck --track 07 [--submission f.py]
+    uv run python -m speedrun.devicecheck --track 2D_Steady_Kovasznay [--submission f.py]
 Work done outside torch (numpy, scipy, python loops over floats) is invisible here. JAX work is not counted op by
 op either; when the submission uses JAX, the report records its backend and the device of the arrays the run
 returned, and a run whose JAX arrays all live on the GPU (with no torch work on the CPU) is classified as GPU.

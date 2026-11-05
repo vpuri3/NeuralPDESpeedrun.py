@@ -1,4 +1,4 @@
-"""Shared definition of the Kovasznay-flow track 10 (and any future Kovasznay variants)."""
+"""Shared definition of the Kovasznay-flow track 2D_Steady_Kovasznay (and any future Kovasznay variants)."""
 import math
 
 import torch

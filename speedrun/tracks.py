@@ -4,7 +4,6 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
-import re
 from pathlib import Path
 
 import numpy as np
@@ -13,28 +12,27 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 TRACKS_DIR = ROOT / "tracks"
 
-# Ordered list of tracks: ODEs, then 1D + time, 2D steady, 2D + time, 3D + time. Folder name == track id ==
-# "track<KK>_<dim>_<ProblemName>" with a two-digit number and dim one of 0DT, 1D, 1DT, 2D, 2DT, 3D, 3DT
-# (spatial dimension, T = time-dependent).
+# Ordered list of tracks, by dimension: the ODE, then 1D steady, 1D + time, 2D steady, 2D + time, ... Folder
+# name == track id == "<dim>D[_Steady]_<ProblemName>": the spatial dimension (0D for ODEs), "_Steady" for steady
+# problems (time-dependent otherwise), and the problem name. Ids carry no numbers, so adding or removing a track
+# never renames the others.
 TRACKS = [
-    "track01_0DT_VanDerPol",             # stiff ODE: Van der Pol oscillator, mu = 1000
-    "track02_1DT_DampedWave",            # damped wave, narrow pulse, many reflections
-    "track03_1DT_Burgers",               # viscous Burgers, periodic
-    "track04_1DT_KuramotoSivashinsky",   # Kuramoto-Sivashinsky, chaotic, periodic (published data)
-    "track05_1DT_AllenCahn",             # Allen-Cahn, periodic (published data)
-    "track06_1DT_KdV",                   # Korteweg-de Vries, periodic (published data)
-    "track07_2D_HighContrastDiffusion",  # variable-coefficient diffusion, contrast 1e3
-    "track08_2D_Helmholtz",              # Helmholtz, heterogeneous medium (on hold)
-    "track09_2D_AdvectionDiffusion",     # advection-diffusion, high Peclet
-    "track10_2D_Kovasznay",              # Kovasznay flow, Re = 40 (steady Navier-Stokes)
-    "track11_2D_LidDrivenCavity",        # lid-driven cavity, Re = 5000, steady (published data)
-    "track13_2DT_DecayingEddies",        # decaying eddies (Walsh 1992), periodic
-    "track14_2DT_CylinderFlow",          # flow past a cylinder (TODO)
-    "track15_2DT_GreyScott",             # Grey-Scott reaction-diffusion, periodic (published data)
-    "track16_2DT_GinzburgLandau",        # complex Ginzburg-Landau, periodic (published data)
-    "track17_2DT_RayleighTaylor",        # Rayleigh-Taylor instability, Ra = 1e6 (published data)
-    "track18_2DT_KolmogorovFlow",        # Kolmogorov flow, Re = 1e4, periodic (published data)
-    "track19_3DT_BeltramiFlow",          # 3D unsteady Beltrami flow, Re = 1 (exact solution)
+    "0D_VanDerPol",                   # stiff ODE: Van der Pol oscillator, mu = 1000
+    "1D_Steady_AdvectionDiffusion",   # steady advection-diffusion, outflow boundary layer (Chebfun)
+    "1D_DampedWave",                  # damped wave, narrow pulse, many reflections
+    "1D_Burgers",                     # viscous Burgers, Raissi et al. benchmark
+    "1D_KuramotoSivashinsky",         # Kuramoto-Sivashinsky, chaotic, periodic (published data)
+    "1D_AllenCahn",                   # Allen-Cahn, periodic (published data)
+    "1D_KdV",                         # Korteweg-de Vries, periodic (published data)
+    "2D_Steady_Helmholtz",            # Helmholtz scattering by a square in a disk (TODO)
+    "2D_Steady_AdvectionDiffusion",   # steady advection-diffusion, cellular flow (Wolfram Demonstration)
+    "2D_Steady_Kovasznay",            # Kovasznay flow, Re = 40 (steady Navier-Stokes)
+    "2D_Steady_LidDrivenCavity",      # lid-driven cavity, Re = 5000, steady (published data)
+    "2D_CylinderFlow",                # flow past a cylinder (TODO)
+    "2D_GreyScott",                   # Grey-Scott reaction-diffusion, periodic (published data)
+    "2D_GinzburgLandau",              # complex Ginzburg-Landau, periodic (published data)
+    "2D_RayleighTaylor",              # Rayleigh-Taylor instability, Ra = 1e6 (published data)
+    "2D_KolmogorovFlow",              # Kolmogorov flow, Re = 1e4, periodic (published data)
 ]
 
 # Reference solutions are not in git: they are assets of this GitHub release, one <track id>.npz per track,
@@ -43,33 +41,29 @@ REFS_RELEASE = "https://github.com/vpuri3/NeuralPDESpeedrun.py/releases/download
 
 
 def resolve(track: str) -> str:
-    """Full track id from the full id, a short id ("track03") or a bare key ("03", "3")."""
-    if track in TRACKS:
-        return track
-    m = re.fullmatch(r"(?:track)?0*(\d+)(?:_\w+)?", track)
-    key = f"track{int(m.group(1)):02d}" if m else track
-    hits = [k for k in TRACKS if k.split("_", 1)[0] == key]
+    """Full track id from the id itself (case-insensitive) or, when unique, the problem name ("Burgers")."""
+    hits = [k for k in TRACKS if k.lower() == track.lower()] or [k for k in TRACKS if name(k).lower() == track.lower()]
     if len(hits) != 1:
-        raise KeyError(f"unknown track {track!r}; choose from {TRACKS}")
+        raise KeyError(f"unknown or ambiguous track {track!r}; choose from {TRACKS}")
     return hits[0]
 
 
 def key(track: str) -> str:
-    """Two-digit key of a track: "track03_1DT_Burgers" -> "03"."""
-    return resolve(track).split("_", 1)[0].removeprefix("track")
+    """The id of a track, as used in figure markers and labels ("Burgers" -> "1D_Burgers")."""
+    return resolve(track)
 
 
 def dim_label(track: str) -> str:
-    """Human label of the dimension tag: "1DT" -> "1D + Time", "2D" -> "2D", "0DT" -> "ODE"."""
-    tag = resolve(track).split("_")[1]
-    if tag == "0DT":
+    """Human label of the dimension: "0D_*" -> "ODE", "1D_Steady_*" -> "1D, steady", "2D_*" -> "2D + time"."""
+    parts = resolve(track).split("_")
+    if parts[0] == "0D":
         return "ODE"
-    return f"{tag[:2]} + Time" if tag.endswith("T") else tag
+    return f"{parts[0]}, steady" if parts[1] == "Steady" else f"{parts[0]} + time"
 
 
 def name(track: str) -> str:
-    """Problem name of a track: "track03_1DT_Burgers" -> "Burgers"."""
-    return resolve(track).split("_", 2)[2]
+    """Problem name of a track: "1D_Burgers" -> "Burgers", "2D_Steady_Kovasznay" -> "Kovasznay"."""
+    return track.rsplit("_", 1)[1]
 
 
 def track_dir(track: str) -> Path:

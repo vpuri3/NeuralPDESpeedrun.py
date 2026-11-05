@@ -2,7 +2,7 @@
 tracks/<t>/README.md, and seed record #0.
 
     uv run python -m speedrun.records --track all                 # redraw every activity plot
-    uv run python -m speedrun.records --track 07 --seed-baseline tracks/track07_2D_HighContrastDiffusion/logs/baseline.json
+    uv run python -m speedrun.records --track 2D_Steady_Kovasznay --seed-baseline tracks/2D_Steady_Kovasznay/logs/baseline.json
 
 A record entry is
     {"date": "YYYY-MM-DD", "author": ..., "name": ...,
@@ -18,7 +18,7 @@ import datetime as dt
 import json
 from pathlib import Path
 
-from .tracks import ROOT as ROOT_DIR, TRACKS, dim_label, key, name, resolve, track_dir
+from .tracks import ROOT as ROOT_DIR, TRACKS, key, resolve, track_dir
 
 KIND_STYLE = {"classical": ("tab:gray", "s"), "neural": ("tab:blue", "o"), "hybrid": ("tab:purple", "D")}
 # Classical baselines (record #0) stay in records.json but are left out of the plots and the per-track tables.
@@ -89,7 +89,7 @@ def best_submission(recs: list[dict]) -> dict | None:
 
 
 TABLE_BEGIN, TABLE_END = "<!-- tracks-table:begin -->", "<!-- tracks-table:end -->"
-STATUS = {"track08_2D_Helmholtz": "*on hold*", "track14_2DT_CylinderFlow": "*TODO*"}
+STATUS = {"2D_Steady_Helmholtz": "*TODO*", "2D_CylinderFlow": "*TODO*"}
 
 
 def tracks_table() -> str:
@@ -99,7 +99,7 @@ def tracks_table() -> str:
     lines = [f"| track | best submission | time [s] | RelL2 (≤ {100 * REL_L2_TOL:g}%) | RelL∞ (≤ {100 * REL_LINF_TOL:g}%) "
              "| bar met |", "|---|---|---|---|---|---|"]
     for t in TRACKS:
-        label = f"{key(t)} {name(t)} ({dim_label(t)})"
+        label = t
         if t in STATUS or not (track_dir(t) / "problem.py").exists():
             lines.append(f"| {label} | {STATUS.get(t, '*TODO*')} | | | | |")
             continue
@@ -166,7 +166,7 @@ def plot_accuracy(track: str) -> Path | None:
     ax.set_yscale("log")
     ax.set_xlabel("wall-clock time [s] (solve + query)")
     ax.set_ylabel("RelL2")
-    ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)})  (hollow = misses the bar)", fontsize=9)
+    ax.set_title(f"{track}  (hollow = misses the bar)", fontsize=9)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8, loc="best")
     out.parent.mkdir(exist_ok=True)
@@ -215,7 +215,7 @@ def plot_activity(track: str) -> Path | None:
     ax.set_xlim(min(dates) - pad, max(max(dates), dt.date.today()) + pad)
     ax.set_yscale("log")
     ax.set_ylabel("wall-clock time [s] (solve + query)")
-    ax.set_title(f"{key(track)} {name(track)} ({dim_label(track)}): {status}  (hollow = misses the bar)", fontsize=9)
+    ax.set_title(f"{track}: {status}  (hollow = misses the bar)", fontsize=9)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="best", fontsize=8)
     fig.autofmt_xdate()
@@ -263,7 +263,7 @@ def write_readme(track: str) -> Path:
     if p.linf_margin > 0:
         bar += f" (RelL∞ only at points ≥ {p.linf_margin:g} from the walls)"
     bar += f". **Budget:** {p.budget_s:g} s of wall-clock solve time"
-    lines = [f"# {key(track)} {name(track)} ({dim_label(track)}): {p.title}", "", "```text", p.statement.strip(), "```", "", bar + ".", ""]
+    lines = [f"# {track}: {p.title}", "", "```text", p.statement.strip(), "```", "", bar + ".", ""]
     figs = sorted((d / "figures").glob("reference*.png")) + sorted((d / "figures").glob("reference*.gif"))
     lines += [f"![{f.stem}](figures/{f.name})" for f in figs] + [""]
     if meta:

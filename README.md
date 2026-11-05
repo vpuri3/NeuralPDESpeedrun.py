@@ -14,7 +14,7 @@ submission competes per track.
 
 ```bash
 uv sync
-uv run python -m speedrun.run --track 01                            # time + score track 01's baseline
+uv run python -m speedrun.run --track 0D_VanDerPol                       # time + score a track's baseline
 uv run python -m speedrun.run_submission --submission submission_PR0001 --gpus 0,1,2,3 \
     --name "PirateNet + SOAP" --kind neural --pr 1                  # one submission on all its tracks
 uv run python -m speedrun.records --track all                       # leaderboards, plots, READMEs
@@ -30,7 +30,7 @@ Reference solutions are not in git. They are assets of the GitHub release
 the figures) from scratch; it downloads the published benchmark data (~300 MB, cached in
 `~/.cache/neuralpdespeedrun`). `run_submission` runs one job per GPU at a time, writes each track's
 `result.json`, and with `--name` adds the results to the records and regenerates the plots and tables. Tracks
-can be named in full (`track03_1DT_Burgers`) or by key (`03`).
+are named by their id (`1D_Burgers`, case-insensitive) or, when unique, by the problem name (`Burgers`).
 
 ## Scoring
 
@@ -49,7 +49,7 @@ checkpointed state.
 ## Rules
 
 1. **Data-free.** Use only what `Problem` provides. No reference or solver outputs, precomputed solutions,
-   downloaded data, or pretraining of any kind. A closed form used to manufacture forcing (09) is off limits.
+   downloaded data, or pretraining of any kind. A closed form used to manufacture forcing is off limits.
 2. **Anything else goes.** Any model, ansatz, loss, optimizer, discretization, precision, or mix of neural and
    classical parts. PyTorch, JAX, and Julia are all fine (the entry point is Python; `Problem` callables accept
    torch or JAX arrays), and so are hand-written GPU kernels (Triton, CUDA, ...).
@@ -137,8 +137,8 @@ toolbox `speedrun/numerics/` is available to everyone.
    ```bash
    uv run python -m speedrun.run_submission --submission submission_PR0042 --gpus 0 \
        --name "my method" --kind hybrid --pr 42       # all tracks the submission covers
-   d=tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0042      # or one track at a time:
-   uv run python -m speedrun.run --track 07 --submission $d --out $d/result.json
+   d=tracks/2D_Steady_Kovasznay/submissions/submission_PR0042                  # or one track at a time:
+   uv run python -m speedrun.run --track 2D_Steady_Kovasznay --submission $d --out $d/result.json
    ```
 3. **Mark the PR ready for review** when you want the maintainers to re-time it.
 
@@ -148,12 +148,14 @@ Results that miss the bar stay as points on the track's accuracy-vs-time plot, b
 
 The table lists the best submission on each track. Until some submission meets the track's accuracy bar, the
 best is the most accurate one (lowest RelL2); once the bar is met, it is the fastest one that meets it. Classical
-baselines (record #0) are not shown, here or in the per-track plots and tables. Tracks 04, 05, 06, 11 and 15–18 are the benchmarks of the
+baselines (record #0) are not shown, here or in the per-track plots and tables. Tracks 1D_KuramotoSivashinsky, 1D_AllenCahn, 1D_KdV, 2D_Steady_LidDrivenCavity, 2D_GreyScott, 2D_GinzburgLandau, 2D_RayleighTaylor and 2D_KolmogorovFlow are the benchmarks of the
 PirateNet / SOAP-for-PINNs study (Wang et al.); their references are the published solutions
 (`speedrun/external.py`).
 
-Tracks are ordered by dimension: the ODE, then 1D + time, 2D steady, 2D + time, and 3D + time. The folder name
-carries the tag (`track03_1DT_Burgers`: 1D + time; `track07_2D_HighContrastDiffusion`: 2D, steady).
+Tracks are ordered by dimension: the ODE, then 1D steady, 1D + time, 2D steady, and 2D + time. A track's id (and folder
+name) is `<dim>D[_Steady]_<Name>`: the spatial dimension (0D for the ODE), `_Steady` for steady problems, and the
+problem name (`1D_Burgers`: 1D + time; `2D_Steady_Kovasznay`: 2D, steady). Ids carry no numbers, so adding or
+removing a track never renames the others.
 
 Each track below shows its reference solution (animation where time-dependent) and, once it has submissions,
 its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
@@ -161,223 +163,209 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 <!-- tracks-table:begin -->
 | track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
-| 01 VanDerPol (ODE) | [PirateNet + SOAP](tracks/track01_0DT_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
-| 02 DampedWave (1D + Time) | [PirateNet + SOAP](tracks/track02_1DT_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
-| 03 Burgers (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track03_1DT_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
-| 04 KuramotoSivashinsky (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track04_1DT_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
-| 05 AllenCahn (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track05_1DT_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
-| 06 KdV (1D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track06_1DT_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
-| 07 HighContrastDiffusion (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0002/solve.py) | 215.3 | 13.3% | 20.5% | no |
-| 08 Helmholtz (2D) | *on hold* | | | | |
-| 09 AdvectionDiffusion (2D) | [PirateNet + SOAP](tracks/track09_2D_AdvectionDiffusion/submissions/submission_PR0001/solve.py) | 300.7 | 94.4% | 72.4% | no |
-| 10 Kovasznay (2D) | [PINN + Gauss-Newton (D-NGD)](tracks/track10_2D_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
-| 11 LidDrivenCavity (2D) | [PirateNet + SOAP](tracks/track11_2D_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
-| 13 DecayingEddies (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track13_2DT_DecayingEddies/submissions/submission_PR0002/solve.py) | 68.03 | 0.1% | 0.0534% | yes |
-| 14 CylinderFlow (2D + Time) | *TODO* | | | | |
-| 15 GreyScott (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track15_2DT_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
-| 16 GinzburgLandau (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track16_2DT_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |
-| 17 RayleighTaylor (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track17_2DT_RayleighTaylor/submissions/submission_PR0002/solve.py) | 367.7 | 3.99% | 11.1% | no |
-| 18 KolmogorovFlow (2D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track18_2DT_KolmogorovFlow/submissions/submission_PR0002/solve.py) | 461.9 | 71.8% | 113% | no |
-| 19 BeltramiFlow (3D + Time) | [PINN + Gauss-Newton (D-NGD)](tracks/track19_3DT_BeltramiFlow/submissions/submission_PR0002/solve.py) | 23.41 | 0.00157% | 0.0134% | yes |
+| 0D_VanDerPol | [PirateNet + SOAP](tracks/0D_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
+| 1D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 37.54 | 6e-05% | 8.33e-05% | yes |
+| 1D_DampedWave | [PirateNet + SOAP](tracks/1D_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
+| 1D_Burgers | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
+| 1D_KuramotoSivashinsky | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
+| 1D_AllenCahn | [PINN + Gauss-Newton (D-NGD)](tracks/1D_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
+| 1D_KdV | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
+| 2D_Steady_Helmholtz | *TODO* | | | | |
+| 2D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 251.1 | 5.03e-05% | 0.000161% | yes |
+| 2D_Steady_Kovasznay | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
+| 2D_Steady_LidDrivenCavity | [PirateNet + SOAP](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
+| 2D_CylinderFlow | *TODO* | | | | |
+| 2D_GreyScott | [PINN + Gauss-Newton (D-NGD)](tracks/2D_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
+| 2D_GinzburgLandau | [PINN + Gauss-Newton (D-NGD)](tracks/2D_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |
+| 2D_RayleighTaylor | [PINN + Gauss-Newton (D-NGD)](tracks/2D_RayleighTaylor/submissions/submission_PR0002/solve.py) | 367.7 | 3.99% | 11.1% | no |
+| 2D_KolmogorovFlow | [PINN + Gauss-Newton (D-NGD)](tracks/2D_KolmogorovFlow/submissions/submission_PR0002/solve.py) | 461.9 | 71.8% | 113% | no |
 <!-- tracks-table:end -->
 
-### 01 VanDerPol (ODE)
+### 0D_VanDerPol
 Stiff ODE: `y'' − μ(1 − y²) y' + y = 0`, μ = 1000, `y(0) = 2`, `y'(0) = 0`, t ∈ [0, 3000] (almost two relaxation
 periods: slow drifts on a time scale ~μ, jumps lasting ~1/μ). Output: y at 3001 uniform times. Reference: Radau
 IIA, rtol 1e-12.
 
-<img src="tracks/track01_0DT_VanDerPol/figures/reference.png" width="100%" alt="01 reference">
+<img src="tracks/0D_VanDerPol/figures/reference.png" width="100%" alt="0D_VanDerPol reference">
 
-<!-- figures:01:begin -->
-<img src="tracks/track01_0DT_VanDerPol/figures/accuracy_vs_time.png" width="49%" alt="01 accuracy_vs_time"> <img src="tracks/track01_0DT_VanDerPol/figures/activity.png" width="49%" alt="01 activity">
-<!-- figures:01:end -->
+<!-- figures:0D_VanDerPol:begin -->
+<img src="tracks/0D_VanDerPol/figures/accuracy_vs_time.png" width="49%" alt="0D_VanDerPol accuracy_vs_time"> <img src="tracks/0D_VanDerPol/figures/activity.png" width="49%" alt="0D_VanDerPol activity">
+<!-- figures:0D_VanDerPol:end -->
 
-### 02 DampedWave (1D + Time)
+### 1D_Steady_AdvectionDiffusion
+Steady advection-diffusion `−ε u″ − u′ = 1` on [0, 1], ε = 0.01, `u(0) = u(1) = 0` ([Chebfun "Boundary layer for
+advection-diffusion equation"](https://www.chebfun.org/examples/ode-linear/BoundaryLayer.html), Trefethen 2010).
+The flow runs toward x = 0, where u drops from its outer solution 1 − x to 0 across a boundary layer of width ~ε
+(u = ½ at x = ε ln 2, slope u′(0) ≈ 1/ε = 100). Output: 1001 uniform points (≈ 46 inside the layer). Reference:
+exact solution.
+
+<img src="tracks/1D_Steady_AdvectionDiffusion/figures/reference.png" width="100%" alt="1D_Steady_AdvectionDiffusion reference">
+
+<!-- figures:1D_Steady_AdvectionDiffusion:begin -->
+<img src="tracks/1D_Steady_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="1D_Steady_AdvectionDiffusion accuracy_vs_time"> <img src="tracks/1D_Steady_AdvectionDiffusion/figures/activity.png" width="49%" alt="1D_Steady_AdvectionDiffusion activity">
+<!-- figures:1D_Steady_AdvectionDiffusion:end -->
+
+### 1D_DampedWave
 `u_tt = u_xx − 0.5 u_t` on (t, x) ∈ [0, 4] × [0, 1], `u = 0` at x = 0, 1, a narrow Gaussian pulse
 `u(0, x) = exp(−(x − 0.3)²/(2·0.02²))`, `u_t(0, x) = 0`. The two halves cross the domain four times, reflecting
 off the walls. Output: 801 t × 1001 x. Reference: exact sine series (closed-form coefficients).
 
-<img src="tracks/track02_1DT_DampedWave/figures/reference.png" width="100%" alt="02 reference">
+<img src="tracks/1D_DampedWave/figures/reference.png" width="100%" alt="1D_DampedWave reference">
 
-<img src="tracks/track02_1DT_DampedWave/figures/reference.gif" width="100%" alt="02 reference">
+<img src="tracks/1D_DampedWave/figures/reference.gif" width="100%" alt="1D_DampedWave reference">
 
-<!-- figures:02:begin -->
-<img src="tracks/track02_1DT_DampedWave/figures/accuracy_vs_time.png" width="49%" alt="02 accuracy_vs_time"> <img src="tracks/track02_1DT_DampedWave/figures/activity.png" width="49%" alt="02 activity">
-<!-- figures:02:end -->
+<!-- figures:1D_DampedWave:begin -->
+<img src="tracks/1D_DampedWave/figures/accuracy_vs_time.png" width="49%" alt="1D_DampedWave accuracy_vs_time"> <img src="tracks/1D_DampedWave/figures/activity.png" width="49%" alt="1D_DampedWave activity">
+<!-- figures:1D_DampedWave:end -->
 
-### 03 Burgers (1D + Time)
+### 1D_Burgers
 `u_t + u u_x = (0.01/π) u_xx` on (t, x) ∈ [0, 1] × [−1, 1], `u(0, x) = −sin(πx)`, `u = 0` at x = ±1 (Raissi et al.
 2019; [Shahab et al. 2026](https://arxiv.org/abs/2602.08515), sec. 3.1); a stationary shock forms at x = 0 from
 t ≈ 1/π. Output: 1001 t × 1001 x. Reference: exact Cole–Hopf solution by quadrature.
 
-<img src="tracks/track03_1DT_Burgers/figures/reference.png" width="100%" alt="03 reference">
+<img src="tracks/1D_Burgers/figures/reference.png" width="100%" alt="1D_Burgers reference">
 
-<img src="tracks/track03_1DT_Burgers/figures/reference.gif" width="100%" alt="03 reference">
+<img src="tracks/1D_Burgers/figures/reference.gif" width="100%" alt="1D_Burgers reference">
 
-<!-- figures:03:begin -->
-<img src="tracks/track03_1DT_Burgers/figures/accuracy_vs_time.png" width="49%" alt="03 accuracy_vs_time"> <img src="tracks/track03_1DT_Burgers/figures/activity.png" width="49%" alt="03 activity">
-<!-- figures:03:end -->
+<!-- figures:1D_Burgers:begin -->
+<img src="tracks/1D_Burgers/figures/accuracy_vs_time.png" width="49%" alt="1D_Burgers accuracy_vs_time"> <img src="tracks/1D_Burgers/figures/activity.png" width="49%" alt="1D_Burgers activity">
+<!-- figures:1D_Burgers:end -->
 
-### 04 KuramotoSivashinsky (1D + Time)
+### 1D_KuramotoSivashinsky
 `u_t + (100/16) u u_x + (100/16²) u_xx + (100/16⁴) u_xxxx = 0`, x ∈ [0, 2π] periodic, t ∈ [0, 1], chaotic regime;
 the initial state is given as samples. Output: 250 t × 512 x. Reference: published data.
 
-<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.png" width="100%" alt="04 reference">
+<img src="tracks/1D_KuramotoSivashinsky/figures/reference.png" width="100%" alt="1D_KuramotoSivashinsky reference">
 
-<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="04 reference">
+<img src="tracks/1D_KuramotoSivashinsky/figures/reference.gif" width="100%" alt="1D_KuramotoSivashinsky reference">
 
-<!-- figures:04:begin -->
-<img src="tracks/track04_1DT_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="49%" alt="04 accuracy_vs_time"> <img src="tracks/track04_1DT_KuramotoSivashinsky/figures/activity.png" width="49%" alt="04 activity">
-<!-- figures:04:end -->
+<!-- figures:1D_KuramotoSivashinsky:begin -->
+<img src="tracks/1D_KuramotoSivashinsky/figures/accuracy_vs_time.png" width="49%" alt="1D_KuramotoSivashinsky accuracy_vs_time"> <img src="tracks/1D_KuramotoSivashinsky/figures/activity.png" width="49%" alt="1D_KuramotoSivashinsky activity">
+<!-- figures:1D_KuramotoSivashinsky:end -->
 
-### 05 AllenCahn (1D + Time)
+### 1D_AllenCahn
 `u_t − 1e-4 u_xx + 5u³ − 5u = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = x² cos(πx)`. Output: 200 t × 512 x.
 Reference: published data.
 
-<img src="tracks/track05_1DT_AllenCahn/figures/reference.png" width="100%" alt="05 reference">
+<img src="tracks/1D_AllenCahn/figures/reference.png" width="100%" alt="1D_AllenCahn reference">
 
-<img src="tracks/track05_1DT_AllenCahn/figures/reference.gif" width="100%" alt="05 reference">
+<img src="tracks/1D_AllenCahn/figures/reference.gif" width="100%" alt="1D_AllenCahn reference">
 
-<!-- figures:05:begin -->
-<img src="tracks/track05_1DT_AllenCahn/figures/accuracy_vs_time.png" width="49%" alt="05 accuracy_vs_time"> <img src="tracks/track05_1DT_AllenCahn/figures/activity.png" width="49%" alt="05 activity">
-<!-- figures:05:end -->
+<!-- figures:1D_AllenCahn:begin -->
+<img src="tracks/1D_AllenCahn/figures/accuracy_vs_time.png" width="49%" alt="1D_AllenCahn accuracy_vs_time"> <img src="tracks/1D_AllenCahn/figures/activity.png" width="49%" alt="1D_AllenCahn activity">
+<!-- figures:1D_AllenCahn:end -->
 
-### 06 KdV (1D + Time)
+### 1D_KdV
 `u_t + u u_x + 0.022² u_xxx = 0`, x ∈ [−1, 1] periodic, t ∈ [0, 1], `u(0, x) = cos(πx)`; the cosine breaks into
 solitons. Output: 200 t × 512 x. Reference: published data.
 
-<img src="tracks/track06_1DT_KdV/figures/reference.png" width="100%" alt="06 reference">
+<img src="tracks/1D_KdV/figures/reference.png" width="100%" alt="1D_KdV reference">
 
-<img src="tracks/track06_1DT_KdV/figures/reference.gif" width="100%" alt="06 reference">
+<img src="tracks/1D_KdV/figures/reference.gif" width="100%" alt="1D_KdV reference">
 
-<!-- figures:06:begin -->
-<img src="tracks/track06_1DT_KdV/figures/accuracy_vs_time.png" width="49%" alt="06 accuracy_vs_time"> <img src="tracks/track06_1DT_KdV/figures/activity.png" width="49%" alt="06 activity">
-<!-- figures:06:end -->
+<!-- figures:1D_KdV:begin -->
+<img src="tracks/1D_KdV/figures/accuracy_vs_time.png" width="49%" alt="1D_KdV accuracy_vs_time"> <img src="tracks/1D_KdV/figures/activity.png" width="49%" alt="1D_KdV activity">
+<!-- figures:1D_KdV:end -->
 
-### 07 HighContrastDiffusion (2D)
-`−∇·(a∇u) = 18` on [0, 1]², `u = 0` on the boundary, `a = 1e3` in a 3 × 3 array of square inclusions, 1
-elsewhere. The inclusion corners make u singular (~ρ^(2/3)). Output: 256² cell centers. Reference: FV on 3840²
-and 5376², Richardson-extrapolated at the measured order 1.34.
+### 2D_Steady_Helmholtz: TODO
+Scattering of a plane wave by a square in a disk, the [MATLAB PDE Toolbox
+example](https://www.mathworks.com/help/pde/ug/helmholtzs-equation-on-disk-with-a-square-hole.html):
+`−Δr − k²r = 0`, k = 60, `r = −exp(−ikx)` on the square, `∂r/∂n − ikr = 0` on the circle. The problem and its
+mesh (9528 nodes, linear triangles) are defined; the reference is not yet. Linear FEM on that mesh is 16% from
+the converged solution, so the reference will come from refinements of it, solved with a multigrid-preconditioned
+iterative solver. Status and next steps: [TODO.md](tracks/2D_Steady_Helmholtz/TODO.md).
 
-<img src="tracks/track07_2D_HighContrastDiffusion/figures/reference.png" width="100%" alt="07 reference">
+<!-- figures:2D_Steady_Helmholtz:begin -->
+<!-- figures:2D_Steady_Helmholtz:end -->
 
-<!-- figures:07:begin -->
-<img src="tracks/track07_2D_HighContrastDiffusion/figures/accuracy_vs_time.png" width="49%" alt="07 accuracy_vs_time"> <img src="tracks/track07_2D_HighContrastDiffusion/figures/activity.png" width="49%" alt="07 activity">
-<!-- figures:07:end -->
+### 2D_Steady_AdvectionDiffusion
+Steady heat transport by a prescribed cellular flow, exactly the [Wolfram Demonstration of Binous, Bellagi &
+Higgins (2015)](https://demonstrations.wolfram.com/SteadyStateTwoDimensionalConvectionDiffusionEquation/):
+`(1/Pe) ΔT − u T_x − v T_y = 0` on [0, 1] × [0, 2], `u = −sin πx cos πy`, `v = cos πx sin πy`, Pe = 64,
+cold wall `T(0, y) = 0`, hot wall `T(1, y) = 1`, insulated walls at y = 0, 2. Hot fluid is
+swept along the insulated walls toward the cold wall and cold fluid back along y = 1. The solution is smooth.
+Output: uniform 257 × 513 grid. Reference: Chebyshev collocation, N = 64 on one cell, mirrored about y = 1
+(N = 48 agrees to 6e-12).
 
-### 08 Helmholtz (2D): TODO
-The original setup (lossless Dirichlet box with a slow lens, ω = 40) is resonant. It needs absorption (sponge,
-PML, or impedance BC) first.
+<img src="tracks/2D_Steady_AdvectionDiffusion/figures/reference.png" width="40%" alt="2D_Steady_AdvectionDiffusion reference"> <img src="tracks/2D_Steady_AdvectionDiffusion/figures/reference_slices.png" width="58%" alt="2D_Steady_AdvectionDiffusion slices">
 
-<!-- figures:08:begin -->
-<!-- figures:08:end -->
+<!-- figures:2D_Steady_AdvectionDiffusion:begin -->
+<img src="tracks/2D_Steady_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="2D_Steady_AdvectionDiffusion accuracy_vs_time"> <img src="tracks/2D_Steady_AdvectionDiffusion/figures/activity.png" width="49%" alt="2D_Steady_AdvectionDiffusion activity">
+<!-- figures:2D_Steady_AdvectionDiffusion:end -->
 
-### 09 AdvectionDiffusion (2D)
-`−ε Δu + u_x + u_y = f` on [0, 1]², ε = 1e-3, `u = 0` on the boundary, with boundary layers of width ε at x = 1
-and y = 1. Output: 257² Chebyshev–Lobatto grid. Reference: closed form (f was manufactured from it; rule 1).
-
-<img src="tracks/track09_2D_AdvectionDiffusion/figures/reference.png" width="100%" alt="09 reference">
-
-<!-- figures:09:begin -->
-<img src="tracks/track09_2D_AdvectionDiffusion/figures/accuracy_vs_time.png" width="49%" alt="09 accuracy_vs_time"> <img src="tracks/track09_2D_AdvectionDiffusion/figures/activity.png" width="49%" alt="09 activity">
-<!-- figures:09:end -->
-
-### 10 Kovasznay (2D)
+### 2D_Steady_Kovasznay
 Steady incompressible NS, Re = 40, on [−0.5, 2] × [−0.5, 1.5], with the Kovasznay velocity as Dirichlet data on the
 whole boundary. Output: (u, v) on 251 × 201. Reference: closed form.
 
-<img src="tracks/track10_2D_Kovasznay/figures/reference.png" width="100%" alt="10 reference">
+<img src="tracks/2D_Steady_Kovasznay/figures/reference.png" width="100%" alt="2D_Steady_Kovasznay reference">
 
-<!-- figures:10:begin -->
-<img src="tracks/track10_2D_Kovasznay/figures/accuracy_vs_time.png" width="49%" alt="10 accuracy_vs_time"> <img src="tracks/track10_2D_Kovasznay/figures/activity.png" width="49%" alt="10 activity">
-<!-- figures:10:end -->
+<!-- figures:2D_Steady_Kovasznay:begin -->
+<img src="tracks/2D_Steady_Kovasznay/figures/accuracy_vs_time.png" width="49%" alt="2D_Steady_Kovasznay accuracy_vs_time"> <img src="tracks/2D_Steady_Kovasznay/figures/activity.png" width="49%" alt="2D_Steady_Kovasznay activity">
+<!-- figures:2D_Steady_Kovasznay:end -->
 
-### 11 LidDrivenCavity (2D)
+### 2D_Steady_LidDrivenCavity
 Steady NS, Re = 5000, in [0, 1]², lid `u = 1 − cosh(50(x − 0.5))/cosh(25)` on y = 1, no-slip elsewhere. Output: (u, v)
 on 256². RelL∞ is scored at points ≥ 0.05 from the walls. Reference: published data.
 
-<img src="tracks/track11_2D_LidDrivenCavity/figures/reference.png" width="100%" alt="11 reference">
+<img src="tracks/2D_Steady_LidDrivenCavity/figures/reference.png" width="100%" alt="2D_Steady_LidDrivenCavity reference">
 
-<!-- figures:11:begin -->
-<img src="tracks/track11_2D_LidDrivenCavity/figures/accuracy_vs_time.png" width="49%" alt="11 accuracy_vs_time"> <img src="tracks/track11_2D_LidDrivenCavity/figures/activity.png" width="49%" alt="11 activity">
-<!-- figures:11:end -->
+<!-- figures:2D_Steady_LidDrivenCavity:begin -->
+<img src="tracks/2D_Steady_LidDrivenCavity/figures/accuracy_vs_time.png" width="49%" alt="2D_Steady_LidDrivenCavity accuracy_vs_time"> <img src="tracks/2D_Steady_LidDrivenCavity/figures/activity.png" width="49%" alt="2D_Steady_LidDrivenCavity activity">
+<!-- figures:2D_Steady_LidDrivenCavity:end -->
 
-### 13 DecayingEddies (2D + Time)
-Unsteady NS, ν = 0.05, periodic [0, 2π)², t ∈ [0, 5], from `u = sin 5y + cos 3x cos 4y`,
-`v = cos 5x + 0.75 sin 3x sin 4y` (Walsh 1992). Output: (u, v) at 11 t × 128². Reference: closed form.
+### 2D_CylinderFlow: TODO
+Flow past a cylinder; see `tracks/2D_CylinderFlow/TODO.md`.
 
-<img src="tracks/track13_2DT_DecayingEddies/figures/reference.png" width="100%" alt="13 reference">
+<!-- figures:2D_CylinderFlow:begin -->
+<!-- figures:2D_CylinderFlow:end -->
 
-<img src="tracks/track13_2DT_DecayingEddies/figures/reference.gif" width="100%" alt="13 reference">
-
-<!-- figures:13:begin -->
-<img src="tracks/track13_2DT_DecayingEddies/figures/accuracy_vs_time.png" width="49%" alt="13 accuracy_vs_time"> <img src="tracks/track13_2DT_DecayingEddies/figures/activity.png" width="49%" alt="13 activity">
-<!-- figures:13:end -->
-
-### 14 CylinderFlow (2D + Time): TODO
-Flow past a cylinder; see `tracks/track14_2DT_CylinderFlow/TODO.md`.
-
-<!-- figures:14:begin -->
-<!-- figures:14:end -->
-
-### 15 GreyScott (2D + Time)
+### 2D_GreyScott
 `u_t = 0.2 Δu + 40(1 − u) − 1000 u v²`, `v_t = 0.1 Δv − 100 v + 1000 u v²` on [−1, 1]² periodic, t ∈ [0, 2], initial
 state given as samples. Output: (u, v) at 100 t × 200². Reference: published data.
 
-<img src="tracks/track15_2DT_GreyScott/figures/reference.png" width="100%" alt="15 reference">
+<img src="tracks/2D_GreyScott/figures/reference.png" width="100%" alt="2D_GreyScott reference">
 
-<img src="tracks/track15_2DT_GreyScott/figures/reference.gif" width="100%" alt="15 reference">
+<img src="tracks/2D_GreyScott/figures/reference.gif" width="100%" alt="2D_GreyScott reference">
 
-<!-- figures:15:begin -->
-<img src="tracks/track15_2DT_GreyScott/figures/accuracy_vs_time.png" width="49%" alt="15 accuracy_vs_time"> <img src="tracks/track15_2DT_GreyScott/figures/activity.png" width="49%" alt="15 activity">
-<!-- figures:15:end -->
+<!-- figures:2D_GreyScott:begin -->
+<img src="tracks/2D_GreyScott/figures/accuracy_vs_time.png" width="49%" alt="2D_GreyScott accuracy_vs_time"> <img src="tracks/2D_GreyScott/figures/activity.png" width="49%" alt="2D_GreyScott activity">
+<!-- figures:2D_GreyScott:end -->
 
-### 16 GinzburgLandau (2D + Time)
+### 2D_GinzburgLandau
 Complex Ginzburg–Landau for A = u + iv, ε = 0.004, k = 10, on [−1, 1]² periodic, t ∈ [0, 1], initial state given as
 samples. Output: (u, v) at 100 t × 200². Reference: published data.
 
-<img src="tracks/track16_2DT_GinzburgLandau/figures/reference.png" width="100%" alt="16 reference">
+<img src="tracks/2D_GinzburgLandau/figures/reference.png" width="100%" alt="2D_GinzburgLandau reference">
 
-<img src="tracks/track16_2DT_GinzburgLandau/figures/reference.gif" width="100%" alt="16 reference">
+<img src="tracks/2D_GinzburgLandau/figures/reference.gif" width="100%" alt="2D_GinzburgLandau reference">
 
-<!-- figures:16:begin -->
-<img src="tracks/track16_2DT_GinzburgLandau/figures/accuracy_vs_time.png" width="49%" alt="16 accuracy_vs_time"> <img src="tracks/track16_2DT_GinzburgLandau/figures/activity.png" width="49%" alt="16 activity">
-<!-- figures:16:end -->
+<!-- figures:2D_GinzburgLandau:begin -->
+<img src="tracks/2D_GinzburgLandau/figures/accuracy_vs_time.png" width="49%" alt="2D_GinzburgLandau accuracy_vs_time"> <img src="tracks/2D_GinzburgLandau/figures/activity.png" width="49%" alt="2D_GinzburgLandau activity">
+<!-- figures:2D_GinzburgLandau:end -->
 
-### 17 RayleighTaylor (2D + Time)
+### 2D_RayleighTaylor
 Boussinesq Rayleigh–Taylor instability, Ra = 1e6, Pr = 0.71, on [0, 1] × [0, 2], t ∈ [0, 8.5], initial state given as
 samples. Output: (u, v, T) at 34 t on a 100 × 200 grid. Reference: published data.
 
-<img src="tracks/track17_2DT_RayleighTaylor/figures/reference.png" width="100%" alt="17 reference">
+<img src="tracks/2D_RayleighTaylor/figures/reference.png" width="100%" alt="2D_RayleighTaylor reference">
 
-<img src="tracks/track17_2DT_RayleighTaylor/figures/reference.gif" width="100%" alt="17 reference">
+<img src="tracks/2D_RayleighTaylor/figures/reference.gif" width="100%" alt="2D_RayleighTaylor reference">
 
-<!-- figures:17:begin -->
-<img src="tracks/track17_2DT_RayleighTaylor/figures/accuracy_vs_time.png" width="49%" alt="17 accuracy_vs_time"> <img src="tracks/track17_2DT_RayleighTaylor/figures/activity.png" width="49%" alt="17 activity">
-<!-- figures:17:end -->
+<!-- figures:2D_RayleighTaylor:begin -->
+<img src="tracks/2D_RayleighTaylor/figures/accuracy_vs_time.png" width="49%" alt="2D_RayleighTaylor accuracy_vs_time"> <img src="tracks/2D_RayleighTaylor/figures/activity.png" width="49%" alt="2D_RayleighTaylor activity">
+<!-- figures:2D_RayleighTaylor:end -->
 
-### 18 KolmogorovFlow (2D + Time)
+### 2D_KolmogorovFlow
 Forced 2D NS, Re = 1e4, forcing `2 sin(4πy)` in x, on [0, 1)² periodic, t ∈ [0, 1.96], initial state given as
 samples; turbulent. Output: (u, v) at 49 t × 256². Reference: published data.
 
-<img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.png" width="100%" alt="18 reference">
+<img src="tracks/2D_KolmogorovFlow/figures/reference.png" width="100%" alt="2D_KolmogorovFlow reference">
 
-<img src="tracks/track18_2DT_KolmogorovFlow/figures/reference.gif" width="100%" alt="18 reference">
+<img src="tracks/2D_KolmogorovFlow/figures/reference.gif" width="100%" alt="2D_KolmogorovFlow reference">
 
-<!-- figures:18:begin -->
-<img src="tracks/track18_2DT_KolmogorovFlow/figures/accuracy_vs_time.png" width="49%" alt="18 accuracy_vs_time"> <img src="tracks/track18_2DT_KolmogorovFlow/figures/activity.png" width="49%" alt="18 activity">
-<!-- figures:18:end -->
-
-### 19 BeltramiFlow (3D + Time)
-3D unsteady Navier–Stokes, Re = 1, on [−1, 1]³ × [0, 1]: the Ethier–Steinman Beltrami flow (a = d = 1). Initial and
-Dirichlet velocity on all six faces come from the exact solution. Output: (u, v, w) at t = 0.25, 0.5, 0.75, 1 on 33³.
-Reference: closed form.
-
-<img src="tracks/track19_3DT_BeltramiFlow/figures/reference.png" width="100%" alt="19 reference">
-
-<!-- figures:19:begin -->
-<img src="tracks/track19_3DT_BeltramiFlow/figures/accuracy_vs_time.png" width="49%" alt="19 accuracy_vs_time"> <img src="tracks/track19_3DT_BeltramiFlow/figures/activity.png" width="49%" alt="19 activity">
-<!-- figures:19:end -->
+<!-- figures:2D_KolmogorovFlow:begin -->
+<img src="tracks/2D_KolmogorovFlow/figures/accuracy_vs_time.png" width="49%" alt="2D_KolmogorovFlow accuracy_vs_time"> <img src="tracks/2D_KolmogorovFlow/figures/activity.png" width="49%" alt="2D_KolmogorovFlow activity">
+<!-- figures:2D_KolmogorovFlow:end -->
 
 ## Layout
 

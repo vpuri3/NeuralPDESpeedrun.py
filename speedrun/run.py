@@ -1,8 +1,8 @@
 """Official timing + scoring harness.
 
-    uv run python -m speedrun.run --track 07                       # runs the track's baseline.py
-    uv run python -m speedrun.run --track 07 \
-        --submission tracks/track07_2D_HighContrastDiffusion/submissions/submission_PR0042
+    uv run python -m speedrun.run --track 2D_Steady_Kovasznay                       # runs the track's baseline.py
+    uv run python -m speedrun.run --track 2D_Steady_Kovasznay \
+        --submission tracks/2D_Steady_Kovasznay/submissions/submission_PR0042
 
 A submission is a directory `tracks/<track>/submissions/submission_PR<NNNN>/` (or a single .py file while
 developing) whose `solve.py` defines

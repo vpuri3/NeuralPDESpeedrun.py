@@ -1,0 +1,40 @@
+# 2D_Steady_Kovasznay: Kovasznay flow, Re = 40, rectangle
+
+```text
+Kovasznay flow on the rectangle [-0.5, 2.0] x [-0.5, 1.5].
+
+Steady incompressible Navier-Stokes, Re = 40:
+
+    (u . grad) u + grad p = (1/Re) Lap u,      div u = 0
+
+Dirichlet velocity on the whole boundary, equal to the Kovasznay (1948) solution
+    u = 1 - exp(lam x) cos(2 pi y),   v = (lam / (2 pi)) exp(lam x) sin(2 pi y),
+    lam = Re/2 - sqrt(Re^2/4 + 4 pi^2)
+(only its boundary values are data; the interior is unknown to the solver). Pressure is NOT scored.
+
+Output: (u, v) on the tensor grid x = linspace(-0.5, 2.0, 251) x y = linspace(-0.5, 1.5, 201);
+shape (2, 251, 201).
+```
+
+**Accuracy bar:** RelL2 ≤ 0.005, RelL∞ ≤ 0.01. **Budget:** 1000 s of wall-clock solve time.
+
+![reference](figures/reference.png)
+
+## Reference
+
+closed form (Kovasznay 1948)
+
+- `check_sem_N24_linf`: 8.542e-14
+
+## Records
+
+Current record: **17.76 s** (PINN + Gauss-Newton (D-NGD), maintainers, 2026-10-31, NVIDIA H100 80GB HBM3 (JAX)).
+
+| date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | maintainers | PirateNet + SOAP | neural | 616.9 | 1.47e-04 | 1.65e-04 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-10-31 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 17.76 | 2.62e-05 | 3.71e-05 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+
+![accuracy_vs_time](figures/accuracy_vs_time.png)
+
+![activity](figures/activity.png)

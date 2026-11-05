@@ -22,12 +22,11 @@ material (`DNGD/main_DNGDgeo.py`).
   - *Time-dependent tracks*: [0, t_end] is split into equal windows, each with its own network (warm-started
     from the previous one). On window w the state fields are U = s_w(x) + phi_w(tau, x) - phi_w(0, x), s_w the
     initial state plus the jumps of all earlier windows, so the initial condition and the continuity across
-    windows are exact; second order in time (02): u and u_t are both continued exactly. Initial states given
-    only as samples (15-18) are fitted by a separate network (100 GN steps at the start of `solve`, timed).
-  - *Steady tracks*: one network; walls either exact through a factor (07, 09: u = x(1-x)y(1-y) phi) or soft
-    (10, 11: weighted residual terms on the walls).
-  - Loss: PDE residual at uniformly resampled collocation points (09, 11: denser at the walls), plus boundary
-    terms (10, 11, 17, 19: weight 10). Zero Dirichlet walls in 02 are exact through an odd periodic extension.
+    windows are exact; second order in time (DampedWave): u and u_t are both continued exactly. Initial states given
+    only as samples (the 2D benchmarks) are fitted by a separate network (100 GN steps at the start of `solve`, timed).
+  - *Steady tracks*: one network; the boundary conditions are weighted residual terms on the walls.
+  - Loss: PDE residual at uniformly resampled collocation points (2D AdvectionDiffusion, LidDrivenCavity: denser at the walls), plus boundary
+    terms (2D AdvectionDiffusion, Kovasznay, LidDrivenCavity, RayleighTaylor: weight 10). Zero Dirichlet walls in DampedWave are exact through an odd periodic extension.
 - **Execution**: everything is compiled ahead of time in `setup` (`jit(...).lower(...).compile()`; problem data
   enter as numpy constants, since closed-over JAX arrays become hidden inputs of AOT-compiled functions). `solve`
   runs a fixed number of GN steps per window, checkpoints after every step, and returns after the last window
@@ -38,24 +37,22 @@ Per-track settings (`tracks/<track>/submissions/submission_PR0002/solve.py`):
 
 | track | windows | MLP | Fourier modes | points / step | GN steps | damping |
 |---|---|---|---|---|---|---|
-| 02 DampedWave | 16 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
-| 03 Burgers | 10 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
-| 04 KuramotoSivashinsky | 20 (JAX-NG) | 50 x 4 (JAX-NG) | 10 | 20k | 200 / window | 1e-8 |
-| 05 AllenCahn | 10 | 50 x 4 | 10 | 20k | 100 / window | 1e-8 |
-| 06 KdV | 5 (JAX-NG) | 30 x 4 (JAX-NG) | 10 | 20k | 100 / window | 1e-8 |
-| 07 HighContrastDiffusion | steady | 50 x 4 | - | 8k | 6000 | LM |
-| 09 AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) | 6000 | LM |
-| 10 Kovasznay | steady | 50 x 4 | - | 4k + 4 x 500 wall | 300 | LM |
-| 11 LidDrivenCavity | steady | 50 x 4 | - | 6k (clustered) + 4 x 750 wall | 6000 | LM |
-| 13 DecayingEddies | 5 | 50 x 4 | 8 | 8k | 100 / window | LM |
-| 15 GreyScott | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |
-| 16 GinzburgLandau | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |
-| 17 RayleighTaylor | 10 | 50 x 4 | 8 | 8k + 2k wall | 200 / window | LM |
-| 18 KolmogorovFlow | 10 | 50 x 4 | 8 | 8k | 300 / window | LM |
-| 19 BeltramiFlow | 2 | 50 x 4 | - | 6k + 3 x 1k wall | 100 / window | 1e-8 |
+| 1D_Steady_AdvectionDiffusion | steady | 50 x 4 | - | 4k (clustered) + 2 wall | 4000 | 1e-8 |
+| 1D_DampedWave | 16 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
+| 1D_Burgers | 10 | 50 x 4 | 30 (odd ext.) | 20k | 100 / window | 1e-8 |
+| 1D_KuramotoSivashinsky | 20 (JAX-NG) | 50 x 4 (JAX-NG) | 10 | 20k | 200 / window | 1e-8 |
+| 1D_AllenCahn | 10 | 50 x 4 | 10 | 20k | 100 / window | 1e-8 |
+| 1D_KdV | 5 (JAX-NG) | 30 x 4 (JAX-NG) | 10 | 20k | 100 / window | 1e-8 |
+| 2D_Steady_AdvectionDiffusion | steady | 50 x 4 | - | 8k (clustered) + 2 x 1k wall | 6000 | LM |
+| 2D_Steady_Kovasznay | steady | 50 x 4 | - | 4k + 4 x 500 wall | 300 | LM |
+| 2D_Steady_LidDrivenCavity | steady | 50 x 4 | - | 6k (clustered) + 4 x 750 wall | 6000 | LM |
+| 2D_GreyScott | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |
+| 2D_GinzburgLandau | 10 | 50 x 4 | 10 | 8k | 300 / window | LM |
+| 2D_RayleighTaylor | 10 | 50 x 4 | 8 | 8k + 2k wall | 200 / window | LM |
+| 2D_KolmogorovFlow | 10 | 50 x 4 | 8 | 8k | 300 / window | LM |
 
 Differences from JAX-NG: 100-300 GN steps per window instead of 2000, and the window networks are kept as flat
 vectors so that one compiled step serves every window.
 
-Not covered: 01 VanDerPol (an adaptive-window variant stalls at the first relaxation jump; shelved), 08 and 14
+Not covered: 0D_VanDerPol (an adaptive-window variant stalls at the first relaxation jump; shelved), 2D_Steady_Helmholtz and 2D_CylinderFlow
 (no problem defined yet).

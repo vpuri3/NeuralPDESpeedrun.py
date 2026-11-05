@@ -1,8 +1,8 @@
 """Generate (or re-plot) the reference solution of one or all tracks.
 
-    uv run python -m speedrun.make_reference --track track03_1DT_Burgers
+    uv run python -m speedrun.make_reference --track 1D_Burgers
     uv run python -m speedrun.make_reference --track all
-    uv run python -m speedrun.make_reference --track track03_1DT_Burgers --plot-only
+    uv run python -m speedrun.make_reference --track 1D_Burgers --plot-only
 
 Each track's `reference.py` exposes
 

@@ -1,0 +1,53 @@
+[
+  {
+    "date": "2026-11-05",
+    "author": "maintainers",
+    "name": "PirateNet + SOAP",
+    "submission": "tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0001/solve.py",
+    "time_s": 317.90105687407777,
+    "solve_time_s": 317.86068329401314,
+    "query_time_s": 0.04037358006462455,
+    "rel_l2": 0.0009446075943409114,
+    "rel_linf": 0.0013555582470109247,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 1,
+    "stop": "done",
+    "budget_s": 1000.0
+  },
+  {
+    "date": "2026-11-05",
+    "author": "maintainers",
+    "name": "PINN + Gauss-Newton (D-NGD)",
+    "submission": "tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py",
+    "time_s": 37.53981373598799,
+    "solve_time_s": 37.53848183900118,
+    "query_time_s": 0.0013318969868123531,
+    "rel_l2": 5.997247311115038e-07,
+    "rel_linf": 8.330573028942729e-07,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 2,
+    "stop": "done",
+    "budget_s": 1000.0
+  },
+  {
+    "date": "2026-11-05",
+    "author": "maintainers",
+    "name": "record #0: classical baseline",
+    "submission": "tracks/1D_Steady_AdvectionDiffusion/baseline.py",
+    "time_s": 0.03326888394076377,
+    "solve_time_s": 0.03326888394076377,
+    "query_time_s": 0.0,
+    "rel_l2": 8.986733146047442e-06,
+    "rel_linf": 8.968529194175947e-06,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3",
+    "kind": "classical",
+    "pr": null,
+    "stop": "done",
+    "budget_s": 1000.0
+  }
+]

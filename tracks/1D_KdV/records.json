@@ -38,16 +38,16 @@
     "author": "maintainers",
     "name": "Shallow PINN + Levenberg-Marquardt",
     "submission": "tracks/1D_KdV/submissions/submission_PR0004/solve.py",
-    "time_s": 60.71944951801561,
-    "solve_time_s": 60.714366442058235,
-    "query_time_s": 0.005083075957372785,
-    "rel_l2": 0.0003347319407991248,
-    "rel_linf": 0.000526451051574492,
+    "time_s": 1000.333265655092,
+    "solve_time_s": 1000.3244884170126,
+    "query_time_s": 0.008777238079346716,
+    "rel_l2": 8.097686708286755e-06,
+    "rel_linf": 9.159299697628796e-06,
     "passed": true,
     "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
     "kind": "neural",
     "pr": 4,
-    "stop": "done",
+    "stop": "budget",
     "budget_s": 1000.0
   }
 ]

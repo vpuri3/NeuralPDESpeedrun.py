@@ -1,15 +1,15 @@
 {
   "track": "1D_AllenCahn",
   "submission": "tracks/1D_AllenCahn/submissions/submission_PR0004/solve.py",
-  "time_s": 59.572070379043,
-  "solve_time_s": 59.56880027009174,
-  "query_time_s": 0.003270108951255679,
-  "checkpoints": 401,
-  "stop": "done",
+  "time_s": 1000.2755044009537,
+  "solve_time_s": 1000.2700566099957,
+  "query_time_s": 0.0054477909579873085,
+  "checkpoints": 2412,
+  "stop": "budget",
   "budget_s": 1000.0,
   "impose_budget": true,
-  "rel_l2": 4.025494807732419e-05,
-  "rel_linf": 0.002592082380896173,
+  "rel_l2": 8.381051357692193e-06,
+  "rel_linf": 0.0005133008376685971,
   "accurate": true,
   "query_within_limit": true,
   "passed": true,
@@ -30,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 0.4470517635345459,
+  "cuda_peak_allocated_gb": 0.5620872974395752,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "96c8861",
+  "git_commit": "6ddb901",
   "seed": 0,
-  "date": "2026-11-05T16:59:16"
+  "date": "2026-11-05T23:37:01"
 }

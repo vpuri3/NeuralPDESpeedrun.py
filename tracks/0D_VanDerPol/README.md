@@ -25,11 +25,12 @@ Radau IIA (scipy), rtol 1e-12, atol 1e-14, analytic Jacobian
 
 ## Records
 
-Current record: **300.4 s** (PirateNet + SOAP, maintainers, 2026-10-30, NVIDIA H100 80GB HBM3 (JAX)).
+Current record: **173.5 s** (Shallow PINN + Levenberg-Marquardt, maintainers, 2026-11-05, NVIDIA H100 80GB HBM3 (JAX)).
 
 | date | author | name | kind | time [s] | RelL2 | RelL∞ | passes | hardware |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-30 | maintainers | PirateNet + SOAP | neural | 300.4 | 1.14e+00 | 1.75e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-11-05 | maintainers | Shallow PINN + Levenberg-Marquardt | neural | 173.5 | 9.37e-01 | 1.66e+00 | no | NVIDIA H100 80GB HBM3 (JAX) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

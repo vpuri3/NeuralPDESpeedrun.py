@@ -48,19 +48,35 @@ its own at its top (currently all tracks: 32×4, points redrawn every 50 iterati
 | derivatives | `jet` (inputs), reverse mode per point (J) | all AD (user); reverse per point keeps memory at rows × parameters |
 | checkpoints | every ≤ 50 iterations and ≤ ~1 s | user: not every iteration; ~1 s keeps the budget overshoot under a second for big nets |
 
-## Recorded configurations (earlier code: fixed points, textbook μ rule; to be re-recorded)
+## Recorded results (current code: 32×4 on every track, points redrawn every 50 iterations)
 
-| track | net | iterations | sampling | time [s] | RelL2 | RelL∞ | bar | previous record |
-|---|---|---|---|---|---|---|---|---|
-| 1D_Steady_AdvectionDiffusion | 8×1 | 20k cap | fixed | **4.86** | 1.1e-8 | 1.4e-8 | ✅ record | 37.5 s (PR0002) |
-| 1D_AllenCahn | 32×2 | 20k cap | fixed | **59.6** | 4.0e-5 | 2.6e-3 | ✅ record | 108.7 s (PR0002) |
-| 1D_KdV | 32×2 | 20k cap | fixed | 60.7 | 3.3e-4 | 5.3e-4 | ✅ | 15.2 s (PR0002) |
-| 1D_Burgers | 32×4 | no cap | fixed | 1000 | 4.4e-6 | 6.1e-5 | ✅ | 200.1 s (PR0002) |
-| 1D_DampedWave | 64×4 | no cap | resampled | **1000** | 1.3e-3 | 1.3e-3 | ✅ first pass | none passed |
-| 1D_KuramotoSivashinsky | 32×2 | no cap | resampled | 1000 | 0.92 | 1.12 | ❌ | 542.6 s (PR0002) |
+Scored on one H100 under the 1000 s budget, 2026-11-05. "Bar first met" is measured after the run from weight
+snapshots (the reference is never loaded during a run): the method itself has no stopping rule yet, so every
+passing run still uses the whole budget and is scored at ~1000 s.
 
-There is no stopping rule besides the cap and LM's own tests, so uncapped runs always use the full budget even
-when they reach the bar much earlier. A residual-based stopping tolerance is the obvious next step.
+| track | RelL2 | RelL∞ | bar | bar first met | iterations | ms / iter |
+|---|---|---|---|---|---|---|
+| 1D_Steady_AdvectionDiffusion | 2.7e-11 | 3.5e-11 | ✅ | 0.96 s (it 113) | 129k | 7.7 |
+| 2D_Steady_AdvectionDiffusion | 3.2e-8 | 1.3e-7 | ✅ | 1.06 s (it 113) | 113k | 8.9 |
+| 2D_Steady_Kovasznay | 7.8e-9 | 2.4e-8 | ✅ | 1.43 s (it 63) | 47k | 21.5 |
+| 1D_Burgers | 8.8e-8 | 3.0e-6 | ✅ | 1.92 s (it 213) | 114k | 8.8 |
+| 1D_KdV | 8.1e-6 | 9.2e-6 | ✅ | 5.65 s (it 663) | 119k | 8.4 |
+| 1D_AllenCahn | 8.4e-6 | 5.1e-4 | ✅ | 13.0 s (it 1563) | 120k | 8.3 |
+| 0D_VanDerPol | 0.94 | 1.66 | ❌ | — (LM stopped itself at 174 s) | 22k | 7.7 |
+| 1D_DampedWave | 0.99 | 0.78 | ❌ | — | 111k | 9.0 |
+| 1D_KuramotoSivashinsky | 0.98 | 1.11 | ❌ | — | 117k | 8.6 |
+| 2D_Steady_LidDrivenCavity | 0.85 | 0.91 | ❌ | — | 46k | 21.8 |
+| 2D_GreyScott | 0.64 | 0.88 | ❌ | — | 66k | 15.1 |
+| 2D_GinzburgLandau | 1.00 | 1.00 | ❌ | — | 67k | 14.9 |
+| 2D_KolmogorovFlow | 1.59 | 2.23 | ❌ | — | 47k | 21.2 |
+| 2D_RayleighTaylor | 0.87 | 1.00 | ❌ | — | 35k | 28.9 |
+
+Passing tracks reach the bar within 1–13 s; with a residual-based stopping rule they would be records on most of
+them (current records: 37.5 s, 251 s, 17.8 s, 200 s, 15.2 s, 109 s). The failing time-dependent tracks fit the
+current points but not the solution between them (held-out PDE residual orders of magnitude above the training
+one; DampedWave and KS diagnostics in `run/`), and one network over the whole time interval is the likely limit.
+Per-run inspection figures (loss, μ, gain ratio, residual groups, conditioning, solve accuracy) are written to
+`run/tracks/PR0004/<track>_<name>_<datetime>/inspect.png` (not in git).
 
 ## Experiments (earlier code; run directories deleted 2026-11-05, figures below kept)
 

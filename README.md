@@ -163,17 +163,17 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 <!-- tracks-table:begin -->
 | track | best submission | time [s] | RelL2 (≤ 0.5%) | RelL∞ (≤ 1%) | bar met |
 |---|---|---|---|---|---|
-| 0D_VanDerPol | [PirateNet + SOAP](tracks/0D_VanDerPol/submissions/submission_PR0001/solve.py) | 300.4 | 114% | 175% | no |
-| 1D_Steady_AdvectionDiffusion | [Shallow PINN + Levenberg-Marquardt](tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0004/solve.py) | 4.859 | 1.1e-06% | 1.4e-06% | yes |
-| 1D_DampedWave | [Shallow PINN + Levenberg-Marquardt](tracks/1D_DampedWave/submissions/submission_PR0004/solve.py) | 1001 | 0.135% | 0.133% | yes |
+| 0D_VanDerPol | [Shallow PINN + Levenberg-Marquardt](tracks/0D_VanDerPol/submissions/submission_PR0004/solve.py) | 173.5 | 93.7% | 166% | no |
+| 1D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 37.54 | 6e-05% | 8.33e-05% | yes |
+| 1D_DampedWave | [PirateNet + SOAP](tracks/1D_DampedWave/submissions/submission_PR0001/solve.py) | 1001 | 1.43% | 0.814% | no |
 | 1D_Burgers | [PINN + Gauss-Newton (D-NGD)](tracks/1D_Burgers/submissions/submission_PR0002/solve.py) | 200.1 | 3.24e-05% | 0.000345% | yes |
 | 1D_KuramotoSivashinsky | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KuramotoSivashinsky/submissions/submission_PR0002/solve.py) | 542.6 | 0.128% | 0.653% | yes |
-| 1D_AllenCahn | [Shallow PINN + Levenberg-Marquardt](tracks/1D_AllenCahn/submissions/submission_PR0004/solve.py) | 59.57 | 0.00403% | 0.259% | yes |
+| 1D_AllenCahn | [PINN + Gauss-Newton (D-NGD)](tracks/1D_AllenCahn/submissions/submission_PR0002/solve.py) | 108.7 | 0.0558% | 0.631% | yes |
 | 1D_KdV | [PINN + Gauss-Newton (D-NGD)](tracks/1D_KdV/submissions/submission_PR0002/solve.py) | 15.21 | 0.00122% | 0.0031% | yes |
 | 2D_Steady_Helmholtz | *TODO* | | | | |
 | 2D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 251.1 | 5.03e-05% | 0.000161% | yes |
 | 2D_Steady_Kovasznay | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
-| 2D_Steady_LidDrivenCavity | [PirateNet + SOAP](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0001/solve.py) | 1001 | 100% | 100% | no |
+| 2D_Steady_LidDrivenCavity | [Shallow PINN + Levenberg-Marquardt](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0004/solve.py) | 1000 | 84.7% | 90.5% | no |
 | 2D_CylinderFlow | *TODO* | | | | |
 | 2D_GreyScott | [PINN + Gauss-Newton (D-NGD)](tracks/2D_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
 | 2D_GinzburgLandau | [PINN + Gauss-Newton (D-NGD)](tracks/2D_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |

@@ -1,15 +1,15 @@
 {
   "track": "1D_KuramotoSivashinsky",
   "submission": "tracks/1D_KuramotoSivashinsky/submissions/submission_PR0004/solve.py",
-  "time_s": 1000.0198968129698,
-  "solve_time_s": 1000.0166755110258,
-  "query_time_s": 0.0032213019439950585,
-  "checkpoints": 6262,
+  "time_s": 1000.2391787861707,
+  "solve_time_s": 1000.2331996380817,
+  "query_time_s": 0.005979148088954389,
+  "checkpoints": 2337,
   "stop": "budget",
   "budget_s": 1000.0,
   "impose_budget": true,
-  "rel_l2": 0.9165301011306147,
-  "rel_linf": 1.1164603742787969,
+  "rel_l2": 0.9776916149702813,
+  "rel_linf": 1.1110599713483125,
   "accurate": false,
   "query_within_limit": true,
   "passed": false,
@@ -30,10 +30,10 @@
       "gpu"
     ]
   },
-  "cuda_peak_allocated_gb": 0.500018835067749,
+  "cuda_peak_allocated_gb": 0.5623924732208252,
   "torch": "2.15.0+cu132",
   "python": "3.13.15",
-  "git_commit": "96c8861",
+  "git_commit": "6ddb901",
   "seed": 0,
-  "date": "2026-11-05T18:23:27"
+  "date": "2026-11-05T23:18:24"
 }

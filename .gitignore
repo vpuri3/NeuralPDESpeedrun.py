@@ -224,3 +224,4 @@ tracks/*/logs/
 tracks/*/reference/ref.npz
 *.gif.tmp
 tracks/*/submissions/*/run.log
+run/

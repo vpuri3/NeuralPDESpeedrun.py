@@ -2,6 +2,23 @@
   {
     "date": "2026-11-05",
     "author": "maintainers",
+    "name": "Shallow PINN + Levenberg-Marquardt",
+    "submission": "tracks/2D_Steady_AdvectionDiffusion/submissions/submission_PR0004/solve.py",
+    "time_s": 1000.4434283999726,
+    "solve_time_s": 1000.4355441849912,
+    "query_time_s": 0.007884214981459081,
+    "rel_l2": 3.2227258331949536e-08,
+    "rel_linf": 1.249844805913171e-07,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 4,
+    "stop": "budget",
+    "budget_s": 1000.0
+  },
+  {
+    "date": "2026-11-05",
+    "author": "maintainers",
     "name": "PirateNet + SOAP",
     "submission": "tracks/2D_Steady_AdvectionDiffusion/submissions/submission_PR0001/solve.py",
     "time_s": 352.5555781130679,

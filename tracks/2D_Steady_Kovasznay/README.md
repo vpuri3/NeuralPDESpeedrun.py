@@ -34,6 +34,7 @@ Current record: **17.76 s** (PINN + Gauss-Newton (D-NGD), maintainers, 2026-10-3
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-30 | maintainers | PirateNet + SOAP | neural | 616.9 | 1.47e-04 | 1.65e-04 | yes | NVIDIA H100 80GB HBM3 (JAX) |
 | 2026-10-31 | maintainers | PINN + Gauss-Newton (D-NGD) | neural | 17.76 | 2.62e-05 | 3.71e-05 | yes | NVIDIA H100 80GB HBM3 (JAX) |
+| 2026-11-05 | maintainers | Shallow PINN + Levenberg-Marquardt | neural | 1000 | 7.84e-09 | 2.43e-08 | yes | NVIDIA H100 80GB HBM3 (JAX) |
 
 ![accuracy_vs_time](figures/accuracy_vs_time.png)
 

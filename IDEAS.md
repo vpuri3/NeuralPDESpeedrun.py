@@ -138,3 +138,36 @@ r_k = f − A(u_k).
    the coarse correction. Measure mesh-independence and loop-count scaling at million-scale meshes.
 6. **Transport/moving features** (5A, 5B, 5C): adaptive Gaussian / neural-field Galerkin in time
    (NeuralROMs line) with sparse GN per step.
+7. **Conditioning of J, split into its two factors.** J = ∂r/∂θ = (∂N/∂u)(∂u/∂θ): the PDE operator's
+   conditioning (u → N(u)) times the model's (θ → u). The PDE part is fixed by the problem (differential
+   operators are ill-conditioned in general); the model part is a design choice. For one fixed PDE problem,
+   measure cond / spectrum of J for different discretizations and architectures: FEM, SEM, deep and shallow
+   NNs, Gaussian splats and morphing Gaussian splats (varying numbers of Gaussians, varying overlaps).
+   *Evidence (PR0004):* a 32×4 tanh MLP has J numerically rank-deficient on every track (rank 43 of 3265 on
+   1D_Steady_AdvectionDiffusion, ~1500 of 3297 on 1D_Burgers), with σmin(J) at round-off; the spectra are in
+   every run's `inspect.png`.
+8. **Avoid the normal equations; then try FP32.** Every LM/GN method so far (PR0002, PR0004) solves the
+   normal equations, inverting JᵀJ (+ μI) directly or iteratively, which squares the conditioning and is why
+   FP64 is required. With a QR factorization J = QR the step solves R Δ = −Qᵀ r(θ): JᵀJ is never formed, nor
+   are matvecs with it, so the squaring is avoided. Iteratively: LSQR / LSMR on the damped least-squares
+   problem min ‖[J; √μ I] Δ + [r; 0]‖ (LM damping built in), with preconditioning. If the model's conditioning
+   (item 7) is brought under control, this may let the solver run in FP32.
+   *Evidence (PR0004):* with Cholesky of JᵀJ + μI in FP64 at cond 1e15–1e16, the step d is accurate only to
+   ~1e-4 but J·d to ~1e-7 (error in J·d ≲ ε·√κ); `inspect_run.py` measures both against an SVD-based solve of
+   [J; √μ I] in every run.
+9. **Conditions first, then the interior.** Loss curves show an initial plateau followed by a steep drop.
+   This may be an optical illusion, or it may be because, until the initial / boundary conditions are fitted,
+   the interior PDE work is fitting the wrong solution. Steady problems: fit the BCs first, then add interior
+   points gradually. Time-dependent problems: fit the IC first, then gradually add points from successive
+   time slabs (a curriculum in t, without separate networks per window).
+   *Evidence (PR0004):* on 1D_Burgers (32×4) the loss stays between 1 and 1e-1 for the first ~0.4 s, then drops ~4 decades within ~1 s;
+   the per-group residual panels in `inspect.png` show which groups move first.
+10. **Embed the IC / BC in the model, end to end.** Find ansätze that satisfy the initial and boundary
+    conditions by construction for any problem, not per-track hand-built factors such as u = x(1 − x)·ũ.
+    Conditions may arrive either as functions or only as sample values, and a solver cannot assume which.
+    When they are samples, first fit them with a smooth representation, so the embedded condition carries
+    no interpolation noise into the PDE fit.
+    *Evidence (PR0004):* on 1D_Steady_AdvectionDiffusion, building the walls into the network gave RelL2 1.9e-9
+    against 2.2e-8 with the walls as residual rows, at the same cost. On the 2D tracks given as samples
+    (GreyScott, GinzburgLandau, KolmogorovFlow) the IC rows use the samples' trigonometric interpolant;
+    RayleighTaylor (non-periodic grid) uses a fixed random subset of the raw samples and KS all 512 of them.

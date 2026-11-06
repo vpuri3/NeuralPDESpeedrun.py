@@ -66,5 +66,22 @@
     "pr": null,
     "stop": "done",
     "budget_s": 1000.0
+  },
+  {
+    "date": "2026-11-06",
+    "author": "maintainers",
+    "name": "Shallow PINN + LM (QR steps)",
+    "submission": "tracks/1D_Steady_AdvectionDiffusion/submissions/submission_PR0005/solve.py",
+    "time_s": 1000.7670734819258,
+    "solve_time_s": 1000.7649012239417,
+    "query_time_s": 0.002172257984057069,
+    "rel_l2": 5.795630983586264e-10,
+    "rel_linf": 6.508325976088859e-10,
+    "passed": true,
+    "hardware": "NVIDIA H100 80GB HBM3 (JAX)",
+    "kind": "neural",
+    "pr": 5,
+    "stop": "budget",
+    "budget_s": 1000.0
   }
 ]

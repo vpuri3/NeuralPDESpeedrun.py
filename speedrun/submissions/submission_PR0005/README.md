@@ -34,3 +34,24 @@ by the R of a QR of J, and by the normal equations (√σ(fl(JᵀJ)), floor √�
 [J; √μI] (floor √μ); and, at snapshots, the QR and the Cholesky steps against an SVD-based reference solve (relative
 errors of d and of J·d, with the ε·√κ and ε·κ bounds). Timings list the stacked QR and, for comparison,
 submission 4's JᵀJ and Cholesky.
+
+## Results
+
+**1D_Steady_AdvectionDiffusion** (32×4, points redrawn every 50 iterations, 1000 s budget, H100), against submission
+4's identical setup with the Cholesky step:
+
+| | submission 4 (Cholesky) | submission 5 (QR) |
+|---|---|---|
+| RelL2 / RelL∞ (scored) | 2.7e-11 / 3.5e-11 | 5.8e-10 / 6.5e-10 |
+| bar first met | 0.96 s (iteration 113) | 3.43 s (iteration 78) |
+| iterations in 1000 s (ms each) | 129k (7.7) | 23.9k (41.9) |
+| final μ; cond(JᵀJ + μI); cond([J; √μI]) | 1e-7; 4.2e13; — | 1e-5; 4.3e11; 6.5e5 |
+| step error vs SVD reference, d (late snapshots) | — | 1e-12 (Cholesky on the same J: 6e-5) |
+| step error, J·d | — | 2e-11 (Cholesky: 4e-7) |
+
+The QR step is accurate to ~1e-12 where the normal equations give 6e-5, and R from the QR resolves J's singular values
+down to ~1e-16·σmax where JᵀJ stops at ~√ε·σmax ≈ 1e-5 (the "small singular values" panel). On this track that does
+not change the outcome: both pass by a wide margin, and at 5.4× the cost per iteration the QR run does fewer
+iterations and ends less accurate. The more accurate step pays off only where the normal equations' error matters
+(larger κ, or float32: `IDEAS.md` §5 item 8). No stopping rule yet: the run is scored at ~1000 s; the record on this
+track is submission 2 (37.5 s; 37.8 s re-timed on the same GPU, `previous.json`).

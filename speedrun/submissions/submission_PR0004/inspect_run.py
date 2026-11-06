@@ -223,8 +223,9 @@ def plot(run: Path, conf, h, cols, err, spec, cond, chk, timing, summary):
             a.set_yscale("log")
         a.grid(True, which="major", color=GRID, lw=0.6)
         a.tick_params(colors=INK2, labelsize=8)
-        a.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-        a.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+        for axis, lim, log in ((a.xaxis, a.get_xlim(), xlog), (a.yaxis, a.get_ylim(), ylog)):
+            if log and min(lim) > 0 and max(lim) / min(lim) > 10:    # minor labels only on sub-decade axes
+                axis.set_minor_formatter(matplotlib.ticker.NullFormatter())
         for s_ in a.spines.values():
             s_.set_color(GRID)
         if tbar and xlog:

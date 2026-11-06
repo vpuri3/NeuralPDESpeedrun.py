@@ -7,25 +7,48 @@ on the 1D tracks. Code: [`pinn.py`](pinn.py); per-track residuals and settings i
 
 ## Method
 
-- **Network**: tanh MLP, one output, `layers` hidden layers of `width` neurons; Glorot-normal weights, zero
-  biases, seed 0; all parameters in one flat vector. One network on the whole space-time domain (no time windows).
-  Inputs: a periodic axis enters as (sin, cos)(2π(x − lo)/L), so periodicity is exact (the only condition built
-  into the network); any other axis is scaled to [−1, 1].
-- **Residual**: the PDE residual at 10k uniform random interior points, plus one group of rows per initial or
-  Dirichlet condition (500 random points on the face; KS: its 512 given initial samples), each group scaled by
-  √(10k / its size), so the loss is mean(PDE²) + Σ mean(condition²). Interior points are drawn once (the paper),
-  or, with `resample=True` (DampedWave, KS), redrawn every LM iteration; the current loss, J and all trial steps of
-  one iteration then use the same points.
-- **Derivatives**: all by JAX AD — input derivatives by Taylor mode (`jax.experimental.jet`), the residual
-  Jacobian J by reverse mode per point (`vmap(grad)`); nothing hand-derived.
-- **Optimizer**: textbook Levenberg-Marquardt as in the paper (MATLAB `fsolve`): solve (JᵀJ + μI) d = JᵀF by
-  Cholesky with **no preconditioning or scaling**; if ‖F(w − d)‖² < ‖F(w)‖² accept and μ ← μ/10, else reject,
-  μ ← 10μ and retry. μ₀ = 0.01. Stops at the iteration cap (if any), when ‖d‖ < 1e-12 (1e-12 + ‖w‖), when no μ
-  ≤ 1e16 lowers the loss, or at the harness budget.
-- **Execution**: float64 throughout, everything compiled ahead of time in `setup`. The LM loop runs on the device
-  in chunks of at most 50 iterations and about 1 s; the host checkpoints between chunks.
+Key hyperparameters are in one block at the top of [`pinn.py`](pinn.py) (`Config`); each track's `solve.py` sets
+its own at its top (currently all tracks: 32×4, points redrawn every 50 iterations, everything else default).
 
-## Recorded configurations
+- **Network**: tanh MLP, one output, Glorot-normal weights, zero biases, seed 0; one network on the whole
+  space-time domain (no time windows). A periodic axis enters as (sin, cos)(2π(x − lo)/L), so periodicity is exact;
+  any other axis is scaled to [−1, 1].
+- **Residual**: the PDE residual at 10k uniform random interior points, plus one group of rows per initial or
+  boundary condition (`Cond`: 500 random points on a face of the domain, or fixed given points), each group scaled
+  by √(10k / its size), so ‖F‖²/10k = mean(PDE²) + Σ mean(condition²). Every 50 iterations all drawn points are
+  redrawn, and the loss to beat is recomputed on the new points.
+- **Derivatives**: all by JAX AD (Taylor-mode `jet` for input derivatives, reverse mode per point for J).
+- **Levenberg-Marquardt**: (JᵀJ + μI) d = JᵀF by Cholesky, no preconditioning or scaling. Rejected trial: μ ← 10μ,
+  retry. μ ← μ/10 only after 10 consecutive iterations whose first trial was accepted. No iteration cap: the
+  harness's 1000 s budget ends the run (or the step tolerance, or no acceptable μ ≤ 1e16).
+- **Inspection** (always on): every run writes `run/tracks/PR0004/<track>_<name>_<datetime>/` (per-iteration μ, loss,
+  ‖d‖, gain ratio, trials; residual probes and weight snapshots); [`inspect_run.py`](inspect_run.py) adds the error
+  against the reference, J's spectra, timings and one figure. Diagnostic mode (`PR0004_DIAG=1`) adds the singular
+  values of J every 50 iterations, kept off the training clock.
+
+## Choices and their reasons
+
+| choice | value | why / status |
+|---|---|---|
+| network size | 32×4 (max) | 2 hidden layers beat 1 by 1–4 orders of magnitude; 4 beat 2 at width 32; 64-wide is too slow per iteration (140 ms at 64×4) — user cap 32×4 |
+| time | one network over [0, T] | the paper's setting (user: no time windows); likely why KS fails |
+| conditions | residual rows, weight 1 | user: nothing built in except periodicity; weight 1 untuned. Built-in BCs were 10× more accurate on 1D_Steady_AdvectionDiffusion but not needed for the bar |
+| group scaling | √(n_colloc / m) | each group counts as a mean, independent of how many points it has |
+| periodicity | (sin, cos) inputs | exact; the only constraint built into the network |
+| interior points | 10k uniform random | the paper's count |
+| condition points | 500 per face, redrawn with the interior | faces can be overfitted just like the interior; KS's initial samples are given data and stay fixed |
+| resampling | every 50 iterations | fixed points overfit (Burgers: held-out PDE residual 600× the training one; DampedWave fixed: loss 4e-12 at 78% error); every-iteration redraws made small nets unstable on DampedWave. 50 is a first guess, not tuned |
+| loss to beat after a redraw | recomputed on the new points | so "accept" always compares two losses on the same points; the loss curve therefore jumps at redraws |
+| damping form | μI (Levenberg) | user: no preconditioning; Marquardt's μ·diag(JᵀJ) would be a diagonal scaling |
+| μ₀ | 0.01 | the paper (MATLAB `fsolve`) |
+| μ update | ×10 on rejection; ÷10 after 10 straight first-trial acceptances | the textbook ÷10 after every acceptance made the next first trial fail every time: 2.00 trials per iteration, half the Cholesky solves wasted. Now ~1.09 |
+| linear solve | Cholesky of JᵀJ + μI (parameter space) | rows (≈11k) > parameters (≈3.3k), so the 3.3k system is the small one. Forming JᵀJ squares J's conditioning; a QR / SVD solve of the stacked [J; √μI] system would avoid that at higher cost (not done) |
+| stopping | budget, step tolerance 1e-12 (relative), μ > 1e16 | no residual-based tolerance yet: the bar is typically met within 1–20 s and the rest of the 1000 s is spent past it — the main open item |
+| precision | float64, highest matmul precision | user: everything FP64 |
+| derivatives | `jet` (inputs), reverse mode per point (J) | all AD (user); reverse per point keeps memory at rows × parameters |
+| checkpoints | every ≤ 50 iterations and ≤ ~1 s | user: not every iteration; ~1 s keeps the budget overshoot under a second for big nets |
+
+## Recorded configurations (earlier code: fixed points, textbook μ rule; to be re-recorded)
 
 | track | net | iterations | sampling | time [s] | RelL2 | RelL∞ | bar | previous record |
 |---|---|---|---|---|---|---|---|---|
@@ -39,7 +62,7 @@ on the 1D tracks. Code: [`pinn.py`](pinn.py); per-track residuals and settings i
 There is no stopping rule besides the cap and LM's own tests, so uncapped runs always use the full budget even
 when they reach the bar much earlier. A residual-based stopping tolerance is the obvious next step.
 
-## Experiments
+## Experiments (earlier code; run directories deleted 2026-11-05, figures below kept)
 
 1. **Hard vs soft conditions** (1D_Steady_AdvectionDiffusion, 32×2, 4k iterations): u = x(1 − x)·ũ (the paper)
    9.87 s, RelL2 1.9e-9; u = ũ with the walls as residual rows 10.03 s, RelL2 2.2e-8. Kept soft.

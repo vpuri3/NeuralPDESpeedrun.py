@@ -1,9 +1,12 @@
-"""Submission 4: shallow PINN trained by Levenberg-Marquardt (speedrun/submissions/submission_PR0004), after
-Shahab et al. (arXiv:2602.08515). Steady advection-diffusion -eps u'' + b u' = f, u = u~(x); the walls
-u(0) = u(1) = 0 are residual rows. tanh MLP, 10k fixed collocation points, float64."""
+"""Submission 4: shallow PINN + Levenberg-Marquardt (speedrun/submissions/submission_PR0004; Shahab et al.,
+arXiv:2602.08515). Steady advection-diffusion -eps u'' + b u' = f on [0, 1], u = u~(x); the walls u(0) = u(1) = 0
+are residual rows."""
 import numpy as np
 
-from speedrun.submissions.submission_PR0004.pinn import Config, LMPINN, arch, derivs, query, solve  # noqa: F401
+from speedrun.submissions.submission_PR0004.pinn import Cond, Config, LMPINN, derivs, query, solve  # noqa: F401
+
+# hyperparameters (all others: the defaults in pinn.Config)
+CONFIG = Config(width=32, layers=4, resample_every=50)
 
 
 def setup(problem):
@@ -13,6 +16,5 @@ def setup(problem):
         _, u_x, u_xx = derivs(u, z, 0, 2)
         return -eps * u_xx + b * u_x - f(z[0])
 
-    width, layers = arch(8, 1)
-    walls = np.array([[0.0], [1.0]])
-    return LMPINN(problem, residual, Config(width=width, layers=layers), bcs=[(walls, lambda u, z: u(z) - g(z[0]), 1.0)]).compile()
+    walls = Cond("walls u(0) = u(1) = 0", lambda u, z: u(z) - g(z[0]), points=np.array([[0.0], [1.0]]))
+    return LMPINN(problem, residual, CONFIG, [walls]).compile()

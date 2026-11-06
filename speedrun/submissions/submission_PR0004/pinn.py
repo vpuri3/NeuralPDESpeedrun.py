@@ -98,6 +98,31 @@ def derivs(f: Callable, z, i: int, k: int):
     return (y0, *ys)
 
 
+def trig_interp(values, axes, domain):
+    """JAX-traceable trigonometric interpolant of samples on a uniform periodic grid (the same interpolant as the
+    tracks' periodic_interp, Re sum_k c_k e^{2 pi i k (x - lo) / L}), with its coefficients as numpy constants, so
+    ahead-of-time compiled functions do not capture device arrays. values: (n0, n1, ...) on the grids `axes`;
+    domain: per axis (lo, hi), the period hi - lo; a grid that includes hi duplicates its first sample, which is then
+    dropped."""
+    v = np.asarray(values, np.float64)
+    for i, (x, (lo, hi)) in enumerate(zip(axes, domain)):
+        if abs(float(x[-1]) - hi) < 1e-9 * (hi - lo):
+            v = np.take(v, range(v.shape[i] - 1), axis=i)
+    c = np.fft.fftn(v) / v.size
+    ks = [np.fft.fftfreq(n, d=1.0 / n) for n in v.shape]
+    los = [float(x[0]) for x in axes]          # the grid's first sample (cell-centred grids start at dx / 2)
+    Ls = [float(hi - lo) for lo, hi in domain]  # the period
+
+    def f(*xs):
+        es = [jnp.exp(2j * jnp.pi * k * (x - lo) / L) for x, k, lo, L in zip(xs, ks, los, Ls)]
+        out = jnp.asarray(c)
+        for e in reversed(es):                 # contract the last axis first
+            out = out @ e
+        return jnp.real(out)
+
+    return f
+
+
 def _init(key, sizes):
     params = []
     for a, b in zip(sizes[:-1], sizes[1:]):
@@ -110,7 +135,8 @@ def _mlp(params, h):
     for W, b in params[:-1]:
         h = jnp.tanh(h @ W + b)
     W, b = params[-1]
-    return (h @ W + b)[0]
+    out = h @ W + b
+    return out[0] if out.shape[0] == 1 else out
 
 
 @dataclass(frozen=True)
@@ -127,10 +153,12 @@ ITER_COLS = ("loss", "mu", "step", "rho", "trials", "redrawn")
 
 
 class LMPINN:
-    """problem: the track's Problem. residual(u, z) -> scalar PDE residual, u: z -> scalar (use `derivs`), z the
-    global coordinates in the order of problem.axes. conds: the initial / boundary conditions (`Cond`)."""
+    """problem: the track's Problem. residual(u, z) -> PDE residual (scalar or vector), u: z -> network output
+    (scalar if n_out == 1, else (n_out,): the problem's fields first, then free fields such as pressure; use
+    `derivs`), z the global coordinates in the order of problem.axes. conds: the initial / boundary conditions
+    (`Cond`; fn may also return a vector). Vector residuals become stacked rows; each group still counts as a mean."""
 
-    def __init__(self, problem, residual: Callable, cfg: Config, conds=()):
+    def __init__(self, problem, residual: Callable, cfg: Config, conds=(), n_out: int = 1):
         env = os.environ                        # development overrides (sweeps); never set in scored runs
         if "PR0004_ARCH" in env:
             w, l = map(int, env["PR0004_ARCH"].split("x"))
@@ -144,15 +172,18 @@ class LMPINN:
         self.lo = np.array([float(problem.domain[k][0]) for k in names])
         self.hi = np.array([float(problem.domain[k][1]) for k in names])
         self.per = [problem.is_periodic(k) for k in names]
-        sizes = [sum(2 if p else 1 for p in self.per)] + [cfg.width] * cfg.layers + [1]
+        self.n_out, self.n_fields = n_out, len(problem.fields)
+        sizes = [sum(2 if p else 1 for p in self.per)] + [cfg.width] * cfg.layers + [n_out]
         self.w0, self.unravel = ravel_pytree(_init(jax.random.PRNGKey(cfg.seed), sizes))
         self.n_params = int(self.w0.size)
         self.sizes = [cfg.n_colloc] + [cfg.n_face if c.face else len(c.points) for c in self.conds]
         self.scale = [1.0] + [c.weight * math.sqrt(cfg.n_colloc / m) for c, m in zip(self.conds, self.sizes[1:])]
-        self.n_rows = sum(self.sizes)
         self.group_names = [c.name for c in self.conds]
         self.fns = [residual] + [c.fn for c in self.conds]
         self.Zs0 = self.draw(jax.random.PRNGKey(cfg.seed + 1))
+        self.k = [math.prod(jax.eval_shape(lambda z: fn(self.u(self.w0), z), Z[0]).shape)   # rows per point
+                  for Z, fn in zip(self.Zs0, self.fns)]
+        self.n_rows = sum(m * k for m, k in zip(self.sizes, self.k))
         self.Zheld = self.draw(jax.random.PRNGKey(12345))[0]          # held-out interior points (probe only)
         self.axes = [np.asarray(problem.axes[k].detach().cpu().numpy(), np.float64) for k in names]
 
@@ -184,11 +215,12 @@ class LMPINN:
         return lambda z: _mlp(params, self.features(z))
 
     def F(self, w, Zs):
-        return jnp.concatenate([jax.vmap(lambda z: c * fn(self.u(w), z))(Z) for Z, fn, c in zip(Zs, self.fns, self.scale)])
+        return jnp.concatenate([jax.vmap(lambda z: c * fn(self.u(w), z))(Z).reshape(-1)
+                                for Z, fn, c in zip(Zs, self.fns, self.scale)])
 
     def J(self, w, Zs):
-        return jnp.concatenate([jax.vmap(jax.grad(lambda w, z: c * fn(self.u(w), z)), (None, 0))(w, Z)
-                                for Z, fn, c in zip(Zs, self.fns, self.scale)])
+        return jnp.concatenate([jax.vmap(jax.jacrev(lambda w, z: c * fn(self.u(w), z)), (None, 0))(w, Z)
+                                .reshape(-1, w.size) for Z, fn, c in zip(Zs, self.fns, self.scale)])
 
     # LM ----------------------------------------------------------------------------------------------------
     def _chunk(self, w, mu, sse, key, Zs, streak, it0, n):
@@ -250,7 +282,7 @@ class LMPINN:
         u = self.u(w)
         out = []
         for Z, fn in [(Zs[0], self.fns[0]), (self.Zheld, self.fns[0])] + list(zip(Zs[1:], self.fns[1:])):
-            r = jax.vmap(lambda z: fn(u, z))(Z)
+            r = jax.vmap(lambda z: fn(u, z))(Z).reshape(-1)
             out += [jnp.sqrt(jnp.mean(r ** 2)), jnp.max(jnp.abs(r))]
         grad = jax.grad(lambda w: 0.5 * jnp.sum(self.F(w, Zs) ** 2))(w)
         return jnp.stack(out + [jnp.linalg.norm(grad), jnp.linalg.norm(w)])
@@ -265,8 +297,14 @@ class LMPINN:
         if self.diag:
             self._svd_c = jax.jit(lambda w, Zs: jnp.linalg.svd(self.J(w, Zs), compute_uv=False)).lower(sw, sZ).compile()
         grid = jnp.asarray(np.stack([g.ravel() for g in np.meshgrid(*self.axes, indexing="ij")], -1))
-        shape = (1, *[len(a) for a in self.axes])
-        self._pred_c = jax.jit(lambda w: jax.vmap(self.u(w))(grid).reshape(shape)).lower(sw).compile()
+        shape = (self.n_fields, *[len(a) for a in self.axes])
+
+        def pred(w):
+            U = jax.vmap(self.u(w))(grid)
+            U = U[:, None] if U.ndim == 1 else U
+            return U[:, :self.n_fields].T.reshape(shape)
+
+        self._pred_c = jax.jit(pred).lower(sw).compile()
         return self
 
     def train(self, checkpoint):

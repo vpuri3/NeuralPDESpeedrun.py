@@ -65,7 +65,7 @@ passing run still uses the whole budget and is scored at ~1000 s.
 | 0D_VanDerPol | 0.94 | 1.66 | ❌ | — (LM stopped itself at 174 s) | 22k | 7.7 |
 | 1D_DampedWave | 0.99 | 0.78 | ❌ | — | 111k | 9.0 |
 | 1D_KuramotoSivashinsky | 0.98 | 1.11 | ❌ | — | 117k | 8.6 |
-| 2D_Steady_LidDrivenCavity | 0.85 | 0.91 | ❌ | — | 46k | 21.8 |
+| 2D_Steady_LidDrivenCavity | 0.84 | 0.96 | ❌ | — | 8.4k | 120 |
 | 2D_GreyScott | 0.64 | 0.88 | ❌ | — | 66k | 15.1 |
 | 2D_GinzburgLandau | 1.00 | 1.00 | ❌ | — | 67k | 14.9 |
 | 2D_KolmogorovFlow | 1.59 | 2.23 | ❌ | — | 47k | 21.2 |
@@ -75,6 +75,19 @@ Passing tracks reach the bar within 1–13 s; with a residual-based stopping rul
 them (current records: 37.5 s, 251 s, 17.8 s, 200 s, 15.2 s, 109 s). The failing time-dependent tracks fit the
 current points but not the solution between them (held-out PDE residual orders of magnitude above the training
 one; DampedWave and KS diagnostics in `run/`), and one network over the whole time interval is the likely limit.
+**2D_Steady_LidDrivenCavity (Re = 5000), three samplings of the residual points** (32×4 in each case):
+
+| points | RelL2 | held-out / training PDE residual | final loss | rank of J (σ > √μ) |
+|---|---|---|---|---|
+| 10k uniform random, redrawn every 50 iterations | 0.847 | ~1e4 | 4e-7 | 1567 (438) |
+| the 254² interior grid nodes, fixed (walls: the 1020 boundary nodes) | 0.978 | — | 1.5e-12 | 940 (262) |
+| stratified: one random point per grid cell (255²) and per wall segment, redrawn every 50 iterations (recorded) | 0.836 | 7 | 6e-5 | 3123 (1468) |
+
+With fixed grid nodes the network found u = 0, p = const inside (an exact Navier-Stokes solution) and put the jump to
+the lid between the last two node rows, flat at both: residual 5e-7 at the nodes, 4e-4 (max 3e-2) between them.
+Stratified redrawing closes the training / held-out gap (7×) and J becomes nearly full rank, but the fit stalls
+at a loss of 6e-5 and an error of ~84%: at Re = 5000 the limit is what 3.3k parameters represent, not the sampling.
+
 Per-run inspection figures (loss, μ, gain ratio, residual groups, conditioning, solve accuracy) are written to
 `run/tracks/PR0004/<track>_<name>_<datetime>/inspect.png` (not in git).
 

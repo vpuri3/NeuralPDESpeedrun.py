@@ -81,13 +81,14 @@ class Config:
 @dataclass(frozen=True)
 class Cond:
     """An initial or boundary condition imposed as residual rows fn(u, z) -> scalar, on n_face points drawn on the
-    face {axis = value} of the domain (redrawn with the interior points), or on fixed given `points` (rows may
-    carry extra columns, e.g. a target value, after the coordinates)."""
+    face {axis = value} of the domain (redrawn with the interior points), on fixed given `points` (rows may carry
+    extra columns, e.g. a target value, after the coordinates), or on points from a `sample(key)` function."""
     name: str
     fn: Callable
     face: tuple | None = None           # (axis name, value)
     points: np.ndarray | None = None
     weight: float = 1.0
+    sample: Callable | None = None      # or a sampler key -> (m, d) points, redrawn with the interior
 
 
 def derivs(f: Callable, z, i: int, k: int):
@@ -156,15 +157,23 @@ class LMPINN:
     """problem: the track's Problem. residual(u, z) -> PDE residual (scalar or vector), u: z -> network output
     (scalar if n_out == 1, else (n_out,): the problem's fields first, then free fields such as pressure; use
     `derivs`), z the global coordinates in the order of problem.axes. conds: the initial / boundary conditions
-    (`Cond`; fn may also return a vector). Vector residuals become stacked rows; each group still counts as a mean."""
+    (`Cond`; fn may also return a vector). Vector residuals become stacked rows; each group still counts as a mean.
+    interior: optional interior points used instead of n_colloc uniform random ones: fixed points (m, d) (never
+    redrawn), or a sampler key -> (m, d) (redrawn every resample_every iterations, e.g. stratified)."""
 
-    def __init__(self, problem, residual: Callable, cfg: Config, conds=(), n_out: int = 1):
+    def __init__(self, problem, residual: Callable, cfg: Config, conds=(), n_out: int = 1, interior=None):
         env = os.environ                        # development overrides (sweeps); never set in scored runs
         if "PR0004_ARCH" in env:
             w, l = map(int, env["PR0004_ARCH"].split("x"))
             cfg = replace(cfg, width=w, layers=l)
         if "PR0004_MAX_ITERS" in env:
             cfg = replace(cfg, max_iters=None if env["PR0004_MAX_ITERS"].lower() == "none" else int(env["PR0004_MAX_ITERS"]))
+        if interior is not None:
+            if not callable(interior):
+                interior = np.atleast_2d(np.asarray(interior, np.float64))
+            m = (interior(jax.random.PRNGKey(0)) if callable(interior) else interior).shape[0]
+            cfg = replace(cfg, n_colloc=int(m))
+        self.interior = interior
         self.cfg, self.problem, self.residual, self.conds = cfg, problem, residual, tuple(conds)
         self.diag = bool(env.get("PR0004_DIAG"))
         names = problem.axis_names
@@ -176,7 +185,9 @@ class LMPINN:
         sizes = [sum(2 if p else 1 for p in self.per)] + [cfg.width] * cfg.layers + [n_out]
         self.w0, self.unravel = ravel_pytree(_init(jax.random.PRNGKey(cfg.seed), sizes))
         self.n_params = int(self.w0.size)
-        self.sizes = [cfg.n_colloc] + [cfg.n_face if c.face else len(c.points) for c in self.conds]
+        self.sizes = [cfg.n_colloc] + [cfg.n_face if c.face else
+                                       (c.sample(jax.random.PRNGKey(0)).shape[0] if c.sample else len(c.points))
+                                       for c in self.conds]
         self.scale = [1.0] + [c.weight * math.sqrt(cfg.n_colloc / m) for c, m in zip(self.conds, self.sizes[1:])]
         self.group_names = [c.name for c in self.conds]
         self.fns = [residual] + [c.fn for c in self.conds]
@@ -184,7 +195,9 @@ class LMPINN:
         self.k = [math.prod(jax.eval_shape(lambda z: fn(self.u(self.w0), z), Z[0]).shape)   # rows per point
                   for Z, fn in zip(self.Zs0, self.fns)]
         self.n_rows = sum(m * k for m, k in zip(self.sizes, self.k))
-        self.Zheld = self.draw(jax.random.PRNGKey(12345))[0]          # held-out interior points (probe only)
+        lo_, hi_ = jnp.asarray(self.lo), jnp.asarray(self.hi)               # held-out interior points (probe only):
+        self.Zheld = lo_ + (hi_ - lo_) * jax.random.uniform(jax.random.PRNGKey(12345),  # uniform, independent of
+                                                            (cfg.n_colloc, len(self.lo)), F64)  # the training ones
         self.axes = [np.asarray(problem.axes[k].detach().cpu().numpy(), np.float64) for k in names]
 
     # points ----------------------------------------------------------------------------------------------
@@ -192,9 +205,14 @@ class LMPINN:
         """All residual points: (interior, condition groups...). Faces and the interior are uniform random."""
         keys = jax.random.split(key, 1 + len(self.conds))
         lo, hi = jnp.asarray(self.lo), jnp.asarray(self.hi)
-        Zs = [lo + (hi - lo) * jax.random.uniform(keys[0], (self.cfg.n_colloc, len(self.lo)), F64)]
+        if self.interior is None:
+            Zs = [lo + (hi - lo) * jax.random.uniform(keys[0], (self.cfg.n_colloc, len(self.lo)), F64)]
+        else:
+            Zs = [self.interior(keys[0]) if callable(self.interior) else jnp.asarray(self.interior)]
         for k, c in zip(keys[1:], self.conds):
-            if c.face:
+            if c.sample:
+                Zs.append(c.sample(k))
+            elif c.face:
                 i = self.names.index(c.face[0])
                 Z = lo + (hi - lo) * jax.random.uniform(k, (self.cfg.n_face, len(self.lo)), F64)
                 Zs.append(Z.at[:, i].set(float(c.face[1])))

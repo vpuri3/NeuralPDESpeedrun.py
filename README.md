@@ -173,7 +173,7 @@ its tracker: RelL2 vs wall-clock time, one point per submission, bar dashed.
 | 2D_Steady_Helmholtz | *TODO* | | | | |
 | 2D_Steady_AdvectionDiffusion | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_AdvectionDiffusion/submissions/submission_PR0002/solve.py) | 251.1 | 5.03e-05% | 0.000161% | yes |
 | 2D_Steady_Kovasznay | [PINN + Gauss-Newton (D-NGD)](tracks/2D_Steady_Kovasznay/submissions/submission_PR0002/solve.py) | 17.76 | 0.00262% | 0.00371% | yes |
-| 2D_Steady_LidDrivenCavity | [Shallow PINN + Levenberg-Marquardt](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0004/solve.py) | 1000 | 84.7% | 90.5% | no |
+| 2D_Steady_LidDrivenCavity | [Shallow PINN + Levenberg-Marquardt](tracks/2D_Steady_LidDrivenCavity/submissions/submission_PR0004/solve.py) | 1001 | 83.7% | 95.6% | no |
 | 2D_CylinderFlow | *TODO* | | | | |
 | 2D_GreyScott | [PINN + Gauss-Newton (D-NGD)](tracks/2D_GreyScott/submissions/submission_PR0002/solve.py) | 336 | 47.2% | 71.2% | no |
 | 2D_GinzburgLandau | [PINN + Gauss-Newton (D-NGD)](tracks/2D_GinzburgLandau/submissions/submission_PR0002/solve.py) | 337.2 | 2.9% | 15.9% | no |

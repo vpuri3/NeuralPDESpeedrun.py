@@ -9,9 +9,11 @@ solve.py, and adds to the run directory:
     the run, as the harness does after the clock stops);
   - spectra.npz: singular values of J. Diagnostic-mode runs: those recorded during the run (log-spaced); otherwise
     computed here at n_spectra log-spaced snapshots, on the run's first draw of points;
-  - solve_check.npz: at log-spaced snapshots, the Cholesky LM step against a reference least-squares solve of
-    [J; √μI] d = [F; 0] (relative errors of d and of J·d), and the singular values of fl(JᵀJ) and fl(JᵀJ) + μI;
-  - timing.json: one LM iteration's components (F, J, JᵀJ, one Cholesky solve) at the final weights;
+  - solve_check.npz: at evenly spaced snapshots, the QR LM step (this submission) and submission 4's Cholesky step
+    against a reference least-squares solve of [J; √μI] d = [F; 0] (relative errors of d and of J·d), and the
+    singular values of J (SVD), R0 (QR), fl(JᵀJ) and [J; √μI];
+  - timing.json: one LM iteration's components at the final weights (F, J, one per-trial stacked QR solve;
+    for comparison submission 4's JᵀJ and Cholesky solve);
   - summary.json and inspect.png (all panels against the LM iteration count, linear; log y wherever a quantity
     spans decades; one panel of time vs iteration);
   - result.json: a copy of the harness result, if given.
@@ -121,41 +123,45 @@ def analyse(run: Path, n_spectra: int, device: str = "cuda"):
                 "active": (sv > np.sqrt(mu_s)[:, None]).sum(1)}
     np.savez(run / "spectra.npz", t=ts, it=si, sv=sv)
 
-    # the linear solve, checked: at log-spaced snapshots, the Cholesky step (as LM computes it, from JᵀJ formed in
-    # float64) against a reference least-squares solve of [J; √μ I] d = [F; 0] (SVD-based; condition √κ), and the
-    # singular values of the matrices LM actually forms: fl(JᵀJ) and fl(JᵀJ) + μI
+    # the linear solve, checked: at evenly spaced snapshots, the QR step (submission 5) and the Cholesky step of
+    # submission 4 (JᵀJ formed in float64) against a reference least-squares solve of [J; √μ I] d = [F; 0] (SVD);
+    # singular values of J (SVD), of R0 (from J = Q0 R0), of fl(JᵀJ) (square roots), and of [J; √μ I] (= R1)
+    from speedrun.submissions.submission_PR0005.pinn import cholesky_step, qr_step
     F_c = jax.jit(lambda w: model.F(w, Zs))
     nchk = min(6, len(W))
     pit = h["probe_it"]
     chk_i = sorted({int(np.argmin(np.abs(pit - i))) for i in np.linspace(pit[0], pit[-1], nchk)})
-    chk = {k: [] for k in ("t", "it", "mu", "kappa", "err_d", "err_Jd", "pred_ratio", "eig_A", "eig_Amu")}
+    keys = ("t", "it", "mu", "kappa", "err_d_qr", "err_Jd_qr", "err_d_chol", "err_Jd_chol", "pred_ratio_qr",
+            "sv_J", "sv_R0", "sv_JtJ_sqrt", "sv_aug")
+    chk = {k: [] for k in keys}
     for i in chk_i:
         w_ = jnp.asarray(W[i]); mu_ = float(mu_it[min(max(int(h["probe_it"][i]) - 1, 0), len(mu_it) - 1)])
         J_, F_ = J_c(w_), F_c(w_)
-        A_, g_ = J_.T @ J_, J_.T @ F_
-        Amu = A_ + mu_ * jnp.eye(A_.shape[0])
-        dc = jax.scipy.linalg.cho_solve((jnp.linalg.cholesky(Amu), True), g_)
+        dq = qr_step(J_, F_, mu_)
+        R0 = jnp.linalg.qr(J_, mode="r")
+        dc = cholesky_step(J_.T @ J_, J_.T @ F_, mu_)
         M = jnp.concatenate([J_, np.sqrt(mu_) * jnp.eye(J_.shape[1])])
         dr = jnp.linalg.lstsq(M, jnp.concatenate([F_, jnp.zeros(J_.shape[1])]), rcond=None)[0]
-        eA, eAmu = np.asarray(jnp.linalg.svd(A_, compute_uv=False)), np.asarray(jnp.linalg.svd(Amu, compute_uv=False))
-        pred = lambda d: float(2 * d @ g_ - d @ (A_ @ d))
-        for k, v in zip(chk, (tp[i], int(pit[i]), mu_, float(eAmu[0] / eAmu[-1]),
-                              float(jnp.linalg.norm(dc - dr) / jnp.linalg.norm(dr)),
-                              float(jnp.linalg.norm(J_ @ (dc - dr)) / jnp.linalg.norm(J_ @ dr)),
-                              pred(dc) / pred(dr), eA, eAmu)):
+        svd = lambda X: np.asarray(jnp.linalg.svd(X, compute_uv=False))
+        sJ, sR0, sA = svd(J_), svd(R0), svd(J_.T @ J_)
+        sAug = np.sqrt(sJ ** 2 + mu_)
+        ed = lambda d: float(jnp.linalg.norm(d - dr) / jnp.linalg.norm(dr))
+        eJ = lambda d: float(jnp.linalg.norm(J_ @ (d - dr)) / jnp.linalg.norm(J_ @ dr))
+        pred = lambda d: float(F_ @ F_ - jnp.sum((F_ - J_ @ d) ** 2))
+        for k, v in zip(keys, (tp[i], int(pit[i]), mu_, float((sJ[0] ** 2 + mu_) / (sJ[-1] ** 2 + mu_)), ed(dq), eJ(dq),
+                               ed(dc), eJ(dc), pred(dq) / pred(dr), sJ, sR0, np.sqrt(np.maximum(sA, 0)), sAug)):
             chk[k].append(v)
     chk = {k: np.asarray(v) for k, v in chk.items()}
     np.savez(run / "solve_check.npz", **chk)
 
     w = jnp.asarray(W[-1])
-    J = J_c(w)
+    J, F = J_c(w), F_c(w)
     A_c = jax.jit(lambda J: J.T @ J)
-    A = A_c(J)
-    g = J.T @ F_c(w)
-    I = jnp.eye(A.shape[0])
-    solve_c = jax.jit(lambda A, g, mu: jax.scipy.linalg.cho_solve((jnp.linalg.cholesky(A + mu * I), True), g))
-    timing = {"F (residual)": timeit(F_c, w), "J (Jacobian)": timeit(J_c, w), "JᵀJ": timeit(A_c, J),
-              "Cholesky + solve": timeit(solve_c, A, g, 1e-4)}
+    A, g = A_c(J), J.T @ F
+    step_c, chol_c = jax.jit(qr_step), jax.jit(cholesky_step)
+    timing = {"F (residual)": timeit(F_c, w), "J (Jacobian)": timeit(J_c, w),
+              "QR of [J F; √μI 0] + back subst. (per trial)": timeit(step_c, J, F, 1e-4),
+              "JᵀJ (submission 4)": timeit(A_c, J), "Cholesky + solve (submission 4)": timeit(chol_c, A, g, 1e-4)}
     (run / "timing.json").write_text(json.dumps({k: 1e3 * v for k, v in timing.items()}, indent=1))
 
     it = h["iter"]
@@ -176,10 +182,15 @@ def analyse(run: Path, n_spectra: int, device: str = "cuda"):
         "final_cond_JtJ_plus_muI": float(c_damped[-1]),
         "final_numerical_rank": int(cond["rank"][-1]),
         "final_active_directions": int(cond["active"][-1]),
-        "solve_check": {f"it {int(t)}": {"mu": float(m_), "cond_JtJ_plus_muI": float(k_), "rel_err_d": float(e1),
-                                      "rel_err_Jd": float(e2), "pred_ratio_chol_over_ref": float(r_)}
-                        for t, m_, k_, e1, e2, r_ in zip(chk["it"], chk["mu"], chk["kappa"], chk["err_d"],
-                                                         chk["err_Jd"], chk["pred_ratio"])},
+        "solver": conf["config"].get("solver", "cholesky"),
+        "solve_check": {f"it {int(t)}": {"mu": float(m_), "cond_JtJ_plus_muI": float(k_),
+                                         "cond_J_sqrtmu_stacked": float(np.sqrt(k_)),
+                                         "rel_err_d_qr": float(a), "rel_err_Jd_qr": float(b),
+                                         "rel_err_d_cholesky": float(e1), "rel_err_Jd_cholesky": float(e2),
+                                         "pred_ratio_qr_over_ref": float(r_)}
+                        for t, m_, k_, a, b, e1, e2, r_ in zip(chk["it"], chk["mu"], chk["kappa"], chk["err_d_qr"],
+                                                               chk["err_Jd_qr"], chk["err_d_chol"], chk["err_Jd_chol"],
+                                                               chk["pred_ratio_qr"])},
         "timing_ms": {k: 1e3 * v for k, v in timing.items()},
         "bar": {"rel_l2": problem.rel_l2_tol, "rel_linf": problem.rel_linf_tol},
         "diagnostic_mode": bool(conf.get("diagnostic_mode")), "diagnostics_time_s": conf.get("diagnostics_time_s"),
@@ -270,8 +281,10 @@ def plot(run: Path, conf, h, cols, err, spec, cond, chk, timing, summary):
 
     mk = {} if diag else dict(marker="o", ms=4)
     ic, mu, smax, smin = cond["it"], cond["mu"], cond["smax"], cond["smin"]
-    ax[11].plot(ic, (smax ** 2 + mu) / (smin ** 2 + mu), color=SERIES[0], lw=1.4, **mk)
-    style(ax[11], f"cond(JᵀJ + μI), the matrix LM factors ({every})")
+    kap = (smax ** 2 + mu) / (smin ** 2 + mu)
+    ax[11].plot(ic, np.sqrt(kap), color=SERIES[0], lw=1.4, label="cond([J; √μI]): what the QR step solves", **mk)
+    ax[11].plot(ic, kap, color=SERIES[1], lw=1.4, ls=(0, (4, 2)), label="cond(JᵀJ + μI) = its square (normal equations)", **mk)
+    style(ax[11], f"condition numbers ({every})"); legend(ax[11])
     ax[12].plot(ic, smax, color=SERIES[0], lw=1.4, label="σmax(J)", **mk)
     ax[12].plot(ic, np.sqrt(mu), color=SERIES[2], lw=1.4, label="√μ (damping scale)", **mk)
     ax[12].plot(ic, smin, color=SERIES[1], lw=1.4, label="σmin(J) (round-off: J is singular)", **mk)
@@ -294,22 +307,28 @@ def plot(run: Path, conf, h, cols, err, spec, cond, chk, timing, summary):
     ax[15].set_xlim(0, max(ms) * 1.35)
 
     eps = np.finfo(np.float64).eps
+    last = -1
+    idx = np.arange(1, len(chk["sv_J"][last]) + 1)
+    ax[16].plot(idx, chk["sv_J"][last], color=SERIES[0], lw=1.6, label="σ(J), SVD of J")
+    ax[16].plot(idx, np.sort(chk["sv_R0"][last])[::-1], color=SERIES[2], lw=1.2, ls=(0, (4, 2)), label="σ(R), from the R-only QR of J")
+    ax[16].plot(idx, chk["sv_JtJ_sqrt"][last], color=SERIES[1], lw=1.2, ls=(0, (1, 1.5)), label="√σ(fl(JᵀJ)): what the normal equations see")
+    ax[16].axhline(eps * chk["sv_J"][last][0], color=BAR, lw=0.8, ls=(0, (1, 2)))
+    ax[16].axhline(np.sqrt(eps) * chk["sv_J"][last][0], color=BAR, lw=0.8, ls=(0, (4, 2)))
+    ax[16].text(1, eps * chk["sv_J"][last][0] * 3, "ε·σmax (QR floor)", color=INK2, fontsize=7.5)
+    ax[16].text(1, np.sqrt(eps) * chk["sv_J"][last][0] * 3, "√ε·σmax (normal-equations floor)", color=INK2, fontsize=7.5)
+    style(ax[16], f"small singular values: SVD vs QR vs JᵀJ (iteration {int(chk['it'][last])})", xlabel="index", bar=False)
+    legend(ax[16])
     cs = [RAMP[int(round(k))] for k in np.linspace(0, len(RAMP) - 1, len(chk["it"]))]
-    for k, (ii, e, m_) in enumerate(zip(chk["it"], chk["eig_A"], chk["mu"])):
-        ax[16].plot(np.arange(1, len(e) + 1), e, color=cs[k], lw=1.2, label=f"iteration {int(ii)}")
-        ax[17].plot(np.arange(1, len(e) + 1), chk["eig_Amu"][k], color=cs[k], lw=1.2,
-                    label=f"iteration {int(ii)}, μ = {m_:.0e}")
-    style(ax[16], "singular values of JᵀJ as formed in float64", xlabel="index", bar=False)
-    ax[16].axhline(eps * chk["eig_A"][-1][0], color=BAR, lw=0.8, ls=(0, (1, 2)))
-    ax[16].text(1, eps * chk["eig_A"][-1][0] * 3, "ε·σmax²: round-off floor", color=INK2, fontsize=7.5)
-    style(ax[17], "singular values of JᵀJ + μI (floor = μ)", xlabel="index", bar=False)
-    for a in (ax[16], ax[17]):
-        legend(a)
-    ax[18].plot(chk["it"], chk["err_d"], color=SERIES[0], lw=1.4, marker="o", ms=4, label="rel. error of d")
-    ax[18].plot(chk["it"], chk["err_Jd"], color=SERIES[1], lw=1.4, marker="o", ms=4, label="rel. error of J·d")
-    ax[18].plot(chk["it"], eps * chk["kappa"], color=BAR, lw=1, ls=(0, (4, 2)), label="ε·κ (textbook bound on d)")
-    ax[18].plot(chk["it"], eps * np.sqrt(chk["kappa"]), color=SERIES[2], lw=1, ls=(0, (4, 2)), label="ε·√κ (bound on J·d)")
-    style(ax[18], "Cholesky step vs reference solve of [J; √μI]"); legend(ax[18])
+    for k, (ii, e, m_) in enumerate(zip(chk["it"], chk["sv_aug"], chk["mu"])):
+        ax[17].plot(np.arange(1, len(e) + 1), e, color=cs[k], lw=1.2, label=f"iteration {int(ii)}, √μ = {np.sqrt(m_):.0e}")
+    style(ax[17], "singular values of [J; √μI] = σ(R1) (floor √μ)", xlabel="index", bar=False); legend(ax[17])
+    ax[18].plot(chk["it"], chk["err_d_qr"], color=SERIES[0], lw=1.6, marker="o", ms=4, label="QR: rel. error of d")
+    ax[18].plot(chk["it"], chk["err_Jd_qr"], color=SERIES[0], lw=1.2, ls=(0, (4, 2)), marker="s", ms=3, label="QR: rel. error of J·d")
+    ax[18].plot(chk["it"], chk["err_d_chol"], color=SERIES[1], lw=1.6, marker="o", ms=4, label="Cholesky (sub. 4): d")
+    ax[18].plot(chk["it"], chk["err_Jd_chol"], color=SERIES[1], lw=1.2, ls=(0, (4, 2)), marker="s", ms=3, label="Cholesky (sub. 4): J·d")
+    ax[18].plot(chk["it"], eps * np.sqrt(chk["kappa"]), color=SERIES[2], lw=1, ls=(0, (1, 1.5)), label="ε·√κ")
+    ax[18].plot(chk["it"], eps * chk["kappa"], color=BAR, lw=1, ls=(0, (1, 1.5)), label="ε·κ")
+    style(ax[18], "step accuracy vs SVD reference solve of [J; √μI]"); legend(ax[18])
 
     s = summary
     bm = s["bar_first_met"]
@@ -323,7 +342,8 @@ def plot(run: Path, conf, h, cols, err, spec, cond, chk, timing, summary):
             f"final RelL2 {100 * s['final']['rel_l2']:.3g}%,  RelL∞ {100 * s['final']['rel_linf']:.3g}%",
             f"best RelL2 {100 * s['best_rel_l2']['value']:.3g}% at {s['best_rel_l2']['t_s']:.3g} s (iteration {s['best_rel_l2']['it']})",
             f"bar first met: {f'{bm['t_s']:.3g} s (iteration {bm['it']})' if bm else 'never'}",
-            f"final cond(JᵀJ + μI) {s['final_cond_JtJ_plus_muI']:.1e}",
+            f"solver: {s['solver']}",
+            f"final cond([J; √μI]) {np.sqrt(s['final_cond_JtJ_plus_muI']):.1e} (normal eqs: {s['final_cond_JtJ_plus_muI']:.1e})",
             f"final rank {s['final_numerical_rank']}, active (σ > √μ) {s['final_active_directions']}"]
     if diag:
         text += ["", f"diagnostic mode: {s['diagnostics_time_s']:.3g} s of diagnostics kept off the clock"]

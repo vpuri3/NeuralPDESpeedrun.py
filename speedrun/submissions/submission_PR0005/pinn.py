@@ -1,4 +1,7 @@
-"""Shallow PINNs trained by Levenberg-Marquardt, after Shahab, Mukhlash & Susanto, "Do physics-informed neural
+"""Submission 5: submission 4 with the Levenberg-Marquardt step computed from a QR factorization of the Jacobian
+instead of the normal equations (JᵀJ is never formed; IDEAS.md §5 item 8).
+
+Shallow PINNs trained by Levenberg-Marquardt, after Shahab, Mukhlash & Susanto, "Do physics-informed neural
 networks (PINNs) need to be deep? Shallow PINNs using the Levenberg-Marquardt algorithm" (arXiv:2602.08515).
 All key hyperparameters are in `Config` right below; each track's solve.py sets its own at its top. The choices and
 their reasons are discussed in this directory's README.md.
@@ -13,7 +16,14 @@ their reasons are discussed in this directory's README.md.
   beat is then recomputed on the new points, so "accept" always compares two losses on the same points.
 - Derivatives: all by JAX AD. Input derivatives by Taylor mode (jax.experimental.jet); J = dF/dw by reverse mode
   per point (vmap(grad)).
-- Levenberg-Marquardt: solve (J^T J + mu I) d = J^T F by Cholesky, no preconditioning or scaling; trial w - d.
+- Levenberg-Marquardt step d = argmin ||[J; sqrt(mu) I] d - [F; 0]|| (the same step as (J^T J + mu I) d = J^T F),
+  computed without forming J^T J (solver = "qr", the default): per trial mu one R-only Householder QR of the
+  stacked system [[J, F], [sqrt(mu) I, 0]] (the right-hand side as an extra column, so Q is never formed) and the
+  back substitution R d = c. (A QR of J once per iteration plus a QR of [R0; sqrt(mu) I] per trial costs more on the
+  GPU at ~1.1 trials per iteration; an SVD of R0 takes > 1 s.) The system solved has condition number
+  cond([J; sqrt(mu) I]) =
+  sqrt(cond(J^T J + mu I)), not its square. solver = "cholesky" keeps submission 4's normal equations (for
+  comparison). No preconditioning or scaling either way; trial w - d.
   If ||F(w - d)||^2 < ||F(w)||^2 the step is accepted; otherwise mu <- mu_up * mu and the same iterate is retried.
   mu <- mu / mu_down only after mu_patience consecutive iterations whose FIRST trial was accepted (the textbook
   rule divides after every acceptance, which here made every other trial a rejection). Stops at max_iters (if
@@ -69,6 +79,7 @@ class Config:
     mu_down: float = 10.0               # mu <- mu / mu_down after mu_patience first-trial acceptances in a row
     mu_patience: int = 10
     mu_max: float = 1e16                # no acceptable step below this: stop
+    solver: str = "qr"                  # "qr": QR of J, no normal equations; "cholesky": submission 4's JᵀJ + μI
     step_tol: float = 1e-12             # stop when ||d|| < step_tol (step_tol + ||w||) (fsolve's StepTolerance)
     max_iters: int | None = None        # None: the harness's wall-clock budget stops the run
     # execution and inspection
@@ -89,6 +100,23 @@ class Cond:
     points: np.ndarray | None = None
     weight: float = 1.0
     sample: Callable | None = None      # or a sampler key -> (m, d) points, redrawn with the interior
+
+
+def qr_step(J, r, mu):
+    """The LM step d = argmin ||[J; sqrt(mu) I] d - [r; 0]|| by one R-only Householder QR of the stacked system
+    [[J, r], [sqrt(mu) I, 0]] = Q [[R, c], [0, *]] (the right-hand side rides along as the last column, so Q is never
+    formed) and back substitution R d = c. Never forms JᵀJ; the system has condition sqrt(cond(JᵀJ + mu I))."""
+    n, m = J.shape
+    top = jnp.concatenate([J, r[:, None]], 1)
+    bot = jnp.concatenate([jnp.sqrt(mu) * jnp.eye(m, dtype=J.dtype), jnp.zeros((m, 1), J.dtype)], 1)
+    Rc = jnp.linalg.qr(jnp.concatenate([top, bot]), mode="r")
+    return jax.scipy.linalg.solve_triangular(Rc[:m, :m], Rc[:m, m], lower=False)
+
+
+def cholesky_step(A, g, mu):
+    """Submission 4's step: (A + mu I) d = g, A = JᵀJ, g = Jᵀr, by Cholesky."""
+    L = jnp.linalg.cholesky(A + mu * jnp.eye(A.shape[0], dtype=A.dtype))
+    return jax.scipy.linalg.cho_solve((L, True), g)
 
 
 def derivs(f: Callable, z, i: int, k: int):
@@ -245,8 +273,8 @@ class LMPINN:
         """Up to n LM iterations on the device, starting at global iteration it0. Returns the new state and the
         per-iteration log (n_max rows, ITER_COLS)."""
         cfg = self.cfg
-        I = jnp.eye(w.size, dtype=F64)
         nan = jnp.array(jnp.nan, F64)
+        assert cfg.solver in ("qr", "cholesky"), cfg.solver
 
         def iteration(c):
             w, mu, sse, key, Zs, streak, stop, k, log = c
@@ -260,16 +288,20 @@ class LMPINN:
 
             key, Zs, sse = jax.lax.cond(redraw, fresh, lambda a: a, (key, Zs, sse))
             r, J = self.F(w, Zs), self.J(w, Zs)
-            A, g = J.T @ J, J.T @ r
+            if cfg.solver == "qr":
+                step = lambda mu_t: qr_step(J, r, mu_t)
+            else:
+                A, g = J.T @ J, J.T @ r
+                step = lambda mu_t: cholesky_step(A, g, mu_t)
 
             def trial(t):
                 mu_t, _, _, _, _, _, ntr = t
-                L = jnp.linalg.cholesky(A + mu_t * I)
-                d = jax.scipy.linalg.cho_solve((L, True), g)
+                d = step(mu_t)
                 w2 = w - d
                 s2 = jnp.sum(self.F(w2, Zs) ** 2)
                 ok = s2 < sse                  # NaN (failed factorization) counts as a rejection
-                pred = 2 * d @ g - d @ (A @ d)  # decrease of ||F||^2 predicted by the linear model
+                rl = r - J @ d                 # the linear model's residual after the step
+                pred = r @ r - rl @ rl         # decrease of ||F||^2 predicted by the linear model
                 return jnp.where(ok, mu_t, mu_t * cfg.mu_up), w2, s2, ok, jnp.linalg.norm(d), pred, ntr + 1
 
             z = jnp.array(0.0, F64)
